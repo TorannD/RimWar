@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ModMetaData>
+	<name>RimWar</name>
+	<author>Torann</author>
+	<supportedVersions>
+		<li>1.0</li>
+	</supportedVersions>
+	<url></url>
+	<description>Version 0.1
+    RimWar introduces global conquest where factions vie to become the dominant power across the RimWorld.
+	
+Gone are the days of random bands of raider seeking only plunder and wanton destruction; factions are now in a race to exert their influence across the RimWorld through mobile armies, trade caravans, and diplomacy. Arise from your unfortunate circumstances and use all the assets at your disposal to become the ruling power across the globe.
+
+Adds a new winning condition: form alliances, subjugate, or destroy all other factions across the world to win.
+
+Adds faction power and colony power to determine the size and strength of armies, caravans, and colonies that AI factions can generate. Defeating an enemy army, gifting, or trading with other factions directly affects their faction power.
+
+Armies and caravans can now be seen on the world map and will have practical purposes and destinations.
+
+Factions will interact more by forming alliances or declaring war on each other. Take advantage of warring factions and strike while they are weak; or exploit a friendly faction to fight your wars for you. An AI faction's successes or failures contributes to their global standing.
+	</description>
+</ModMetaData>

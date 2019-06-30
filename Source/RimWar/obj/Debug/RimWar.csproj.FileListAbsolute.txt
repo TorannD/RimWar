@@ -1,0 +1,3 @@
+E:\Programs\Steam\steamapps\common\RimWorld\Mods\RimWar\Assemblies\RimWar.dll
+E:\Programs\Steam\steamapps\common\RimWorld\Mods\RimWar\Source\RimWar\obj\Debug\RimWar.csprojResolveAssemblyReference.cache
+E:\Programs\Steam\steamapps\common\RimWorld\Mods\RimWar\Source\RimWar\obj\Debug\RimWar.dll
