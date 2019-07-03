@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <WorldObjectDef>
+    <defName>RW_Warband</defName>
+    <label>warband</label>
+    <description>A warband.</description>
+    <worldObjectClass>RimWar.Planet.Warband</worldObjectClass>
+    <texture>World/WorldObjects/Caravan</texture>
+    <useDynamicDrawer>true</useDynamicDrawer>
+    <expandingIcon>true</expandingIcon>
+    <expandingIconTexture>World/WorldObjects/Expanding/Caravan</expandingIconTexture>
+    <expandingIconPriority>100</expandingIconPriority>
+    <expandMore>true</expandMore>
+    <allowCaravanIncidentsWhichGenerateMap>true</allowCaravanIncidentsWhichGenerateMap>
+    <IncidentTargetTags>
+      <li>Caravan</li>
+    </IncidentTargetTags>
+    <inspectorTabs>
+      <li>WITab_Caravan_Health</li>
+      <li>WITab_Caravan_Needs</li>
+      <li>WITab_Caravan_Gear</li>
+      <li>WITab_Caravan_Social</li>
+      <li>WITab_Caravan_Items</li>
+    </inspectorTabs>
+  </WorldObjectDef>
+  
+  <WorldObjectDef>
+    <defName>RW_WarObject</defName>
+    <label>RimWar world object</label>
+    <description>A world object for RimWar.</description>
+    <worldObjectClass>RimWar.Planet.WarObject</worldObjectClass>
+    <texture>World/WorldObjects/Caravan</texture>
+    <useDynamicDrawer>true</useDynamicDrawer>
+    <expandingIcon>true</expandingIcon>
+    <expandingIconTexture>World/WorldObjects/Expanding/Caravan</expandingIconTexture>
+    <expandingIconPriority>100</expandingIconPriority>
+    <expandMore>true</expandMore>
+    <inspectorTabs>
+    </inspectorTabs>
+  </WorldObjectDef>
+  
+
+</Defs>

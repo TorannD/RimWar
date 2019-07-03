@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<LanguageData>
+
+<!-- ============ WarObject =============-->
+
+<!-- ============ WarObject_PathFollower =============-->
+
+<!-- ============ World Objects =============-->
+<RW_EstimatedTimeToDestination>Estimated time to destination: {0} days</RW_EstimatedTimeToDestination>
+
+</LanguageData>
