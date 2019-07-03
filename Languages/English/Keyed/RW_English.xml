@@ -7,5 +7,6 @@
 
 <!-- ============ World Objects =============-->
 <RW_EstimatedTimeToDestination>Estimated time to destination: {0} days</RW_EstimatedTimeToDestination>
+<RW_WarObjectInspectString>{0} of {1} moving to {2}</RW_WarObjectInspectString>
 
 </LanguageData>

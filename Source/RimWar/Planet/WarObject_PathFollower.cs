@@ -148,8 +148,8 @@ namespace RimWar.Planet
         {
             if (moving)
             {
-                string failMessage = arrivalAction.StillValid(warObject, Destination).FailMessage;
-                Messages.Message("MessageCaravanArrivalActionNoLongerValid".Translate(warObject.Name).CapitalizeFirst() + ((failMessage == null) ? string.Empty : (" " + failMessage)), warObject, MessageTypeDefOf.NegativeEvent);
+                //string failMessage = arrivalAction.StillValid(warObject, Destination).FailMessage;
+                //Messages.Message("MessageCaravanArrivalActionNoLongerValid".Translate(warObject.Name).CapitalizeFirst() + ((failMessage == null) ? string.Empty : (" " + failMessage)), warObject, MessageTypeDefOf.NegativeEvent);
                 StopDead();
             }
             if (!warObject.CantMove && !paused)
@@ -172,7 +172,7 @@ namespace RimWar.Planet
 
         private bool IsPassable(int tile)
         {
-            return !Find.World.Impassable(tile);
+            return !Verse.Find.World.Impassable(tile);
         }
 
         public bool IsNextTilePassable()
@@ -189,7 +189,7 @@ namespace RimWar.Planet
                 warObject.Notify_Teleported();
                 return true;
             }
-            Find.WorldObjects.Remove(warObject);
+            Verse.Find.WorldObjects.Remove(warObject);
             Log.Error(warObject + " on unwalkable tile " + warObject.Tile + ". Could not find walkable position nearby. Removed.");
             return false;
         }
@@ -251,7 +251,7 @@ namespace RimWar.Planet
             {
                 nextTile = curPath.ConsumeNextNode();
                 previousTileForDrawingIfInDoubt = -1;
-                if (Find.World.Impassable(nextTile))
+                if (Verse.Find.World.Impassable(nextTile))
                 {
                     Log.Error(warObject + " entering " + nextTile + " which is unwalkable.");
                 }
@@ -283,8 +283,8 @@ namespace RimWar.Planet
                 explanation.AppendLine();
             }
             StringBuilder stringBuilder = (explanation == null) ? null : new StringBuilder();
-            float num = (!perceivedStatic || explanation != null) ? WorldPathGrid.CalculatedMovementDifficultyAt(end, perceivedStatic, ticksAbs, stringBuilder) : Find.WorldPathGrid.PerceivedMovementDifficultyAt(end);
-            float roadMovementDifficultyMultiplier = Find.WorldGrid.GetRoadMovementDifficultyMultiplier(start, end, stringBuilder);
+            float num = (!perceivedStatic || explanation != null) ? WorldPathGrid.CalculatedMovementDifficultyAt(end, perceivedStatic, ticksAbs, stringBuilder) : Verse.Find.WorldPathGrid.PerceivedMovementDifficultyAt(end);
+            float roadMovementDifficultyMultiplier = Verse.Find.WorldGrid.GetRoadMovementDifficultyMultiplier(start, end, stringBuilder);
             if (explanation != null)
             {
                 explanation.AppendLine();
@@ -310,7 +310,7 @@ namespace RimWar.Planet
 
         public static bool IsValidFinalPushDestination(int tile)
         {
-            List<WorldObject> allWorldObjects = Find.WorldObjects.AllWorldObjects;
+            List<WorldObject> allWorldObjects = Verse.Find.WorldObjects.AllWorldObjects;
             for (int i = 0; i < allWorldObjects.Count; i++)
             {
                 if (allWorldObjects[i].Tile == tile && !(allWorldObjects[i] is WarObject))
@@ -355,7 +355,7 @@ namespace RimWar.Planet
         {
             int num = (!moving || nextTile < 0 || !IsNextTilePassable()) ? warObject.Tile : nextTile;
             lastPathedTargetTile = destTile;
-            WorldPath worldPath = Find.WorldPathFinder.FindPath(num, destTile, null); //caravan=null
+            WorldPath worldPath = Verse.Find.WorldPathFinder.FindPath(num, destTile, null); //caravan=null
             if (worldPath.Found && num != warObject.Tile)
             {
                 if (worldPath.NodesLeftCount >= 2 && worldPath.Peek(1) == warObject.Tile)
@@ -394,7 +394,7 @@ namespace RimWar.Planet
             for (int i = 0; i < 20 && i < curPath.NodesLeftCount; i++)
             {
                 int tileID = curPath.Peek(i);
-                if (Find.World.Impassable(tileID))
+                if (Verse.Find.World.Impassable(tileID))
                 {
                     return true;
                 }

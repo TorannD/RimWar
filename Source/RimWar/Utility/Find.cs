@@ -12,7 +12,6 @@ namespace RimWar.Utility
 {
     public static class Find
     {
-        public static Utility.WorldReachability WorldReachability => Utility.WorldReachability;
         public static List<WarObject> WarObjects()
         {
             List<WorldObject> worldObjects = Verse.Find.WorldObjects.AllWorldObjects;

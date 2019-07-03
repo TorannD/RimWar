@@ -12,7 +12,6 @@ namespace RimWar.Planet
     public class WarObject : WorldObject, ILoadReferenceable
     {
         private int uniqueId = -1;
-
         private string nameInt;
 
         public WarObject_PathFollower pather;
@@ -42,10 +41,6 @@ namespace RimWar.Planet
         public override void DrawExtraSelectionOverlays()
         {
             base.DrawExtraSelectionOverlays();
-            if (IsPlayerControlled && pather.curPath != null)
-            {
-                pather.curPath.DrawPath(this);
-            }
             gotoMote.RenderMote();
         }
 
@@ -180,14 +175,9 @@ namespace RimWar.Planet
             
             if (pather.Moving)
             {
-                if (pather.ArrivalAction != null)
-                {
-                    stringBuilder.Append(pather.ArrivalAction.ReportString);
-                }
-                else
-                {
-                    stringBuilder.Append("CaravanTraveling".Translate());
-                }
+
+                stringBuilder.Append("RW_WarObjectInspectString".Translate(this.def.defName, this.Faction.Name, this.pather.Destination));
+                
             }
 
             if (pather.Moving)
