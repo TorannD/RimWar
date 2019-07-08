@@ -9,17 +9,50 @@ using UnityEngine;
 
 namespace RimWar.Planet
 {
-    public class WarbandUtility
+    public class WorldUtility
     {
         public IncidentParms parms = new IncidentParms();
 
         private static List<Pawn> tmpPawns = new List<Pawn>();
 
+        public static void CreateWarObject(int points, Faction faction, int startingTile, int destinationTile, WorldObjectDef type)
+        {
+            Log.Message("creating war object");
+            WarObject warObject = new WarObject();
+            warObject = MakeWarObject(10, faction, startingTile, destinationTile, type, true);
+            if (!warObject.pather.Moving && warObject.Tile != destinationTile)
+            {
+                warObject.pather.StartPath(destinationTile, true, true);
+                warObject.pather.nextTileCostLeft /= 2f;
+                warObject.tweener.ResetTweenedPosToRoot();
+            }
+
+        }
+
+        public static WarObject MakeWarObject(int points, Faction faction, int startingTile, int destinationTile, WorldObjectDef type, bool addToWorldPawnsIfNotAlready)
+        {
+            Log.Message("making world object");
+            WarObject warObject = (WarObject)WorldObjectMaker.MakeWorldObject(RimWarDefOf.RW_WarObject);
+            if (startingTile >= 0)
+            {
+                warObject.Tile = startingTile;
+            }
+            warObject.SetFaction(faction);
+            if (startingTile >= 0)
+            {
+                Find.WorldObjects.Add(warObject);
+            }            
+            warObject.Name = "default war object";
+            warObject.SetUniqueId(Find.UniqueIDsManager.GetNextCaravanID());
+            
+            return warObject;
+        }
+
         public static void CreateWarband(int power, Faction faction, int startingTile, int destinationTile, IIncidentTarget target)
         {
             Log.Message("generating warband");
             Log.Message("storyteller threat points of target is " + StorytellerUtility.DefaultThreatPointsNow(target));
-            Warband warband = new Warband();
+            Warband_Caravan warband = new Warband_Caravan();
             IncidentParms parms = new IncidentParms();
             PawnGroupKindDef combat = PawnGroupKindDefOf.Combat;
             parms.faction = faction;
@@ -52,13 +85,13 @@ namespace RimWar.Planet
             Log.Message("end create warband");
         }
 
-        public static Warband MakeWarband(List<Pawn> pawns, Faction faction, int startingTile, bool addToWorldPawnsIfNotAlready)
+        public static Warband_Caravan MakeWarband(List<Pawn> pawns, Faction faction, int startingTile, bool addToWorldPawnsIfNotAlready)
         {
             Log.Message("making world object warband");
             tmpPawns.Clear();
             tmpPawns.AddRange(pawns);
             //Caravan warband = (Caravan)WorldObjectMaker.MakeWorldObject(WorldObjectDefOf.Caravan);
-            Warband warband = (Warband)WorldObjectMaker.MakeWorldObject(RimWarDefOf.RW_Warband);
+            Warband_Caravan warband = (Warband_Caravan)WorldObjectMaker.MakeWorldObject(RimWarDefOf.RW_Warband);
             if (startingTile >= 0)
             {
                 warband.Tile = startingTile;

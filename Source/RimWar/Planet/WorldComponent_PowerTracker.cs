@@ -54,7 +54,8 @@ namespace RimWar.Planet
                     //{
                     WorldObject wo = worldObjects.RandomElement();
                     WorldObject woop = worldObjectsOfPlayer.RandomElement();
-                    WarbandUtility.CreateWarband(Rand.Range(100, 2000), wo.Faction, wo.Tile, woop.Tile, Verse.Find.Maps.RandomElement());
+                    WorldUtility.CreateWarObject(10, wo.Faction, wo.Tile, woop.Tile, RimWarDefOf.RW_WarObject);
+                    //WorldUtility.CreateWarband(Rand.Range(100, 2000), wo.Faction, wo.Tile, woop.Tile, Verse.Find.Maps.RandomElement());
 
                 }
                 

@@ -8,6 +8,7 @@ using Verse;
 
 namespace RimWar.Planet
 {
+    [StaticConstructorOnStartup]
     public class WarObject_GotoMoteRenderer
     {
         private int tile;

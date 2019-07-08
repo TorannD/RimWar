@@ -26,6 +26,8 @@ namespace RimWar.Planet
 
         private static readonly Color WarObjectDefaultColor = new Color(1f, 1f, 1f);
 
+        public int warPoints;
+
         public override Material Material
         {
             get
@@ -49,6 +51,7 @@ namespace RimWar.Planet
             base.ExposeData();
             Scribe_Values.Look(ref uniqueId, "uniqueId", 0);
             Scribe_Values.Look(ref nameInt, "name");
+            Scribe_Values.Look<int>(ref this.warPoints, "warPoints", 0, false);
             Scribe_Deep.Look(ref pather, "pather", this);
         }
 

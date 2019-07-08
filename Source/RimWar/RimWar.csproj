@@ -54,6 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Base.cs" />
+    <Compile Include="Planet\Warband.cs" />
     <Compile Include="Planet\WarObject_GotoMoteRenderer.cs" />
     <Compile Include="Planet\WarObject_Tweener.cs" />
     <Compile Include="Planet\WarObject_PathFollower.cs" />
@@ -61,8 +62,8 @@
     <Compile Include="RimWarDefOf.cs" />
     <Compile Include="Harmony\Class1.cs" />
     <Compile Include="Planet\WarbandArrivalAction.cs" />
-    <Compile Include="Planet\WarbandUtility.cs" />
-    <Compile Include="Planet\Warband.cs" />
+    <Compile Include="Planet\WorldUtility.cs" />
+    <Compile Include="Planet\Warband_Caravan.cs" />
     <Compile Include="Planet\WorldComponentMod.cs" />
     <Compile Include="Planet\WorldComponent_PowerTracker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

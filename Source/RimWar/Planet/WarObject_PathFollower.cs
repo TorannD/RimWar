@@ -146,7 +146,7 @@ namespace RimWar.Planet
 
         public void PatherTick()
         {
-            if (moving)
+            if (moving && warObject.Tile == this.destTile)
             {
                 //string failMessage = arrivalAction.StillValid(warObject, Destination).FailMessage;
                 //Messages.Message("MessageCaravanArrivalActionNoLongerValid".Translate(warObject.Name).CapitalizeFirst() + ((failMessage == null) ? string.Empty : (" " + failMessage)), warObject, MessageTypeDefOf.NegativeEvent);
