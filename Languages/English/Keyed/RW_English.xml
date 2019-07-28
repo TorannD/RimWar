@@ -8,5 +8,23 @@
 <!-- ============ World Objects =============-->
 <RW_EstimatedTimeToDestination>Estimated time to destination: {0} days</RW_EstimatedTimeToDestination>
 <RW_WarObjectInspectString>{0} of {1} moving to {2}</RW_WarObjectInspectString>
+<RW_WarbandInspectString>{0} {1} {2}</RW_WarbandInspectString>
+<RW_SettlementPoints>Settlement points: {0}</RW_SettlementPoints>
+<RW_WarbandName>Warband of {0}</RW_WarbandName>
+<RW_CombatPower>Combat power: {0}</RW_CombatPower>
+
+<!-- ============ Faction Menu =============-->
+<RW_FactionPower>Faction power: {0}</RW_FactionPower>
+<RW_FactionBehavior>Behavior type: {0}</RW_FactionBehavior>
+
+<!-- ============ Settings =============-->
+<RW_randomizeFactionBehavior>Random Faction behavior</RW_randomizeFactionBehavior>
+<RW_storytellerBasedDifficulty>RimWar difficulty uses game difficulty</RW_storytellerBasedDifficulty>
+<RW_maxFactionSettlements>RimWar settlement growth limit</RW_maxFactionSettlements>
+<RW_rimwarDifficulty>Difficulty</RW_rimwarDifficulty>
+
+<!-- ============ Actions =============-->
+<RW_Attacking>attacking</RW_Attacking>
+<RW_ReturningTo>returning to</RW_ReturningTo>
 
 </LanguageData>

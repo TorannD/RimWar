@@ -9,10 +9,12 @@ using UnityEngine;
 
 namespace RimWar.Planet
 {
-    public class WarObject : WorldObject, ILoadReferenceable
+    [StaticConstructorOnStartup]
+    public class WarObject : WorldObject
     {
         private int uniqueId = -1;
         private string nameInt;
+        private int warPointsInt = -1;
 
         public WarObject_PathFollower pather;
         public WarObject_GotoMoteRenderer gotoMote;
@@ -26,7 +28,17 @@ namespace RimWar.Planet
 
         private static readonly Color WarObjectDefaultColor = new Color(1f, 1f, 1f);
 
-        public int warPoints;
+        public virtual int RimWarPoints
+        {
+            get
+            {               
+                return this.warPointsInt;
+            }
+            set
+            {
+                this.warPointsInt = value;
+            }
+        } 
 
         public override Material Material
         {
@@ -51,7 +63,7 @@ namespace RimWar.Planet
             base.ExposeData();
             Scribe_Values.Look(ref uniqueId, "uniqueId", 0);
             Scribe_Values.Look(ref nameInt, "name");
-            Scribe_Values.Look<int>(ref this.warPoints, "warPoints", 0, false);
+            Scribe_Values.Look<int>(ref this.warPointsInt, "warPointsInt", -1, false);
             Scribe_Deep.Look(ref pather, "pather", this);
         }
 
@@ -73,6 +85,10 @@ namespace RimWar.Planet
         {
             get
             {
+                if(!HasName)
+                {
+                    return "";
+                }
                 if (nameInt != null)
                 {
                     return nameInt;
@@ -91,7 +107,9 @@ namespace RimWar.Planet
 
         public bool CantMove => NightResting;
 
-        public bool NightResting
+        public RimWarData rimwarData => WorldUtility.GetRimWarDataForFaction(this.Faction);
+
+        public virtual bool NightResting
         {
             get
             {
@@ -107,7 +125,17 @@ namespace RimWar.Planet
             }
         }
 
-        public int TicksPerMove => 10;  //CaravanTicksPerMoveUtility.GetTicksPerMove(this);
+        public virtual int TicksPerMove //CaravanTicksPerMoveUtility.GetTicksPerMove(this);
+        {
+            get
+            {
+                return 10;
+            }
+            set
+            {
+                
+            }
+        }
 
         public string TicksPerMoveExplanation
         {
@@ -119,7 +147,7 @@ namespace RimWar.Planet
             }
         }
 
-        public float Visibility => 0; //CaravanVisibilityCalculator.Visibility(this);
+        public virtual float Visibility => 0; //CaravanVisibilityCalculator.Visibility(this);
 
         public string VisibilityExplanation
         {
@@ -153,6 +181,10 @@ namespace RimWar.Planet
             //CheckAnyNonWorldPawns();
             pather.PatherTick();
             tweener.TweenerTick();
+            if(this.DestinationReached)
+            {
+                ArrivalAction();
+            }
         }
 
         public override void SpawnSetup()
@@ -165,6 +197,16 @@ namespace RimWar.Planet
         {
             tweener.ResetTweenedPosToRoot();
             pather.Notify_Teleported_Int();
+        }
+
+        public virtual void ImmediateAction(WorldObject wo)
+        {
+            Find.WorldObjects.Remove(this);
+        }
+
+        public virtual void ArrivalAction()
+        {
+            Find.WorldObjects.Remove(this);
         }
 
         public override string GetInspectString()
@@ -185,7 +227,7 @@ namespace RimWar.Planet
 
             if (pather.Moving)
             {
-                float num6 = (float)Utility.ArrivalTimeEstimator.EstimatedTicksToArrive(base.Tile, pather.Destination, this) / 60000f;
+                float num6 = (float)Utility.ArrivalTimeEstimator.EstimatedTicksToArrive(base.Tile, pather.Destination, this);// / 60000f;
                 stringBuilder.AppendLine();
                 stringBuilder.Append("RW_EstimatedTimeToDestination".Translate(num6.ToString("0.#")));
             }            
@@ -194,6 +236,14 @@ namespace RimWar.Planet
 
             }
             return stringBuilder.ToString();
+        }
+
+        public virtual bool DestinationReached
+        {
+            get
+            {
+                return this.Tile == pather.Destination;
+            }
         }
     }
 }

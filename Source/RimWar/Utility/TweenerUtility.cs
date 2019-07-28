@@ -68,7 +68,7 @@ namespace RimWar.Utility
         {
             warObjectsCount = 0;
             warObjectsWithLowerIdCount = 0;
-            List<WarObject> warObjects = Utility.Find.WarObjects();
+            List<WarObject> warObjects = Utility.RW_Find.WarObjects();
             for (int i = 0; i < warObjects.Count; i++)
             {
                 WarObject warObject = warObjects[i];
@@ -95,7 +95,7 @@ namespace RimWar.Utility
         {
             Vector3 a = PatherTweenedPosRoot(warObject);
             float num = Verse.Find.WorldGrid.averageTileSize * 0.2f;
-            List<WarObject> warObjects = Utility.Find.WarObjects();
+            List<WarObject> warObjects = Utility.RW_Find.WarObjects();
             for (int i = 0; i < warObjects.Count; i++)
             {
                 WarObject warObject2 = warObjects[i];

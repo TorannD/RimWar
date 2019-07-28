@@ -10,7 +10,7 @@ using Verse;
 
 namespace RimWar.Utility
 {
-    public static class Find
+    public static class RW_Find
     {
         public static List<WarObject> WarObjects()
         {

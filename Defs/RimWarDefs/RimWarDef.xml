@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+ 
+<Defs>
+
+	<RimWar.RimWarDef Name="RimWarDef_FactionBehavior">
+		<defName>RimWar_FactionBehavior</defName>
+		<defDatas>		
+		  <li>
+			<factionDefname>PlayerTribe</factionDefname>
+			<behavior>Player</behavior>
+			<createsSettlements>false</createsSettlements>
+			<hatesPlayer>false</hatesPlayer>
+			<movesAtNight>false</movesAtNight>
+		  </li>
+		  <li>
+			<factionDefname>PlayerColony</factionDefname>
+			<behavior>Player</behavior>
+			<createsSettlements>false</createsSettlements>
+			<hatesPlayer>false</hatesPlayer>
+			<movesAtNight>false</movesAtNight>
+		  </li>
+		  <li>
+			<factionDefname>OutlanderCivil</factionDefname>
+			<behavior>Cautious</behavior>
+		  </li>
+		  <li>
+			<factionDefname>OutlanderRough</factionDefname>
+			<behavior>Aggressive</behavior>
+		  </li>
+		  <li>
+			<factionDefname>TribeCivil</factionDefname>
+			<behavior>Expansionist</behavior>
+		  </li>
+		  <li>
+			<factionDefname>TribeRough</factionDefname>
+			<behavior>Warmonger</behavior>
+		  </li>
+		  <li>
+			<factionDefname>Pirate</factionDefname>
+			<behavior>Warmonger</behavior>
+			<createsSettlements>false</createsSettlements>
+			<hatesPlayer>true</hatesPlayer>
+		  </li>
+		</defDatas>	
+	</RimWar.RimWarDef>
+
+
+</Defs>
+
+	<!-- ============ 
+	behavior types: 
+		Expansionist,
+        Cautious,
+        Merchant,
+        Aggressive,
+        Warmonger,
+        Random,
+		Player,  (only used for player faction)
+        Undefined
+	=============-->

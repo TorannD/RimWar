@@ -2,10 +2,10 @@
 <Defs>
 
   <WorldObjectDef>
-    <defName>RW_Warband</defName>
-    <label>warband</label>
-    <description>A warband.</description>
-    <worldObjectClass>RimWar.Planet.Warband</worldObjectClass>
+    <defName>RW_Warband_Caravan</defName>
+    <label>warband_caravan</label>
+    <description>A warband with pawns.</description>
+    <worldObjectClass>RimWar.Planet.Warband_Caravan</worldObjectClass>
     <texture>World/WorldObjects/Caravan</texture>
     <useDynamicDrawer>true</useDynamicDrawer>
     <expandingIcon>true</expandingIcon>
@@ -30,6 +30,21 @@
     <label>RimWar world object</label>
     <description>A world object for RimWar.</description>
     <worldObjectClass>RimWar.Planet.WarObject</worldObjectClass>
+    <texture>World/WorldObjects/Caravan</texture>
+    <useDynamicDrawer>true</useDynamicDrawer>
+    <expandingIcon>true</expandingIcon>
+    <expandingIconTexture>World/WorldObjects/Expanding/Caravan</expandingIconTexture>
+    <expandingIconPriority>100</expandingIconPriority>
+    <expandMore>true</expandMore>
+    <inspectorTabs>
+    </inspectorTabs>
+  </WorldObjectDef>
+  
+  <WorldObjectDef>
+    <defName>RW_Warband</defName>
+    <label>Warband</label>
+    <description>A warband.</description>
+    <worldObjectClass>RimWar.Planet.Warband</worldObjectClass>
     <texture>World/WorldObjects/Caravan</texture>
     <useDynamicDrawer>true</useDynamicDrawer>
     <expandingIcon>true</expandingIcon>

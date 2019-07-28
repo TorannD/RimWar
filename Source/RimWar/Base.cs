@@ -10,6 +10,23 @@ using HugsLib.Utils;
 
 namespace RimWar
 {
+    public struct ConsolidatePoints : IExposable
+    {
+        public int points, delay;
+
+        public ConsolidatePoints(int pts, int dly)
+        {
+            points = pts;
+            delay = dly;
+        }
+
+        public void ExposeData()
+        {
+            Scribe_Values.Look<int>(ref this.points, "points", 0, false);
+            Scribe_Values.Look<int>(ref this.delay, "delay", 0, false);
+        }
+    }
+
     public class Base : ModBase
     {
         public static Base Instance

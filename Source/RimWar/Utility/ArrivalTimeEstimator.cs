@@ -13,8 +13,26 @@ namespace RimWar.Utility
     {
         public static int EstimatedTicksToArrive(int from, int to, WarObject warObject)
         {
-            int sum = 0;
-            return sum;
+            using (WorldPath worldPath = Verse.Find.WorldPathFinder.FindPath(from, to, null))
+            {
+                if(!worldPath.Found)
+                {
+                    return 0;
+                }
+                return CaravanArrivalTimeEstimator.EstimatedTicksToArrive(from, to, worldPath, 0, warObject.TicksPerMove, Verse.Find.TickManager.TicksAbs);
+            }
+        }
+
+        public static int EstimatedTicksToArrive(int from, int to, int ticksPerMove)
+        {
+            using (WorldPath worldPath = Verse.Find.WorldPathFinder.FindPath(from, to, null))
+            {
+                if (!worldPath.Found)
+                {
+                    return 0;
+                }
+                return CaravanArrivalTimeEstimator.EstimatedTicksToArrive(from, to, worldPath, 0, ticksPerMove, Verse.Find.TickManager.TicksAbs);
+            }
         }
     }
 }

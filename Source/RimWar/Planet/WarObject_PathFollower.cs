@@ -97,21 +97,7 @@ namespace RimWar.Planet
                 TryEnterNextPathTile();
             }
             return true;
-        }
-
-        public void StopDead()
-        {
-            if (curPath != null)
-            {
-                curPath.ReleaseToPool();
-            }
-            curPath = null;
-            moving = false;
-            paused = false;
-            nextTile = warObject.Tile;
-            previousTileForDrawingIfInDoubt = -1;
-            nextTileCostLeft = 0f;
-        }
+        }       
 
         public bool Paused
         {
@@ -170,6 +156,25 @@ namespace RimWar.Planet
             StopDead();
         }
 
+        private void PatherFailed()
+        {
+            StopDead();
+        }
+
+        public void StopDead()
+        {
+            if (curPath != null)
+            {
+                curPath.ReleaseToPool();
+            }
+            curPath = null;
+            moving = false;
+            paused = false;
+            nextTile = warObject.Tile;
+            previousTileForDrawingIfInDoubt = -1;
+            nextTileCostLeft = 0f;
+        }
+
         private bool IsPassable(int tile)
         {
             return !Verse.Find.World.Impassable(tile);
@@ -205,12 +210,7 @@ namespace RimWar.Planet
             {
                 Messages.Message("MessageCaravanArrivedAtDestination".Translate(warObject.Label).CapitalizeFirst(), warObject, MessageTypeDefOf.TaskCompletion);
             }
-        }
-
-        private void PatherFailed()
-        {
-            StopDead();
-        }
+        }        
 
         private void TryEnterNextPathTile()
         {
