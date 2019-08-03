@@ -8,9 +8,13 @@
 <!-- ============ World Objects =============-->
 <RW_EstimatedTimeToDestination>Estimated time to destination: {0} days</RW_EstimatedTimeToDestination>
 <RW_WarObjectInspectString>{0} of {1} moving to {2}</RW_WarObjectInspectString>
-<RW_WarbandInspectString>{0} {1} {2}</RW_WarbandInspectString>
+<RW_WarObjectInspectString>{0} {1} {2}</RW_WarObjectInspectString>
 <RW_SettlementPoints>Settlement points: {0}</RW_SettlementPoints>
 <RW_WarbandName>Warband of {0}</RW_WarbandName>
+<RW_ScoutName>Scouting party of {0}</RW_ScoutName>
+<RW_TraderName>Trading Caravan of {0}</RW_TraderName>
+<RW_SettlerName>Settler of {0}</RW_SettlerName>
+<RW_DiplomatName>Diplomat of {0}</RW_DiplomatName>
 <RW_CombatPower>Combat power: {0}</RW_CombatPower>
 
 <!-- ============ Faction Menu =============-->
@@ -25,6 +29,9 @@
 
 <!-- ============ Actions =============-->
 <RW_Attacking>attacking</RW_Attacking>
+<RW_Scouting>scouting</RW_Scouting>
 <RW_ReturningTo>returning to</RW_ReturningTo>
+<RW_Trading>trade with</RW_Trading>
+<RW_Diplomacy>engaging in diplomacy with</RW_Diplomacy>
 
 </LanguageData>

@@ -15,6 +15,7 @@ namespace RimWar.Planet
         //Do Once per load
         private bool factionsLoaded = false;
         private int nextEvaluationTick = 20;
+        private int targetRangeDivider = 100;
 
         public override void ExposeData()
         {
@@ -87,32 +88,37 @@ namespace RimWar.Planet
                 //Log.Message("current tick: " + currentTick + " next evaluation at " + this.nextEvaluationTick);
                 RimWarData rwd = this.RimWarData.RandomElement();
                 Settlement rwdTown = rwd.FactionSettlements.RandomElement();
+                if (rwdTown.lastSettlementScan == 0 || rwdTown.lastSettlementScan + 120000 <= Find.TickManager.TicksGame)
+                {
+                    rwdTown.OtherSettlementsInRange = WorldUtility.GetRimWarSettlementsInRange(rwdTown.Tile, Mathf.RoundToInt(rwdTown.RimWarPoints/(this.targetRangeDivider * .5f)), this.RimWarData, rwd);
+                    rwdTown.lastSettlementScan = Find.TickManager.TicksGame;
+                }
                 if (rwd.behavior != RimWarBehavior.Player && rwdTown.nextEventTick <= currentTick && ((!CaravanNightRestUtility.RestingNowAt(rwdTown.Tile) && !rwd.movesAtNight) || (CaravanNightRestUtility.RestingNowAt(rwdTown.Tile) && rwd.movesAtNight)))
                 {
                     RimWarAction newAction = rwd.GetWeightedSettlementAction();
                     //Log.Message("attempting new action of " + newAction.ToString());
-                    newAction = RimWarAction.Warband;
+                    //newAction = RimWarAction.ScoutingParty;
                     if (newAction != RimWarAction.None)
                     {                        
                         if (newAction == RimWarAction.Caravan)
                         {
-
+                            AttemptTradeMission(rwd, rwdTown);
                         }
                         else if (newAction == RimWarAction.Diplomat)
                         {
-
+                            AttemptDiplomatMission(rwd, rwdTown);
                         }
                         else if (newAction == RimWarAction.LaunchedWarband)
                         {
-
+                            AttemptLaunchedWarbandAgainstTown(rwd, rwdTown);
                         }
                         else if (newAction == RimWarAction.ScoutingParty)
                         {
-
+                            AttemptScoutMission(rwd, rwdTown);
                         }
                         else if(newAction == RimWarAction.Settler)
                         {
-
+                            AttemptSettlerMission(rwd, rwdTown);
                         }
                         else if(newAction == RimWarAction.Warband)
                         {
@@ -381,7 +387,7 @@ namespace RimWar.Planet
             //Log.Message("attempting warband action");
             if (rwd != null && rwdTown != null)
             {
-                int targetRange = Mathf.RoundToInt(rwdTown.RimWarPoints / 200);
+                int targetRange = Mathf.RoundToInt(rwdTown.RimWarPoints / (2 * this.targetRangeDivider));
                 if (rwd.behavior == RimWarBehavior.Warmonger)
                 {
                     targetRange = Mathf.RoundToInt(targetRange * 1.25f);
@@ -389,17 +395,12 @@ namespace RimWar.Planet
                 else if (rwd.behavior == RimWarBehavior.Cautious)
                 {
                     targetRange = Mathf.RoundToInt(targetRange * .8f);
-                }
-                if (rwdTown.lastSettlementScan + 120 <= Find.TickManager.TicksGame) //120000
-                {
-                    rwdTown.OtherSettlementsInRange = WorldUtility.GetRimWarSettlementsInRange(rwdTown.Tile, targetRange, this.RimWarData, rwd);
-                    rwdTown.lastSettlementScan = Find.TickManager.TicksGame;
-                }
+                }                
                 List<Settlement> tmpSettlements = rwdTown.NearbyHostileSettlements;
                 if (tmpSettlements != null && tmpSettlements.Count > 0)
                 {
                     Settlement targetTown = tmpSettlements.RandomElement();
-                    if (targetTown != null)
+                    if (targetTown != null && Find.WorldGrid.TraversalDistanceBetween(rwdTown.Tile, targetTown.Tile) <= targetRange)
                     {
                         Log.Message("" + rwdTown.RimWorld_Settlement.Name + " with " + rwdTown.RimWarPoints + " evaluating " + targetTown.RimWorld_Settlement.Name + " with " + targetTown.RimWarPoints);
                         int pts = WorldUtility.CalculateWarbandPointsForRaid(targetTown);                        
@@ -422,7 +423,225 @@ namespace RimWar.Planet
             }
             else
             {
-                Log.Warning("rwd " + rwd + " rwdTown " + rwdTown);
+                Log.Warning("Found null when attempting to generate a warband: rwd " + rwd + " rwdTown " + rwdTown);
+            }
+        }
+
+        private void AttemptLaunchedWarbandAgainstTown(RimWarData rwd, Settlement rwdTown)
+        {
+            //Log.Message("attempting launched warband action");
+            if (rwd != null && rwdTown != null)
+            {
+                int targetRange = Mathf.RoundToInt(rwdTown.RimWarPoints / (2 * this.targetRangeDivider));
+                if (rwd.behavior == RimWarBehavior.Warmonger)
+                {
+                    targetRange = Mathf.RoundToInt(targetRange * 1.25f);
+                }
+                else if (rwd.behavior == RimWarBehavior.Cautious)
+                {
+                    targetRange = Mathf.RoundToInt(targetRange * .8f);
+                }
+                List<Settlement> tmpSettlements = rwdTown.NearbyHostileSettlements;
+                if (tmpSettlements != null && tmpSettlements.Count > 0)
+                {
+                    Settlement targetTown = tmpSettlements.RandomElement();
+                    if (targetTown != null && Find.WorldGrid.TraversalDistanceBetween(rwdTown.Tile, targetTown.Tile) <= targetRange)
+                    {
+                        Log.Message("" + rwdTown.RimWorld_Settlement.Name + " with " + rwdTown.RimWarPoints + " evaluating " + targetTown.RimWorld_Settlement.Name + " with " + targetTown.RimWarPoints);
+                        int pts = WorldUtility.CalculateWarbandPointsForRaid(targetTown);
+                        if (rwd.behavior == RimWarBehavior.Cautious)
+                        {
+                            pts = Mathf.RoundToInt(pts * 1.1f);
+                        }
+                        else if (rwd.behavior == RimWarBehavior.Warmonger)
+                        {
+                            pts = Mathf.RoundToInt(pts * 1.25f);
+                        }
+                        if (rwdTown.RimWarPoints * .6f >= pts)
+                        {
+                            //Log.Message("sending warband from " + rwdTown.RimWorld_Settlement.Name);
+                            WorldUtility.CreateLaunchedWarband(pts, rwd, rwdTown, rwdTown.Tile, targetTown.Tile, WorldObjectDefOf.Settlement);
+                            rwdTown.RimWarPoints = rwdTown.RimWarPoints - pts;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                Log.Warning("Found null when attempting to generate a warband: rwd " + rwd + " rwdTown " + rwdTown);
+            }
+        }
+
+        private void AttemptScoutMission(RimWarData rwd, Settlement rwdTown)
+        {
+            if (rwd != null && rwdTown != null)
+            {
+                int targetRange = Mathf.RoundToInt(rwdTown.RimWarPoints / this.targetRangeDivider);
+                if(rwd.behavior == RimWarBehavior.Expansionist)
+                {
+                    targetRange = Mathf.RoundToInt(targetRange * 1.5f);
+                }
+                else if(rwd.behavior == RimWarBehavior.Warmonger)
+                {
+                    targetRange = Mathf.RoundToInt(targetRange * 1.25f);
+                }
+                else if(rwd.behavior == RimWarBehavior.Aggressive)
+                {
+                    targetRange = Mathf.RoundToInt(targetRange * 1.15f);
+                }
+                List<WorldObject> worldObjects = WorldUtility.GetWorldObjectsInRange(rwdTown.Tile, targetRange);
+                if (worldObjects != null && worldObjects.Count > 0)
+                {
+                    for (int i = 0; i < worldObjects.Count; i++)
+                    {
+                        WorldObject wo = worldObjects[i];
+                        if(wo is Caravan && wo.Faction != null && wo.Faction.HostileTo(rwd.RimWarFaction))
+                        {
+                            Caravan playerCaravan = wo as Caravan;
+                            Log.Message("evaluating scouting player caravan with " + playerCaravan.PlayerWealthForStoryteller + " wealth against town points of " + rwdTown.RimWarPoints);
+                            Log.Message("caravan is " + Find.WorldGrid.TraversalDistanceBetween(wo.Tile, rwdTown.Tile) + " tiles away, with a town range of " + targetRange + " visibility reduced to a range of " + Mathf.RoundToInt(targetRange * playerCaravan.Visibility));
+                            if((playerCaravan.PlayerWealthForStoryteller/200) <= (rwdTown.RimWarPoints * .9f) && (Find.WorldGrid.TraversalDistanceBetween(wo.Tile, rwdTown.Tile) <= Mathf.RoundToInt(targetRange * playerCaravan.Visibility)))
+                            {
+                                int pts = WorldUtility.CalculateScoutMissionPoints(rwd, Mathf.RoundToInt(playerCaravan.PlayerWealthForStoryteller/200));
+                                WorldUtility.CreateScout(pts, rwd, rwdTown, rwdTown.Tile, wo.Tile, WorldObjectDefOf.Caravan);
+                                rwdTown.RimWarPoints = rwdTown.RimWarPoints - pts;
+                            }
+                        }
+                        else if(wo is Warband && wo.Faction.HostileTo(rwd.RimWarFaction))
+                        {
+                            Warband warband = wo as Warband;
+                            if(warband.RimWarPoints <= (rwdTown.RimWarPoints * .8f))
+                            {
+                                int pts = WorldUtility.CalculateScoutMissionPoints(rwd, warband.RimWarPoints);
+                                WorldUtility.CreateScout(pts, rwd, rwdTown, rwdTown.Tile, wo.Tile, RimWarDefOf.RW_Warband);
+                                rwdTown.RimWarPoints = rwdTown.RimWarPoints - pts;
+                            }
+                        }
+                        else if(wo is Scout && wo.Faction.HostileTo(rwd.RimWarFaction))
+                        {
+                            Scout scout = wo as Scout;
+                            if(scout.RimWarPoints <= (rwdTown.RimWarPoints * .8f))
+                            {
+                                int pts = WorldUtility.CalculateScoutMissionPoints(rwd, scout.RimWarPoints);
+                                WorldUtility.CreateScout(pts, rwd, rwdTown, rwdTown.Tile, wo.Tile, RimWarDefOf.RW_Scout);
+                                rwdTown.RimWarPoints = rwdTown.RimWarPoints - pts;
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                Log.Warning("Found null when attempting to generate a scout: rwd " + rwd + " rwdTown " + rwdTown);
+            }
+        }
+
+        private void AttemptSettlerMission(RimWarData rwd, Settlement rwdTown)
+        {
+
+        }
+
+        private void AttemptTradeMission(RimWarData rwd, Settlement rwdTown)
+        {
+            if (rwd != null && rwdTown != null)
+            {
+                if (rwdTown.RimWarPoints > 1000)
+                {
+                    int targetRange = Mathf.RoundToInt(rwdTown.RimWarPoints / this.targetRangeDivider);
+                    if (rwd.behavior == RimWarBehavior.Expansionist)
+                    {
+                        targetRange = Mathf.RoundToInt(targetRange * 1.25f);
+                    }
+                    else if (rwd.behavior == RimWarBehavior.Warmonger)
+                    {
+                        targetRange = Mathf.RoundToInt(targetRange * .8f);
+                    }
+                    else if (rwd.behavior == RimWarBehavior.Merchant)
+                    {
+                        targetRange = Mathf.RoundToInt(targetRange * 1.5f);
+                    }
+                    List<Settlement> tmpSettlements = rwdTown.NearbyFriendlySettlements.ToList();
+                    if (tmpSettlements != null && tmpSettlements.Count > 0)
+                    {
+                        Settlement targetTown = tmpSettlements.RandomElement();
+                        if (targetTown != null && Find.WorldGrid.TraversalDistanceBetween(rwdTown.Tile, targetTown.Tile) <= targetRange)
+                        {
+                            Log.Message("Trader: " + rwdTown.RimWorld_Settlement.Name + " with " + rwdTown.RimWarPoints + " evaluating " + targetTown.RimWorld_Settlement.Name + " with " + targetTown.RimWarPoints);
+                            int pts = WorldUtility.CalculateWarbandPointsForRaid(targetTown);
+                            if (rwd.behavior == RimWarBehavior.Cautious)
+                            {
+                                pts = Mathf.RoundToInt(pts * 1.1f);
+                            }
+                            else if (rwd.behavior == RimWarBehavior.Warmonger)
+                            {
+                                pts = Mathf.RoundToInt(pts * .8f);
+                            }
+                            else if (rwd.behavior == RimWarBehavior.Merchant)
+                            {
+                                pts = Mathf.RoundToInt(pts * 1.3f);
+                            }
+                            float maxPts = rwdTown.RimWarPoints * .5f;
+                            if (maxPts >= pts)
+                            {
+                                //Log.Message("sending warband from " + rwdTown.RimWorld_Settlement.Name);
+                                WorldUtility.CreateTrader(pts, rwd, rwdTown, rwdTown.Tile, targetTown.Tile, WorldObjectDefOf.Settlement);
+                                rwdTown.RimWarPoints = rwdTown.RimWarPoints - pts;
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                Log.Warning("Found null when attempting to generate a trader: rwd " + rwd + " rwdTown " + rwdTown);
+            }
+        }
+
+        private void AttemptDiplomatMission(RimWarData rwd, Settlement rwdTown)
+        {
+            if (rwd != null && rwdTown != null)
+            {
+                if (rwdTown.RimWarPoints > 1000)
+                {
+                    int targetRange = Mathf.RoundToInt(rwdTown.RimWarPoints / this.targetRangeDivider);
+                    if (rwd.behavior == RimWarBehavior.Merchant || rwd.behavior == RimWarBehavior.Expansionist)
+                    {
+                        targetRange = Mathf.RoundToInt(targetRange * 1.25f);
+                    }
+                    List<Settlement> tmpSettlements = rwdTown.NearbyHostileSettlements.ToList();
+                    if (tmpSettlements != null && tmpSettlements.Count > 0)
+                    {
+                        Settlement targetTown = tmpSettlements.RandomElement();
+                        if (targetTown != null && Find.WorldGrid.TraversalDistanceBetween(rwdTown.Tile, targetTown.Tile) <= targetRange)
+                        {
+                            Log.Message("Diplomat: " + rwdTown.RimWorld_Settlement.Name + " with " + rwdTown.RimWarPoints + " evaluating " + targetTown.RimWorld_Settlement.Name + " with " + targetTown.RimWarPoints);
+                            int pts = WorldUtility.CalculateDiplomatPoints(rwdTown);
+                            if (rwd.behavior == RimWarBehavior.Cautious)
+                            {
+                                pts = Mathf.RoundToInt(pts * 1.1f);
+                            }
+                            else if (rwd.behavior == RimWarBehavior.Warmonger)
+                            {
+                                pts = Mathf.RoundToInt(pts * .8f);
+                            }
+                            else if (rwd.behavior == RimWarBehavior.Merchant)
+                            {
+                                pts = Mathf.RoundToInt(pts * 1.3f);
+                            }
+                            float maxPts = rwdTown.RimWarPoints * .5f;
+                            if (maxPts >= pts)
+                            {
+                                //Log.Message("sending warband from " + rwdTown.RimWorld_Settlement.Name);
+                                WorldUtility.CreateDiplomat(pts, rwd, rwdTown, rwdTown.Tile, targetTown.Tile, WorldObjectDefOf.Settlement);
+                                rwdTown.RimWarPoints = rwdTown.RimWarPoints - pts;
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                Log.Warning("Found null when attempting to generate a diplomat: rwd " + rwd + " rwdTown " + rwdTown);
             }
         }
     }

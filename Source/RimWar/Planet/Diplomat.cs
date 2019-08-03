@@ -9,11 +9,11 @@ using Verse;
 
 namespace RimWar.Planet
 {
-    public class Warband : WarObject
+    public class Diplomat : WarObject
     {
         private int lastEventTick = 0;
         private bool movesAtNight = false;
-        private int ticksPerMove = 3300;
+        private int ticksPerMove = 3500;
         private int searchTick = 60;               
 
         public override void ExposeData()
@@ -21,7 +21,7 @@ namespace RimWar.Planet
             base.ExposeData();
             Scribe_Values.Look<bool>(ref this.movesAtNight, "movesAtNight", false, false);
             Scribe_Values.Look<int>(ref this.lastEventTick, "lastEventTick", 0, false);
-            Scribe_Values.Look<int>(ref this.ticksPerMove, "ticksPerMove", 3300, false);                       
+            Scribe_Values.Look<int>(ref this.ticksPerMove, "ticksPerMove", 3500, false);                       
         }
 
         public override void Tick()
@@ -36,7 +36,7 @@ namespace RimWar.Planet
                 {
                     PathToTarget(this.DestinationTarget);
                 }
-                if (DestinationTarget is WarObject || DestinationTarget is Caravan)
+                if (DestinationTarget is Warband || DestinationTarget is Caravan)
                 {
                     EngageNearbyEnemy();
                 }
@@ -82,7 +82,7 @@ namespace RimWar.Planet
                             this.DestinationTarget = worldObjects[i];                            
                             break;
                         }
-                        else if(wo is WarObject && wo.Faction.HostileTo(this.Faction))
+                        else if(wo is Caravan && wo.Faction.HostileTo(this.Faction))
                         {
                             this.DestinationTarget = worldObjects[i];
                             break;
@@ -116,7 +116,7 @@ namespace RimWar.Planet
                    
         }
 
-        public Warband()
+        public Diplomat()
         {
 
         }
@@ -177,7 +177,7 @@ namespace RimWar.Planet
                 WorldObject wo = Find.World.worldObjects.ObjectsAt(pather.Destination).FirstOrDefault();
                 if (wo.Faction != this.Faction)
                 {
-                    stringBuilder.Append("RW_WarObjectInspectString".Translate(this.Name, "RW_Attacking".Translate(), wo.Label));
+                    stringBuilder.Append("RW_WarObjectInspectString".Translate(this.Name, "RW_Diplomacy".Translate(), wo.Label));
                 }
                 else
                 {
@@ -213,9 +213,9 @@ namespace RimWar.Planet
             {
                 if(wo.Faction != null && wo.Faction.HostileTo(this.Faction))
                 {
-                    if(wo is WarObject)
+                    if(wo is Warband)
                     {
-                        IncidentUtility.ResolveRimWarBattle(this, wo as WarObject);
+                        IncidentUtility.ResolveRimWarBattle(this, wo as Warband);
                         base.ImmediateAction(wo);
                     }
                     else if(wo is Caravan)
@@ -262,7 +262,7 @@ namespace RimWar.Planet
                         {
                             IncidentUtility.ResolveWarObjectAttackOnSettlement(this, this.ParentSettlement, settlement, WorldUtility.GetRimWarDataForFaction(this.Faction));
                         }
-                        else if (wo is WarObject)
+                        else if (wo is Warband)
                         {
                             IncidentUtility.ResolveWorldEngagement(this, wo);
                         }

@@ -41,14 +41,104 @@
   </WorldObjectDef>
   
   <WorldObjectDef>
-    <defName>RW_Warband</defName>
-    <label>Warband</label>
-    <description>A warband.</description>
-    <worldObjectClass>RimWar.Planet.Warband</worldObjectClass>
+    <defName>RW_LaunchedWarObject</defName>
+    <label>RimWar flying world object</label>
+    <description>A flying world object for RimWar.</description>
+    <worldObjectClass>RimWar.Planet.LaunchedWarObject</worldObjectClass>
     <texture>World/WorldObjects/Caravan</texture>
     <useDynamicDrawer>true</useDynamicDrawer>
     <expandingIcon>true</expandingIcon>
     <expandingIconTexture>World/WorldObjects/Expanding/Caravan</expandingIconTexture>
+    <expandingIconPriority>100</expandingIconPriority>
+    <expandMore>true</expandMore>
+    <inspectorTabs>
+    </inspectorTabs>
+  </WorldObjectDef>
+  
+  <WorldObjectDef>
+    <defName>RW_Warband</defName>
+    <label>Warband</label>
+    <description>A warband.</description>
+    <worldObjectClass>RimWar.Planet.Warband</worldObjectClass>
+    <texture>World/Warband</texture>
+    <useDynamicDrawer>true</useDynamicDrawer>
+    <expandingIcon>true</expandingIcon>
+    <expandingIconTexture>World/WarbandExpanded</expandingIconTexture>
+    <expandingIconPriority>100</expandingIconPriority>
+    <expandMore>true</expandMore>
+    <inspectorTabs>
+    </inspectorTabs>
+  </WorldObjectDef>
+  
+  <WorldObjectDef>
+    <defName>RW_LaunchedWarband</defName>
+    <label>Flying Warband</label>
+    <description>A warband in transport pods.</description>
+    <worldObjectClass>RimWar.Planet.LaunchedWarband</worldObjectClass>
+    <texture>World/WorldObjects/TravelingTransportPods</texture>
+    <useDynamicDrawer>true</useDynamicDrawer>
+    <expandingIcon>true</expandingIcon>
+    <expandingIconTexture>World/WorldObjects/Expanding/TravelingTransportPods</expandingIconTexture>
+    <expandingIconPriority>100</expandingIconPriority>
+    <expandMore>true</expandMore>
+    <inspectorTabs>
+    </inspectorTabs>
+  </WorldObjectDef>
+  
+  <WorldObjectDef>
+    <defName>RW_Scout</defName>
+    <label>Scouting party</label>
+    <description>A scouting party.</description>
+    <worldObjectClass>RimWar.Planet.Scout</worldObjectClass>
+    <texture>World/Scout</texture>
+    <useDynamicDrawer>true</useDynamicDrawer>
+    <expandingIcon>true</expandingIcon>
+    <expandingIconTexture>World/ScoutExpanded</expandingIconTexture>
+    <expandingIconPriority>100</expandingIconPriority>
+    <expandMore>true</expandMore>
+    <inspectorTabs>
+    </inspectorTabs>
+  </WorldObjectDef>
+  
+  <WorldObjectDef>
+    <defName>RW_Trader</defName>
+    <label>Trader</label>
+    <description>A caravan trader.</description>
+    <worldObjectClass>RimWar.Planet.Trader</worldObjectClass>
+    <texture>World/Trader</texture>
+    <useDynamicDrawer>true</useDynamicDrawer>
+    <expandingIcon>true</expandingIcon>
+    <expandingIconTexture>World/TraderExpanded</expandingIconTexture>
+    <expandingIconPriority>100</expandingIconPriority>
+    <expandMore>true</expandMore>
+    <inspectorTabs>
+    </inspectorTabs>
+  </WorldObjectDef>
+  
+  <WorldObjectDef>
+    <defName>RW_Diplomat</defName>
+    <label>Diplomat</label>
+    <description>A faction diplomat.</description>
+    <worldObjectClass>RimWar.Planet.Diplomat</worldObjectClass>
+    <texture>World/Diplomat</texture>
+    <useDynamicDrawer>true</useDynamicDrawer>
+    <expandingIcon>true</expandingIcon>
+    <expandingIconTexture>World/DiplomatExpanded</expandingIconTexture>
+    <expandingIconPriority>100</expandingIconPriority>
+    <expandMore>true</expandMore>
+    <inspectorTabs>
+    </inspectorTabs>
+  </WorldObjectDef>
+  
+  <WorldObjectDef>
+    <defName>RW_Settler</defName>
+    <label>Settler</label>
+    <description>A settler.</description>
+    <worldObjectClass>RimWar.Planet.Settler</worldObjectClass>
+    <texture>World/Settler</texture>
+    <useDynamicDrawer>true</useDynamicDrawer>
+    <expandingIcon>true</expandingIcon>
+    <expandingIconTexture>World/SettlerExpanded</expandingIconTexture>
     <expandingIconPriority>100</expandingIconPriority>
     <expandMore>true</expandMore>
     <inspectorTabs>

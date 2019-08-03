@@ -9,19 +9,33 @@ using Verse;
 
 namespace RimWar.Planet
 {
-    public class Warband : WarObject
+    public class Settler : WarObject
     {
         private int lastEventTick = 0;
         private bool movesAtNight = false;
-        private int ticksPerMove = 3300;
-        private int searchTick = 60;               
+        private int ticksPerMove = 2000;
+        private int searchTick = 60;
+        private int destinationTile = -1;
+
+        public int DestinationTile
+        {
+            get
+            {
+                return this.destinationTile;
+            }
+            set
+            {
+                this.destinationTile = value;
+            }
+        }
 
         public override void ExposeData()
         {
             base.ExposeData();
             Scribe_Values.Look<bool>(ref this.movesAtNight, "movesAtNight", false, false);
             Scribe_Values.Look<int>(ref this.lastEventTick, "lastEventTick", 0, false);
-            Scribe_Values.Look<int>(ref this.ticksPerMove, "ticksPerMove", 3300, false);                       
+            Scribe_Values.Look<int>(ref this.destinationTile, "destinationTile", -1, false);
+            Scribe_Values.Look<int>(ref this.ticksPerMove, "ticksPerMove", 2000, false);                       
         }
 
         public override void Tick()
@@ -36,7 +50,7 @@ namespace RimWar.Planet
                 {
                     PathToTarget(this.DestinationTarget);
                 }
-                if (DestinationTarget is WarObject || DestinationTarget is Caravan)
+                if (DestinationTarget is Warband || DestinationTarget is Caravan)
                 {
                     EngageNearbyEnemy();
                 }
@@ -82,7 +96,7 @@ namespace RimWar.Planet
                             this.DestinationTarget = worldObjects[i];                            
                             break;
                         }
-                        else if(wo is WarObject && wo.Faction.HostileTo(this.Faction))
+                        else if(wo is Caravan && wo.Faction.HostileTo(this.Faction))
                         {
                             this.DestinationTarget = worldObjects[i];
                             break;
@@ -116,7 +130,7 @@ namespace RimWar.Planet
                    
         }
 
-        public Warband()
+        public Settler()
         {
 
         }
@@ -177,11 +191,11 @@ namespace RimWar.Planet
                 WorldObject wo = Find.World.worldObjects.ObjectsAt(pather.Destination).FirstOrDefault();
                 if (wo.Faction != this.Faction)
                 {
-                    stringBuilder.Append("RW_WarObjectInspectString".Translate(this.Name, "RW_Attacking".Translate(), wo.Label));
+                    stringBuilder.Append("RW_WarbandInspectString".Translate(this.Name, "RW_Attacking".Translate(), wo.Label));
                 }
                 else
                 {
-                    stringBuilder.Append("RW_WarObjectInspectString".Translate(this.Name, "RW_ReturningTo".Translate(), wo.Label));
+                    stringBuilder.Append("RW_WarbandInspectString".Translate(this.Name, "RW_ReturningTo".Translate(), wo.Label));
                 }
             }
 
@@ -213,7 +227,7 @@ namespace RimWar.Planet
             {
                 if(wo.Faction != null && wo.Faction.HostileTo(this.Faction))
                 {
-                    if(wo is WarObject)
+                    if(wo is Warband)
                     {
                         IncidentUtility.ResolveRimWarBattle(this, wo as WarObject);
                         base.ImmediateAction(wo);
@@ -262,7 +276,7 @@ namespace RimWar.Planet
                         {
                             IncidentUtility.ResolveWarObjectAttackOnSettlement(this, this.ParentSettlement, settlement, WorldUtility.GetRimWarDataForFaction(this.Faction));
                         }
-                        else if (wo is WarObject)
+                        else if (wo is Warband)
                         {
                             IncidentUtility.ResolveWorldEngagement(this, wo);
                         }

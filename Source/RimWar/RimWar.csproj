@@ -58,6 +58,12 @@
     <Compile Include="Options\SettingsRef.cs" />
     <Compile Include="Options\Settings.cs" />
     <Compile Include="Planet\IncidentUtility.cs" />
+    <Compile Include="Planet\Scout.cs" />
+    <Compile Include="Planet\Trader.cs" />
+    <Compile Include="Planet\Settler.cs" />
+    <Compile Include="Planet\Diplomat.cs" />
+    <Compile Include="Planet\LaunchedWarObject.cs" />
+    <Compile Include="Planet\LaunchedWarband.cs" />
     <Compile Include="RimWarAction.cs" />
     <Compile Include="RimWarBehavior.cs" />
     <Compile Include="RimWarDefData.cs" />

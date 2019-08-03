@@ -212,7 +212,229 @@ namespace RimWar.Planet
             warband.Name = "RW_WarbandName".Translate(faction.Name);            
             warband.SetUniqueId(Find.UniqueIDsManager.GetNextCaravanID());
             return warband;
-        }        
+        }
+
+        public static void CreateLaunchedWarband(int power, RimWarData rwd, Settlement parentSettlement, int startingTile, int destinationTile, WorldObjectDef worldDef)
+        {
+            Log.Message("generating warband for " + rwd.RimWarFaction.Name + " from " + startingTile + " to " + destinationTile);
+            LaunchedWarband warband = new LaunchedWarband();
+            warband = MakeLaunchedWarband(rwd.RimWarFaction, startingTile);
+            warband.ParentSettlement = parentSettlement;
+            warband.RimWarPoints = power;
+
+            if (warband.Tile != destinationTile)
+            {
+                warband.DestinationTarget = Find.World.worldObjects.WorldObjectOfDefAt(worldDef, destinationTile);
+                warband.destinationTile = destinationTile;
+            }
+            //Log.Message("end create warband");
+        }
+
+        private static LaunchedWarband MakeLaunchedWarband(Faction faction, int startingTile)
+        {
+            LaunchedWarband warband = (LaunchedWarband)WorldObjectMaker.MakeWorldObject(RimWarDefOf.RW_LaunchedWarband);
+            if (startingTile >= 0)
+            {
+                warband.Tile = startingTile;
+            }
+            warband.SetFaction(faction);
+            if (startingTile >= 0)
+            {
+                Find.WorldObjects.Add(warband);
+            }
+            warband.Name = "RW_WarbandName".Translate(faction.Name);
+            warband.SetUniqueId(Find.UniqueIDsManager.GetNextCaravanID());
+            return warband;
+        }
+
+        public static void CreateScout(int power, RimWarData rwd, Settlement parentSettlement, int startingTile, int destinationTile, WorldObjectDef worldDef)
+        {
+            Log.Message("generating scout for " + rwd.RimWarFaction.Name + " from " + startingTile + " to " + destinationTile);
+            Scout scout = new Scout();
+            scout = MakeScout(rwd.RimWarFaction, startingTile);
+            scout.ParentSettlement = parentSettlement;
+            scout.MovesAtNight = rwd.movesAtNight;
+            scout.RimWarPoints = power;
+            if (rwd.behavior == RimWarBehavior.Expansionist)
+            {
+                scout.TicksPerMove = 4500;
+            }
+            else if (rwd.behavior == RimWarBehavior.Aggressive)
+            {
+                scout.TicksPerMove = 4200;
+            }
+            else if(rwd.behavior == RimWarBehavior.Warmonger)
+            {
+                scout.TicksPerMove = 3800;
+            }
+            if (!scout.pather.Moving && scout.Tile != destinationTile)
+            {
+                scout.pather.StartPath(destinationTile, true);
+                scout.pather.nextTileCostLeft /= 2f;
+                scout.tweener.ResetTweenedPosToRoot();
+                scout.DestinationTarget = Find.World.worldObjects.WorldObjectOfDefAt(worldDef, destinationTile);
+            }
+            //Log.Message("end create scout");
+        }
+
+        private static Scout MakeScout(Faction faction, int startingTile)
+        {
+            Scout scout = (Scout)WorldObjectMaker.MakeWorldObject(RimWarDefOf.RW_Scout);
+            if (startingTile >= 0)
+            {
+                scout.Tile = startingTile;
+            }
+            scout.SetFaction(faction);
+            if (startingTile >= 0)
+            {
+                Find.WorldObjects.Add(scout);
+            }
+            scout.Name = "RW_ScoutName".Translate(faction.Name);
+            scout.SetUniqueId(Find.UniqueIDsManager.GetNextCaravanID());
+            return scout;
+        }
+
+        public static void CreateTrader(int power, RimWarData rwd, Settlement parentSettlement, int startingTile, int destinationTile, WorldObjectDef worldDef)
+        {
+            Log.Message("generating trader for " + rwd.RimWarFaction.Name + " from " + startingTile + " to " + destinationTile);
+            Trader trader = new Trader();
+            trader = MakeTrader(rwd.RimWarFaction, startingTile);
+            trader.ParentSettlement = parentSettlement;
+            trader.MovesAtNight = rwd.movesAtNight;
+            trader.RimWarPoints = power;
+            if (rwd.behavior == RimWarBehavior.Expansionist)
+            {
+                trader.TicksPerMove = 2800;
+            }
+            else if (rwd.behavior == RimWarBehavior.Merchant)
+            {
+                trader.TicksPerMove = 3200;
+            }
+            else if(rwd.behavior == RimWarBehavior.Warmonger)
+            {
+                trader.TicksPerMove = 2200;
+            }
+            if (!trader.pather.Moving && trader.Tile != destinationTile)
+            {
+                trader.pather.StartPath(destinationTile, true);
+                trader.pather.nextTileCostLeft /= 2f;
+                trader.tweener.ResetTweenedPosToRoot();
+                trader.DestinationTarget = Find.World.worldObjects.WorldObjectOfDefAt(worldDef, destinationTile);
+            }
+            //Log.Message("end create trader");
+        }
+
+        private static Trader MakeTrader(Faction faction, int startingTile)
+        {
+            Trader trader = (Trader)WorldObjectMaker.MakeWorldObject(RimWarDefOf.RW_Trader);
+            if (startingTile >= 0)
+            {
+                trader.Tile = startingTile;
+            }
+            trader.SetFaction(faction);
+            if (startingTile >= 0)
+            {
+                Find.WorldObjects.Add(trader);
+            }
+            trader.Name = "RW_TraderName".Translate(faction.Name);
+            trader.SetUniqueId(Find.UniqueIDsManager.GetNextCaravanID());
+            return trader;
+        }
+
+        public static void CreateDiplomat(int power, RimWarData rwd, Settlement parentSettlement, int startingTile, int destinationTile, WorldObjectDef worldDef)
+        {
+            Log.Message("generating diplomat for " + rwd.RimWarFaction.Name + " from " + startingTile + " to " + destinationTile);
+            Diplomat diplomat = new Diplomat();
+            diplomat = MakeDiplomat(rwd.RimWarFaction, startingTile);
+            diplomat.ParentSettlement = parentSettlement;
+            diplomat.MovesAtNight = rwd.movesAtNight;
+            diplomat.RimWarPoints = power;
+            if (rwd.behavior == RimWarBehavior.Expansionist)
+            {
+                diplomat.TicksPerMove = 3750;
+            }
+            else if (rwd.behavior == RimWarBehavior.Merchant)
+            {
+                diplomat.TicksPerMove = 3600;
+            }
+            else if (rwd.behavior == RimWarBehavior.Warmonger)
+            {
+                diplomat.TicksPerMove = 3000;
+            }
+            if (!diplomat.pather.Moving && diplomat.Tile != destinationTile)
+            {
+                diplomat.pather.StartPath(destinationTile, true);
+                diplomat.pather.nextTileCostLeft /= 2f;
+                diplomat.tweener.ResetTweenedPosToRoot();
+                diplomat.DestinationTarget = Find.World.worldObjects.WorldObjectOfDefAt(worldDef, destinationTile);
+            }
+            //Log.Message("end create diplomat");
+        }
+
+        private static Diplomat MakeDiplomat(Faction faction, int startingTile)
+        {
+            Diplomat diplomat = (Diplomat)WorldObjectMaker.MakeWorldObject(RimWarDefOf.RW_Diplomat);
+            if (startingTile >= 0)
+            {
+                diplomat.Tile = startingTile;
+            }
+            diplomat.SetFaction(faction);
+            if (startingTile >= 0)
+            {
+                Find.WorldObjects.Add(diplomat);
+            }
+            diplomat.Name = "RW_DiplomatName".Translate(faction.Name);
+            diplomat.SetUniqueId(Find.UniqueIDsManager.GetNextCaravanID());
+            return diplomat;
+        }
+
+        public static void CreateSettler(int power, RimWarData rwd, Settlement parentSettlement, int startingTile, int destinationTile, WorldObjectDef worldDef)
+        {
+            Log.Message("generating Settler for " + rwd.RimWarFaction.Name + " from " + startingTile + " to " + destinationTile);
+            Settler settler = new Settler();
+            settler = MakeSettler(rwd.RimWarFaction, startingTile);
+            settler.ParentSettlement = parentSettlement;
+            settler.MovesAtNight = rwd.movesAtNight;
+            settler.RimWarPoints = power;
+            settler.DestinationTile = destinationTile;
+            if (rwd.behavior == RimWarBehavior.Expansionist)
+            {
+                settler.TicksPerMove = 2500;
+            }
+            else if (rwd.behavior == RimWarBehavior.Merchant)
+            {
+                settler.TicksPerMove = 2200;
+            }
+            else if (rwd.behavior == RimWarBehavior.Warmonger)
+            {
+                settler.TicksPerMove = 1500;
+            }
+            if (!settler.pather.Moving && settler.Tile != destinationTile)
+            {
+                settler.pather.StartPath(destinationTile, true);
+                settler.pather.nextTileCostLeft /= 2f;
+                settler.tweener.ResetTweenedPosToRoot();
+                
+            }
+            //Log.Message("end create settler");
+        }
+
+        private static Settler MakeSettler(Faction faction, int startingTile)
+        {
+            Settler settler = (Settler)WorldObjectMaker.MakeWorldObject(RimWarDefOf.RW_Settler);
+            if (startingTile >= 0)
+            {
+                settler.Tile = startingTile;
+            }
+            settler.SetFaction(faction);
+            if (startingTile >= 0)
+            {
+                Find.WorldObjects.Add(settler);
+            }
+            settler.Name = "RW_SettlerName".Translate(faction.Name);
+            settler.SetUniqueId(Find.UniqueIDsManager.GetNextCaravanID());
+            return settler;
+        }
 
         public static int CalculateSettlementPoints(WorldObject worldObject, Faction faction)
         {
@@ -252,7 +474,52 @@ namespace RimWar.Planet
             {
                 pointsNeeded = Mathf.RoundToInt(Rand.Range(.9f, 1.5f) * pointsNeeded);
             }
-            return pointsNeeded;
+            return Mathf.Clamp(pointsNeeded, 50, 1000000);
+        }
+
+        public static int CalculateTraderPoints(Settlement targetTown)
+        {
+            int pointsNeeded = 0;
+            if (targetTown.Faction == Faction.OfPlayerSilentFail)
+            {
+                pointsNeeded = targetTown.RimWarPoints;
+            }
+            else
+            {
+                pointsNeeded = Mathf.RoundToInt(targetTown.RimWarPoints * .5f);
+            }
+
+            pointsNeeded = Mathf.RoundToInt(Rand.Range(.9f, 1.5f) * pointsNeeded);
+            
+            return Mathf.Clamp(pointsNeeded, 500, 1000000);
+        }
+
+        public static int CalculateSettlerPoints(Settlement originTown)
+        {
+            int pointsNeeded = Mathf.RoundToInt(originTown.RimWarPoints * .5f);
+            pointsNeeded = Mathf.RoundToInt(Rand.Range(.6f, 1.2f) * pointsNeeded);
+            return Mathf.Clamp(pointsNeeded, 1000, 1000000);
+        }
+
+        public static int CalculateDiplomatPoints(Settlement originTown)
+        {
+            int pointsNeeded = Rand.Range(500, 1000);
+            return Mathf.Clamp(pointsNeeded, 500, 1000000);
+        }
+
+        public static int CalculateScoutMissionPoints(RimWarData rwd, int targetPoints)
+        {
+            float pointsNeeded = 0;
+            pointsNeeded = Rand.Range(.9f, 1.5f) * pointsNeeded;
+            if (rwd.behavior == RimWarBehavior.Expansionist)
+            {
+                pointsNeeded *= 1.25f;
+            }
+            else if(rwd.behavior == RimWarBehavior.Aggressive)
+            {
+                pointsNeeded *= 1.15f;
+            }
+            return Mathf.Clamp(Mathf.RoundToInt(pointsNeeded), 50, 1000000);
         }
 
         public static float GetFactionTechLevelMultiplier(Faction faction)
@@ -616,6 +883,24 @@ namespace RimWar.Planet
                 }
             }
             return tmpWarbands;
+        }
+
+        public static List<WarObject> GetHostileWarObjectsInRange(int from, int range, Faction faction)
+        {
+            List<WarObject> tmpWarObjects = new List<WarObject>();
+            tmpWarObjects.Clear();
+            List<WorldObject> tmpObjects = GetWorldObjectsInRange(from, range);
+            if (tmpObjects != null && tmpObjects.Count > 0)
+            {
+                for (int i = 0; i < tmpObjects.Count; i++)
+                {
+                    if (tmpObjects[i] is WarObject && tmpObjects[i].Faction.HostileTo(faction))
+                    {
+                        tmpWarObjects.Add(tmpObjects[i] as WarObject);
+                    }
+                }
+            }
+            return tmpWarObjects;
         }
     }
 }

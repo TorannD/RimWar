@@ -26,7 +26,55 @@ namespace RimWar.Planet
         private int cachedImmobilizedForTicks = -99999;
         private const int ImmobilizedCacheDuration = 60;
 
+        private Settlement parentSettlement = null;
+        private WorldObject targetWorldObject = null;
+
         private static readonly Color WarObjectDefaultColor = new Color(1f, 1f, 1f);
+
+        public override void ExposeData()
+        {
+            base.ExposeData();
+            Scribe_Values.Look(ref uniqueId, "uniqueId", 0);
+            Scribe_Values.Look(ref nameInt, "name");
+            Scribe_Values.Look<int>(ref this.warPointsInt, "warPointsInt", -1, false);
+            Scribe_Deep.Look(ref pather, "pather", this);
+            Scribe_References.Look<Settlement>(ref this.parentSettlement, "parentSettlement");
+            Scribe_References.Look<WorldObject>(ref this.targetWorldObject, "targetWorldObject");
+        }
+
+        public Settlement ParentSettlement
+        {
+            get
+            {
+                WorldObject wo = Find.World.worldObjects.WorldObjectAt(this.parentSettlement.Tile, WorldObjectDefOf.Settlement);
+                if (wo != null && wo.Faction == this.Faction)
+                {
+                    return this.parentSettlement;
+                }
+                else
+                {
+                    this.parentSettlement = null;
+                    return this.parentSettlement;
+                }
+
+            }
+            set
+            {
+                this.parentSettlement = value;
+            }
+        }
+
+        public WorldObject DestinationTarget
+        {
+            get
+            {
+                return this.targetWorldObject;
+            }
+            set
+            {
+                this.targetWorldObject = value;
+            }
+        }
 
         public virtual int RimWarPoints
         {
@@ -56,16 +104,7 @@ namespace RimWar.Planet
         {
             base.DrawExtraSelectionOverlays();
             gotoMote.RenderMote();
-        }
-
-        public override void ExposeData()
-        {
-            base.ExposeData();
-            Scribe_Values.Look(ref uniqueId, "uniqueId", 0);
-            Scribe_Values.Look(ref nameInt, "name");
-            Scribe_Values.Look<int>(ref this.warPointsInt, "warPointsInt", -1, false);
-            Scribe_Deep.Look(ref pather, "pather", this);
-        }
+        }        
 
         public string Name
         {

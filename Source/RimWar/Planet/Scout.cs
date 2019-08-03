@@ -9,19 +9,20 @@ using Verse;
 
 namespace RimWar.Planet
 {
-    public class Warband : WarObject
+    public class Scout : WarObject
     {
         private int lastEventTick = 0;
         private bool movesAtNight = false;
-        private int ticksPerMove = 3300;
-        private int searchTick = 60;               
+        private int ticksPerMove = 4000;
+        private int searchTick = 60;
+        private int scanRange = 4;
 
         public override void ExposeData()
         {
             base.ExposeData();
             Scribe_Values.Look<bool>(ref this.movesAtNight, "movesAtNight", false, false);
             Scribe_Values.Look<int>(ref this.lastEventTick, "lastEventTick", 0, false);
-            Scribe_Values.Look<int>(ref this.ticksPerMove, "ticksPerMove", 3300, false);                       
+            Scribe_Values.Look<int>(ref this.ticksPerMove, "ticksPerMove", 4000, false);
         }
 
         public override void Tick()
@@ -30,15 +31,18 @@ namespace RimWar.Planet
             if(Find.TickManager.TicksGame % this.searchTick == 0)
             {
                 //scan for nearby engagements
-                this.searchTick = Rand.Range(300, 500);
-                ScanForNearbyEnemy(1); //WorldUtility.GetRimWarDataForFaction(this.Faction).GetEngagementRange()
+                this.searchTick = Rand.Range(200, 300);
+                ScanForNearbyEnemy(scanRange); //WorldUtility.GetRimWarDataForFaction(this.Faction).GetEngagementRange()                
                 if (this.DestinationTarget != null && this.DestinationTarget.Tile != pather.Destination)
                 {
                     PathToTarget(this.DestinationTarget);
                 }
-                if (DestinationTarget is WarObject || DestinationTarget is Caravan)
+                if (this.DestinationTarget != null && this.Tile == this.DestinationTarget.Tile)
                 {
-                    EngageNearbyEnemy();
+                    if (DestinationTarget is WarObject || DestinationTarget is Caravan)
+                    {
+                        EngageNearbyEnemy();
+                    }
                 }
                 
             }
@@ -73,19 +77,28 @@ namespace RimWar.Planet
                 for (int i = 0; i < worldObjects.Count; i++)
                 {
                     WorldObject wo = worldObjects[i];
-                    if (wo.Faction != this.Faction && wo != this.DestinationTarget)
+                    if (wo.Faction != this.Faction && wo.Faction.HostileTo(this.Faction) && wo != this.DestinationTarget)
                     {
                         //Log.Message("" + this.Name + " scanned nearby object " + this.targetWorldObject.Label);
-                        if (wo is Caravan && wo.Faction.HostileTo(this.Faction)) //or rimwar caravan, or diplomat, or merchant; ignore scouts and settlements
+                        if (wo is Caravan) //or rimwar caravan, or diplomat, or merchant; ignore scouts and settlements
                         {
-                            //Log.Message(this.Label + " engaging nearby warband " + wo.Label);
-                            this.DestinationTarget = worldObjects[i];                            
-                            break;
+                            Caravan playerCaravan = wo as Caravan;
+                            Log.Message("evaluating player caravan with " + playerCaravan.PlayerWealthForStoryteller + " wealth");
+                            if (playerCaravan.PlayerWealthForStoryteller <= this.RimWarPoints)
+                            {
+                                //Log.Message(this.Label + " engaging nearby warband " + wo.Label);
+                                this.DestinationTarget = wo;
+                                break;
+                            }
                         }
-                        else if(wo is WarObject && wo.Faction.HostileTo(this.Faction))
+                        if(wo is WarObject)
                         {
-                            this.DestinationTarget = worldObjects[i];
-                            break;
+                            WarObject warObject = wo as WarObject;
+                            if(warObject.RimWarPoints <= this.RimWarPoints)
+                            {
+                                this.DestinationTarget = wo;
+                                break;
+                            }
                         }
                     }
                 }
@@ -100,28 +113,27 @@ namespace RimWar.Planet
 
         public void EngageNearbyEnemy()
         {
-            if(this.DestinationTarget != null && (this.DestinationTarget.Tile == this.Tile || Find.WorldGrid.TraversalDistanceBetween(this.Tile, this.DestinationTarget.Tile) <= 1))
+            if(this.DestinationTarget != null && (this.DestinationTarget.Tile == this.Tile)) // || Find.WorldGrid.TraversalDistanceBetween(this.Tile, this.DestinationTarget.Tile) <= 0))
             {
                 ImmediateAction(this.DestinationTarget);
             }
-            else if( this.DestinationTarget != null && Find.WorldGrid.TraversalDistanceBetween(this.Tile, this.DestinationTarget.Tile) <= 2)
+            else if( this.DestinationTarget != null && pather.Destination != this.DestinationTarget.Tile && Find.WorldGrid.TraversalDistanceBetween(this.Tile, this.DestinationTarget.Tile) <= scanRange)
             {
                 PathToTarget(this.DestinationTarget);
             }
             else
             {
                 this.DestinationTarget = null;
-
             }
                    
         }
 
-        public Warband()
+        public Scout()
         {
 
         }
 
-        public override int RimWarPoints { get => base.RimWarPoints; set => base.RimWarPoints = value; }        
+        public override int RimWarPoints { get => base.RimWarPoints; set => base.RimWarPoints = value; }
 
         public bool MovesAtNight
         {
@@ -165,7 +177,7 @@ namespace RimWar.Planet
             {
                 this.ticksPerMove = value;
             }
-        }       
+        }
 
         public override string GetInspectString()
         {
@@ -177,7 +189,7 @@ namespace RimWar.Planet
                 WorldObject wo = Find.World.worldObjects.ObjectsAt(pather.Destination).FirstOrDefault();
                 if (wo.Faction != this.Faction)
                 {
-                    stringBuilder.Append("RW_WarObjectInspectString".Translate(this.Name, "RW_Attacking".Translate(), wo.Label));
+                    stringBuilder.Append("RW_WarObjectInspectString".Translate(this.Name, "RW_Scouting".Translate(), wo.Label));
                 }
                 else
                 {
@@ -262,7 +274,7 @@ namespace RimWar.Planet
                         {
                             IncidentUtility.ResolveWarObjectAttackOnSettlement(this, this.ParentSettlement, settlement, WorldUtility.GetRimWarDataForFaction(this.Faction));
                         }
-                        else if (wo is WarObject)
+                        else if (wo is Warband)
                         {
                             IncidentUtility.ResolveWorldEngagement(this, wo);
                         }
