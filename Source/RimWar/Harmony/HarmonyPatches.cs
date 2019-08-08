@@ -26,15 +26,23 @@ namespace RimWar.Harmony
         {
             HarmonyInstance harmonyInstance = HarmonyInstance.Create(id: "rimworld.torann.rimwar");
 
+            //Postfix
             harmonyInstance.Patch(AccessTools.Method(typeof(FactionUIUtility), "DrawFactionRow", new Type[]
                 {
                     typeof(Faction),
                     typeof(float),
                     typeof(Rect)
                 }, null), null, new HarmonyMethod(typeof(HarmonyPatches), "DrawFactionRow_WithFactionPoints_Postfix", null), null);
+            harmonyInstance.Patch(AccessTools.Method(typeof(SettlementUtility), "AttackNow", new Type[]
+                {
+                    typeof(Caravan),
+                    typeof(SettlementBase)
+                }, null), null, new HarmonyMethod(typeof(HarmonyPatches), "AttackNow_SettlementReinforcement_Postfix", null), null);
             harmonyInstance.Patch(AccessTools.Method(typeof(SettlementBase), "GetInspectString", new Type[]
                 {
                 }, null), null, new HarmonyMethod(typeof(HarmonyPatches), "SettlementBase_InspectString_WithPoints_Postfix", null), null);
+
+            //Prefix
             harmonyInstance.Patch(AccessTools.Method(typeof(IncidentWorker), "TryExecute", new Type[]
                 {
                     typeof(IncidentParms)
@@ -45,31 +53,130 @@ namespace RimWar.Harmony
                     typeof(List<ThingCount>),
                     typeof(List<Pawn>)
                 }, null), new HarmonyMethod(typeof(HarmonyPatches), "Caravan_Give_Prefix", null), null, null);
+            harmonyInstance.Patch(AccessTools.Method(typeof(IncidentWorker_NeutralGroup), "TryResolveParms", new Type[]
+                {
+                    typeof(IncidentParms)
+                }, null), new HarmonyMethod(typeof(HarmonyPatches), "TryResolveParms_Points_Prefix", null), null, null);
+            harmonyInstance.Patch(AccessTools.Method(typeof(Faction), "TryAffectGoodwillWith", new Type[]
+                {
+                    typeof(Faction),
+                    typeof(int),
+                    typeof(bool),
+                    typeof(bool),
+                    typeof(string),
+                    typeof(GlobalTargetInfo?)
+                }, null), new HarmonyMethod(typeof(HarmonyPatches), "TryAffectGoodwillWith_Reduction_Prefix", null), null, null);
+            harmonyInstance.Patch(AccessTools.Method(typeof(IncidentQueue), "Add", new Type[]
+                {
+                    typeof(IncidentDef),
+                    typeof(int),
+                    typeof(IncidentParms),
+                    typeof(int)
+                }, null), new HarmonyMethod(typeof(HarmonyPatches), "IncidentQueueAdd_Replacement_Prefix", null), null, null);
+            harmonyInstance.Patch(AccessTools.Method(typeof(FactionDialogMaker), "CallForAid", new Type[]
+                {
+                    typeof(Map),
+                    typeof(Faction)
+                }, null), new HarmonyMethod(typeof(HarmonyPatches), "CallForAid_Replacement_Patch", null), null, null);
+        }
+
+        public static void AttackNow_SettlementReinforcement_Postfix(SettlementUtility __instance, Caravan caravan, SettlementBase settlement)
+        {
+            RimWar.Planet.Settlement rwSettlement = WorldUtility.GetRimWarSettlementAtTile(settlement.Tile);
+            if(rwSettlement != null && rwSettlement.RimWarPoints > 1050)
+            {
+                WorldUtility.CreateWarband((rwSettlement.RimWarPoints - 1000), WorldUtility.GetRimWarDataForFaction(rwSettlement.Faction), rwSettlement, rwSettlement.Tile, rwSettlement.Tile, WorldObjectDefOf.Settlement);
+            }
+        }
+
+        public static bool CallForAid_Replacement_Patch(Map map, Faction faction)
+        {
+            Faction ofPlayer = Faction.OfPlayer;
+            int goodwillChange = -25;
+            bool canSendMessage = false;
+            string reason = "GoodwillChangedReason_RequestedMilitaryAid".Translate();
+            faction.TryAffectGoodwillWith(ofPlayer, goodwillChange, canSendMessage, true, reason);
+            IncidentParms incidentParms = new IncidentParms();
+            incidentParms.target = map;
+            incidentParms.faction = faction;
+            incidentParms.raidArrivalModeForQuickMilitaryAid = true;
+            incidentParms.points = DiplomacyTuning.RequestedMilitaryAidPointsRange.RandomInRange;
+            faction.lastMilitaryAidRequestTick = Find.TickManager.TicksGame;
+            RimWar.Planet.Settlement rwdTown = WorldUtility.GetClosestRimWarSettlementOfFaction(faction, map.Tile, 40);
+            if (rwdTown != null)
+            {
+                RimWarData rwd = WorldUtility.GetRimWarDataForFaction(faction);
+                int pts = Mathf.RoundToInt(rwdTown.RimWarPoints / 2);
+                if (rwd.CanLaunch)
+                {
+                    WorldUtility.CreateLaunchedWarband(pts, rwd, rwdTown, rwdTown.Tile, map.Tile, WorldObjectDefOf.Settlement);
+                }
+                else
+                {
+                    WorldUtility.CreateWarband(pts, rwd, rwdTown, rwdTown.Tile, map.Tile, WorldObjectDefOf.Settlement);
+                }
+                rwdTown.RimWarPoints = pts;
+                return false;
+            }
+            return true;            
+        }
+
+        public static bool IncidentQueueAdd_Replacement_Prefix(IncidentQueue __instance, IncidentDef def, int fireTick, IncidentParms parms = null, int retryDurationTicks = 0)
+        {
+            if(def == IncidentDefOf.TraderCaravanArrival && fireTick == (Find.TickManager.TicksGame + 120000))
+            {
+                RimWar.Planet.Settlement rwdTown = WorldUtility.GetClosestRimWarSettlementOfFaction(parms.faction, parms.target.Tile, 40);
+                if(rwdTown != null)
+                {
+                    WorldUtility.CreateTrader(Mathf.RoundToInt(rwdTown.RimWarPoints / 2), WorldUtility.GetRimWarDataForFaction(rwdTown.Faction), rwdTown, rwdTown.Tile, parms.target.Tile, WorldObjectDefOf.Settlement);
+                    rwdTown.RimWarPoints = Mathf.RoundToInt(rwdTown.RimWarPoints / 2);
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public static bool TryAffectGoodwillWith_Reduction_Prefix(Faction __instance, Faction other, ref int goodwillChange, bool canSendMessage = true, bool canSendHostilityLetter = true, string reason = null, GlobalTargetInfo? lookTarget = default(GlobalTargetInfo?))
+        {
+            if((__instance.IsPlayer || other.IsPlayer))
+            {
+                goodwillChange = Mathf.RoundToInt(goodwillChange / 5);
+            }
+            return true;
+        }
+
+        public static bool TryResolveParms_Points_Prefix(IncidentParms parms)
+        {
+            if(parms.points <= 1000)
+            {
+                return true;
+            }
+            return false;
         }
 
         public static bool Caravan_Give_Prefix(Caravan caravan, List<ThingCount> demands, List<Pawn> attackers)
         {
-            List<Warband> warband = WorldUtility.GetHostileWarbandsInRange(caravan.Tile, 2, caravan.Faction);
-            Log.Message("checking action give");
-            if(warband != null && warband.Count > 0 && attackers != null && attackers.Count > 0)
+            List<WarObject> warObject = WorldUtility.GetHostileWarObjectsInRange(caravan.Tile, 1, caravan.Faction);
+            //Log.Message("checking action give");
+            if(warObject != null && warObject.Count > 0 && attackers != null && attackers.Count > 0)
             {
-                Log.Message("found " + warband.Count + " warbands");
-                for(int i =0; i < warband.Count; i++)
+                //Log.Message("found " + warObject.Count + " warObjects");
+                for(int i =0; i < warObject.Count; i++)
                 {
-                    if(warband[i].Faction !=null )//&& warband[i].Faction == attackers[0].Faction)
+                    if(warObject[i].Faction !=null )//&& warObject[i].Faction == attackers[0].Faction)
                     {
                         float marketValue = 0;
                         for(int j =0; j < demands.Count; j++)
                         {
                             marketValue += (demands[j].Thing.MarketValue * demands[j].Count);
                         }
-                        Log.Message("market value of caravan ransom is " + marketValue);
-                        int points = warband[i].RimWarPoints + Mathf.RoundToInt(marketValue / 20);
-                        if (warband[i].ParentSettlement != null)
+                        //Log.Message("market value of caravan ransom is " + marketValue);
+                        int points = warObject[i].RimWarPoints + Mathf.RoundToInt(marketValue / 20);
+                        if (warObject[i].ParentSettlement != null)
                         {
-                            ConsolidatePoints reconstitute = new ConsolidatePoints(points, Mathf.RoundToInt(Find.WorldGrid.TraversalDistanceBetween(caravan.Tile, warband[i].ParentSettlement.Tile) * warband[i].TicksPerMove) + Find.TickManager.TicksGame);
-                            warband[i].ParentSettlement.SettlementPointGains.Add(reconstitute);
-                            warband[i].ImmediateAction(null);
+                            ConsolidatePoints reconstitute = new ConsolidatePoints(points, Mathf.RoundToInt(Find.WorldGrid.TraversalDistanceBetween(caravan.Tile, warObject[i].ParentSettlement.Tile) * warObject[i].TicksPerMove) + Find.TickManager.TicksGame);
+                            warObject[i].ParentSettlement.SettlementPointGains.Add(reconstitute);
+                            warObject[i].ImmediateAction(null);
                         }
                         break;
                     }
@@ -81,14 +188,14 @@ namespace RimWar.Harmony
 
         public static bool IncidentWorker_Prefix(IncidentWorker __instance, IncidentParms parms, ref bool __result)
         {
-            Log.Message("def " + __instance.def);
+            //Log.Message("def " + __instance.def);
             if (__instance.def == null)
             {
                 Traverse.Create(root: __instance).Field(name: "def").SetValue(IncidentDefOf.RaidEnemy);
                 __instance.def = IncidentDefOf.RaidEnemy;
             }
-            Log.Message("def tale " + __instance.def.tale);
-            Log.Message("def category tale " + __instance.def.category.tale);
+            //Log.Message("def tale " + __instance.def.tale);
+            //Log.Message("def category tale " + __instance.def.category.tale);
             return true;
         }
 
@@ -169,6 +276,60 @@ namespace RimWar.Harmony
                 worldPath.inUse = true;
                 __result = worldPath;
                 return false;
+            }
+        }
+
+        [HarmonyPatch(typeof(IncidentWorker_Ambush_EnemyFaction), "CanFireNowSub", null)]
+        public class CanFireNow_Ambush_EnemyFaction_RemovalPatch
+        {
+            public static bool Prefix(IncidentWorker_Ambush_EnemyFaction __instance, IncidentParms parms, ref bool __result)
+            {
+                __result = false;
+                return false;
+            }
+        }
+
+        [HarmonyPatch(typeof(IncidentWorker_CaravanDemand), "CanFireNowSub", null)]
+        public class CanFireNow_CaravanDemand_RemovalPatch
+        {
+            public static bool Prefix(IncidentWorker_CaravanDemand __instance, IncidentParms parms, ref bool __result)
+            {
+                __result = false;
+                return false;
+            }
+        }
+
+        [HarmonyPatch(typeof(IncidentWorker_CaravanMeeting), "CanFireNowSub", null)]
+        public class CanFireNow_CaravanMeeting_RemovalPatch
+        {
+            public static bool Prefix(IncidentWorker_CaravanMeeting __instance, IncidentParms parms, ref bool __result)
+            {
+                __result = false;
+                return false;
+            }
+        }
+
+        [HarmonyPatch(typeof(IncidentWorker_QuestPeaceTalks), "CanFireNowSub", null)]
+        public class CanFireNow_QuestPeaceTalks_RemovalPatch
+        {
+            public static bool Prefix(IncidentWorker_QuestPeaceTalks __instance, IncidentParms parms, ref bool __result)
+            {
+                __result = false;
+                return false;
+            }
+        }
+
+        [HarmonyPatch(typeof(IncidentWorker_PawnsArrive), "CanFireNowSub", null)]
+        public class CanFireNow_PawnsArrive_RemovalPatch
+        {
+            public static bool Prefix(IncidentWorker_PawnsArrive __instance, IncidentParms parms, ref bool __result)
+            {
+                if(__instance.def == IncidentDefOf.RaidEnemy || __instance.def == IncidentDefOf.RaidFriendly || __instance.def == IncidentDefOf.TraderCaravanArrival)
+                {
+                    __result = false;
+                    return false;
+                }
+                return true;
             }
         }
     }

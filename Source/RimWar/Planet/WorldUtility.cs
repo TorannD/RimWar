@@ -58,12 +58,22 @@ namespace RimWar.Planet
             rimwarSettlement.RimWarPoints = Mathf.RoundToInt(WorldUtility.CalculateSettlementPoints(wo, wo.Faction) * Rand.Range(.5f, 1.5f));
             rwd.FactionSettlements.Add(rimwarSettlement);
             rimwarSettlement.Tile = wo.Tile;
-            //Log.Message("settlement: " + worldObjects[i].Label + " contributes " + rimwarSettlement.RimWarPoints + " points");
+            //Log.Message("settlement: " + wo.Label + " contributes " + rimwarSettlement.RimWarPoints + " points");
+        }
+
+        public static void CreateSettlement(WarObject warObject, RimWarData rwd, int tile, Faction faction)
+        {
+            //Log.Message("creating settlement");
+            RimWorld.Planet.Settlement worldSettlement = SettleUtility.AddNewHome(tile, faction);
+            if(warObject != null)
+            {
+                CreateRimWarSettlement(rwd, worldSettlement);
+            }
         }
 
         public static void CreateWarObject(int points, Faction faction, int startingTile, int destinationTile, WorldObjectDef type)
         {
-            Log.Message("creating war object");
+            //Log.Message("creating war object");
             WarObject warObject = new WarObject();
             warObject = MakeWarObject(10, faction, startingTile, destinationTile, type, true);
             if (!warObject.pather.Moving && warObject.Tile != destinationTile)
@@ -77,7 +87,7 @@ namespace RimWar.Planet
 
         private static WarObject MakeWarObject(int points, Faction faction, int startingTile, int destinationTile, WorldObjectDef type, bool addToWorldPawnsIfNotAlready)
         {
-            Log.Message("making world object");
+            //Log.Message("making world object");
             WarObject warObject = (WarObject)WorldObjectMaker.MakeWorldObject(RimWarDefOf.RW_WarObject);
             if (startingTile >= 0)
             {
@@ -94,10 +104,38 @@ namespace RimWar.Planet
             return warObject;
         }
 
+        public static void CreateWarObjectOfType(WarObject warObject, int power, RimWarData rwd, Settlement parentSettlement, int startingTile, int destinationTile, WorldObjectDef worldDef)
+        {
+            if(warObject is Warband)
+            {
+                CreateWarband(power, rwd, parentSettlement, startingTile, destinationTile, worldDef);
+            }
+            else if(warObject is Scout)
+            {
+                CreateScout(power, rwd, parentSettlement, startingTile, destinationTile, worldDef);
+            }
+            else if(warObject is Trader)
+            {
+                CreateTrader(power, rwd, parentSettlement, startingTile, destinationTile, worldDef);
+            }
+            else if(warObject is Diplomat)
+            {
+                CreateDiplomat(power, rwd, parentSettlement, startingTile, destinationTile, worldDef);
+            }
+            else if(warObject is Settler)
+            {
+                CreateSettler(power, rwd, parentSettlement, startingTile, destinationTile, worldDef);
+            }
+            else
+            {
+                Log.Warning("Attempted to create WarObject but object is not a known type.");
+            }
+        }
+
         private static void CreateWarband_Caravan(int power, Faction faction, int startingTile, int destinationTile, IIncidentTarget target)
         {
-            Log.Message("generating warband");
-            Log.Message("storyteller threat points of target is " + StorytellerUtility.DefaultThreatPointsNow(target));
+            //Log.Message("generating warband");
+            //Log.Message("storyteller threat points of target is " + StorytellerUtility.DefaultThreatPointsNow(target));
             Warband_Caravan warband = new Warband_Caravan();
             IncidentParms parms = new IncidentParms();
             PawnGroupKindDef combat = PawnGroupKindDefOf.Combat;
@@ -107,7 +145,7 @@ namespace RimWar.Planet
             parms.target = target;
             //parms = ResolveRaidStrategy(parms, combat);
             //parms.points = AdjustedRaidPoints((float)power, parms.raidArrivalMode, parms.raidStrategy, faction, combat);
-            Log.Message("adjusted points " + parms.points);
+            //Log.Message("adjusted points " + parms.points);
             PawnGroupMakerParms warbandPawnGroupMakerParms = IncidentParmsUtility.GetDefaultPawnGroupMakerParms(combat, parms);
             List<Pawn> warbandPawnList = PawnGroupMakerUtility.GeneratePawns(warbandPawnGroupMakerParms).ToList();
             if(warbandPawnList.Count == 0)
@@ -128,12 +166,12 @@ namespace RimWar.Planet
                 warband.pather.nextTileCostLeft /= 2f;
                 warband.tweener.ResetTweenedPosToRoot();
             }
-            Log.Message("end create warband");
+            //Log.Message("end create warband");
         }
 
         private static Warband_Caravan MakeWarband_Caravan(List<Pawn> pawns, Faction faction, int startingTile, bool addToWorldPawnsIfNotAlready)
         {
-            Log.Message("making world object warband");
+            //Log.Message("making world object warband");
             tmpPawns.Clear();
             tmpPawns.AddRange(pawns);
             //Caravan warband = (Caravan)WorldObjectMaker.MakeWorldObject(WorldObjectDefOf.Caravan);
@@ -156,7 +194,7 @@ namespace RimWar.Planet
                 }
                 else
                 {
-                    Log.Message("adding pawn " + pawn.LabelShort);
+                    //Log.Message("adding pawn " + pawn.LabelShort);
                     warband.AddPawn(pawn, addToWorldPawnsIfNotAlready);
                     if (addToWorldPawnsIfNotAlready && !pawn.IsWorldPawn())
                     {
@@ -173,7 +211,7 @@ namespace RimWar.Planet
 
         public static void CreateWarband(int power, RimWarData rwd, Settlement parentSettlement, int startingTile, int destinationTile, WorldObjectDef worldDef)
         {
-            Log.Message("generating warband for " + rwd.RimWarFaction.Name + " from " + startingTile + " to " + destinationTile);
+            //Log.Message("generating warband for " + rwd.RimWarFaction.Name + " from " + startingTile + " to " + destinationTile);
             Warband warband = new Warband();            
             warband = MakeWarband(rwd.RimWarFaction, startingTile);
             warband.ParentSettlement = parentSettlement;
@@ -216,7 +254,7 @@ namespace RimWar.Planet
 
         public static void CreateLaunchedWarband(int power, RimWarData rwd, Settlement parentSettlement, int startingTile, int destinationTile, WorldObjectDef worldDef)
         {
-            Log.Message("generating warband for " + rwd.RimWarFaction.Name + " from " + startingTile + " to " + destinationTile);
+            //Log.Message("generating warband for " + rwd.RimWarFaction.Name + " from " + startingTile + " to " + destinationTile);
             LaunchedWarband warband = new LaunchedWarband();
             warband = MakeLaunchedWarband(rwd.RimWarFaction, startingTile);
             warband.ParentSettlement = parentSettlement;
@@ -249,7 +287,7 @@ namespace RimWar.Planet
 
         public static void CreateScout(int power, RimWarData rwd, Settlement parentSettlement, int startingTile, int destinationTile, WorldObjectDef worldDef)
         {
-            Log.Message("generating scout for " + rwd.RimWarFaction.Name + " from " + startingTile + " to " + destinationTile);
+            //Log.Message("generating scout for " + rwd.RimWarFaction.Name + " from " + startingTile + " to " + destinationTile);
             Scout scout = new Scout();
             scout = MakeScout(rwd.RimWarFaction, startingTile);
             scout.ParentSettlement = parentSettlement;
@@ -296,7 +334,7 @@ namespace RimWar.Planet
 
         public static void CreateTrader(int power, RimWarData rwd, Settlement parentSettlement, int startingTile, int destinationTile, WorldObjectDef worldDef)
         {
-            Log.Message("generating trader for " + rwd.RimWarFaction.Name + " from " + startingTile + " to " + destinationTile);
+            //Log.Message("generating trader for " + rwd.RimWarFaction.Name + " from " + startingTile + " to " + destinationTile);
             Trader trader = new Trader();
             trader = MakeTrader(rwd.RimWarFaction, startingTile);
             trader.ParentSettlement = parentSettlement;
@@ -343,7 +381,7 @@ namespace RimWar.Planet
 
         public static void CreateDiplomat(int power, RimWarData rwd, Settlement parentSettlement, int startingTile, int destinationTile, WorldObjectDef worldDef)
         {
-            Log.Message("generating diplomat for " + rwd.RimWarFaction.Name + " from " + startingTile + " to " + destinationTile);
+            //Log.Message("generating diplomat for " + rwd.RimWarFaction.Name + " from " + startingTile + " to " + destinationTile);
             Diplomat diplomat = new Diplomat();
             diplomat = MakeDiplomat(rwd.RimWarFaction, startingTile);
             diplomat.ParentSettlement = parentSettlement;
@@ -390,7 +428,7 @@ namespace RimWar.Planet
 
         public static void CreateSettler(int power, RimWarData rwd, Settlement parentSettlement, int startingTile, int destinationTile, WorldObjectDef worldDef)
         {
-            Log.Message("generating Settler for " + rwd.RimWarFaction.Name + " from " + startingTile + " to " + destinationTile);
+            //Log.Message("generating Settler for " + rwd.RimWarFaction.Name + " from " + startingTile + " to " + destinationTile);
             Settler settler = new Settler();
             settler = MakeSettler(rwd.RimWarFaction, startingTile);
             settler.ParentSettlement = parentSettlement;
@@ -463,16 +501,16 @@ namespace RimWar.Planet
             }
             else
             {
-                pointsNeeded = Mathf.RoundToInt(targetTown.RimWarPoints * .7f);
+                pointsNeeded = Mathf.RoundToInt(targetTown.RimWarPoints * 1f);
             }
             if(Rand.Value >= .8f)
             {
                 //crushing attack
-                pointsNeeded = Mathf.RoundToInt(Rand.Range(1.8f, 2.5f) * pointsNeeded);
+                pointsNeeded = Mathf.RoundToInt(Rand.Range(1.5f, 2.5f) * pointsNeeded);
             }
             else
             {
-                pointsNeeded = Mathf.RoundToInt(Rand.Range(.9f, 1.5f) * pointsNeeded);
+                pointsNeeded = Mathf.RoundToInt(Rand.Range(1f, 1.5f) * pointsNeeded);
             }
             return Mathf.Clamp(pointsNeeded, 50, 1000000);
         }
@@ -503,17 +541,17 @@ namespace RimWar.Planet
 
         public static int CalculateDiplomatPoints(Settlement originTown)
         {
-            int pointsNeeded = Rand.Range(500, 1000);
-            return Mathf.Clamp(pointsNeeded, 500, 1000000);
+            int pointsNeeded = Rand.Range(100, 200);
+            return Mathf.Clamp(pointsNeeded, 100, 1000000);
         }
 
         public static int CalculateScoutMissionPoints(RimWarData rwd, int targetPoints)
         {
             float pointsNeeded = 0;
-            pointsNeeded = Rand.Range(.9f, 1.5f) * pointsNeeded;
+            pointsNeeded = Rand.Range(.9f, 1.35f) * targetPoints;
             if (rwd.behavior == RimWarBehavior.Expansionist)
             {
-                pointsNeeded *= 1.25f;
+                pointsNeeded *= 1.15f;
             }
             else if(rwd.behavior == RimWarBehavior.Aggressive)
             {
@@ -584,17 +622,14 @@ namespace RimWar.Planet
                 {
                     settlerChance = 1f;
                 }
-                warbandChance = 1f;
-                scoutChance = 1f;
+                warbandChance = 3f;
+                scoutChance = 4f;
                 if (rimwarObject.CanLaunch)
                 {
-                    warbandLaunchChance = 1f;
+                    warbandLaunchChance = 2f;
                 }
-                if (!(rimwarObject.behavior == RimWarBehavior.Warmonger))
-                {
-                    diplomatChance = 1f;
-                }
-                caravanChance = 1f;
+                diplomatChance = 1f;                
+                caravanChance = 3f;
             }
             if (rimwarObject.behavior == RimWarBehavior.Aggressive)
             {
@@ -602,26 +637,44 @@ namespace RimWar.Planet
                 {
                     settlerChance = 2f;
                 }
-                warbandChance = 4f;
-                scoutChance = 2f;
+                warbandChance = 6f;
+                scoutChance = 4f;
                 if (rimwarObject.CanLaunch)
                 {
-                    warbandLaunchChance = 2f;
+                    warbandLaunchChance = 4f;
                 }
                 if (!(rimwarObject.behavior == RimWarBehavior.Warmonger))
                 {
                     diplomatChance = 1f;
                 }
-                caravanChance = 2f;
+                caravanChance = 3f;
             }
             if (rimwarObject.behavior == RimWarBehavior.Cautious)
             {
                 if (rimwarObject.createsSettlements)
                 {
+                    settlerChance = 2f;
+                }
+                warbandChance = 2f;
+                scoutChance = 4f;
+                if (rimwarObject.CanLaunch)
+                {
+                    warbandLaunchChance = 3f;
+                }
+                if (!(rimwarObject.behavior == RimWarBehavior.Warmonger))
+                {
+                    diplomatChance = 2f;
+                }
+                caravanChance = 5f;
+            }
+            if (rimwarObject.behavior == RimWarBehavior.Expansionist)
+            {
+                if (rimwarObject.createsSettlements)
+                {
                     settlerChance = 3f;
                 }
-                warbandChance = 1f;
-                scoutChance = 2f;
+                warbandChance = 2f;
+                scoutChance = 3f;
                 if (rimwarObject.CanLaunch)
                 {
                     warbandLaunchChance = 1f;
@@ -632,32 +685,14 @@ namespace RimWar.Planet
                 }
                 caravanChance = 4f;
             }
-            if (rimwarObject.behavior == RimWarBehavior.Expansionist)
-            {
-                if (rimwarObject.createsSettlements)
-                {
-                    settlerChance = 5f;
-                }
-                warbandChance = 1f;
-                scoutChance = 1f;
-                if (rimwarObject.CanLaunch)
-                {
-                    warbandLaunchChance = 1f;
-                }
-                if (!(rimwarObject.behavior == RimWarBehavior.Warmonger))
-                {
-                    diplomatChance = 2f;
-                }
-                caravanChance = 3f;
-            }
             if (rimwarObject.behavior == RimWarBehavior.Merchant)
             {
                 if (rimwarObject.createsSettlements)
                 {
                     settlerChance = 2f;
                 }
-                warbandChance = 1f;
-                scoutChance = 1f;
+                warbandChance = 2f;
+                scoutChance = 3f;
                 if (rimwarObject.CanLaunch)
                 {
                     warbandLaunchChance = 1f;
@@ -672,19 +707,19 @@ namespace RimWar.Planet
             {
                 if (rimwarObject.createsSettlements)
                 {
-                    settlerChance = 1f;
+                    settlerChance = 3f;
                 }
-                warbandChance = 6f;
-                scoutChance = 2f;
+                warbandChance = 8f;
+                scoutChance = 4f;
                 if (rimwarObject.CanLaunch)
                 {
-                    warbandLaunchChance = 3f;
+                    warbandLaunchChance = 5f;
                 }
                 if (!(rimwarObject.behavior == RimWarBehavior.Warmonger))
                 {
                     diplomatChance = 1f;
                 }
-                caravanChance = 1f;
+                caravanChance = 3f;
             }
             totalChance = settlerChance + warbandChance + scoutChance + warbandLaunchChance + diplomatChance + caravanChance;
             rimwarObject.settlerChance = settlerChance / totalChance;
@@ -754,8 +789,8 @@ namespace RimWar.Planet
                             Settlement settlement = warObjects[i].FactionSettlements[j];
                             int to = settlement.Tile;
                             //int ticksToArrive = Utility.ArrivalTimeEstimator.EstimatedTicksToArrive(from, to, 1);
-                            int ticksToArrive = Find.WorldGrid.TraversalDistanceBetween(from, to, false, range);
-                            if (ticksToArrive != 0 && ticksToArrive <= range)
+                            int tileDistance = Find.WorldGrid.TraversalDistanceBetween(from, to, false, range);
+                            if (tileDistance != 0 && tileDistance <= range)
                             {
                                 
                                 tmpSettlements.Add(settlement);
@@ -765,6 +800,30 @@ namespace RimWar.Planet
                 }
             }
             return tmpSettlements;
+        }
+
+        public static Settlement GetClosestRimWarSettlementOfFaction(Faction faction, int tile, int maxRange)
+        {
+            List<Settlement> settlementsInRange = GetRimWarSettlementsInRange(tile, maxRange, GetRimWarData(), GetRimWarDataForFaction(faction));
+            Settlement closestSettlement = null;
+            if(settlementsInRange != null && settlementsInRange.Count > 0)
+            {
+                for(int i =0; i < settlementsInRange.Count; i++)
+                {
+                    if(closestSettlement != null)
+                    {
+                        if(Find.WorldGrid.TraversalDistanceBetween(tile, settlementsInRange[i].Tile, false, maxRange) < Find.WorldGrid.TraversalDistanceBetween(tile, closestSettlement.Tile, false, maxRange))
+                        {
+                            closestSettlement = settlementsInRange[i];
+                        }
+                    }
+                    else
+                    {
+                        closestSettlement = settlementsInRange[i];
+                    }
+                }
+            }
+            return closestSettlement;
         }
 
         public static List<Settlement> GetHostileRimWarSettlementsInRange(int from, int range, Faction faction, List<RimWarData> rwdList, RimWarData rwd)

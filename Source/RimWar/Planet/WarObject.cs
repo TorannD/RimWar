@@ -22,12 +22,16 @@ namespace RimWar.Planet
 
         private Material cachedMat;
 
+        private bool movesAtNight = false;
         private bool cachedImmobilized;
         private int cachedImmobilizedForTicks = -99999;
         private const int ImmobilizedCacheDuration = 60;
 
         private Settlement parentSettlement = null;
+        private int parentSettlementTile = -1;
         private WorldObject targetWorldObject = null;
+        private int destinationTile = -1;
+
 
         private static readonly Color WarObjectDefaultColor = new Color(1f, 1f, 1f);
 
@@ -36,7 +40,10 @@ namespace RimWar.Planet
             base.ExposeData();
             Scribe_Values.Look(ref uniqueId, "uniqueId", 0);
             Scribe_Values.Look(ref nameInt, "name");
+            Scribe_Values.Look<bool>(ref this.movesAtNight, "movesAtNight", false, false);
             Scribe_Values.Look<int>(ref this.warPointsInt, "warPointsInt", -1, false);
+            Scribe_Values.Look<int>(ref this.parentSettlementTile, "parentSettlementTile", -1, false);
+            Scribe_Values.Look<int>(ref this.destinationTile, "destinationTile", -1, false);
             Scribe_Deep.Look(ref pather, "pather", this);
             Scribe_References.Look<Settlement>(ref this.parentSettlement, "parentSettlement");
             Scribe_References.Look<WorldObject>(ref this.targetWorldObject, "targetWorldObject");
@@ -46,17 +53,28 @@ namespace RimWar.Planet
         {
             get
             {
-                WorldObject wo = Find.World.worldObjects.WorldObjectAt(this.parentSettlement.Tile, WorldObjectDefOf.Settlement);
-                if (wo != null && wo.Faction == this.Faction)
+                if(this.parentSettlement != null && parentSettlement.Faction == this.Faction)
                 {
+                    this.parentSettlementTile = this.parentSettlement.Tile;
                     return this.parentSettlement;
                 }
                 else
                 {
-                    this.parentSettlement = null;
+                    if (this.parentSettlementTile != -1)
+                    {
+                        WorldObject wo = Find.World.worldObjects.WorldObjectAt(this.parentSettlementTile, WorldObjectDefOf.Settlement);
+                        if(wo != null && wo.Faction == this.Faction)
+                        {
+                            this.parentSettlement = WorldUtility.GetRimWarSettlementAtTile(this.parentSettlementTile);
+                            if(this.parentSettlement == null)
+                            {
+                                this.parentSettlementTile = -1;
+                            }
+                        }
+                    }
+                    FindParentSettlement();
                     return this.parentSettlement;
                 }
-
             }
             set
             {
@@ -73,6 +91,18 @@ namespace RimWar.Planet
             set
             {
                 this.targetWorldObject = value;
+            }
+        }
+
+        public int DestinationTile
+        {
+            get
+            {
+                return this.destinationTile;
+            }
+            set
+            {
+                this.destinationTile = value;
             }
         }
 
@@ -97,6 +127,18 @@ namespace RimWar.Planet
                     cachedMat = MaterialPool.MatFrom(color: (base.Faction == null) ? Color.white : ((!base.Faction.IsPlayer) ? base.Faction.Color : WarObjectDefaultColor), texPath: def.texture, shader: ShaderDatabase.WorldOverlayTransparentLit, renderQueue: WorldMaterials.DynamicObjectRenderQueue);
                 }
                 return cachedMat;
+            }
+        }
+
+        public virtual bool MovesAtNight
+        {
+            get
+            {
+                return movesAtNight;
+            }
+            set
+            {
+                movesAtNight = value;
             }
         }
 
@@ -217,7 +259,6 @@ namespace RimWar.Planet
         public override void Tick()
         {
             base.Tick();
-            //CheckAnyNonWorldPawns();
             pather.PatherTick();
             tweener.TweenerTick();
             if(this.DestinationReached)
@@ -282,6 +323,61 @@ namespace RimWar.Planet
             get
             {
                 return this.Tile == pather.Destination;
+            }
+        }
+
+        public void PathToTarget(WorldObject wo)
+        {
+            pather.StartPath(wo.Tile, true);
+            tweener.ResetTweenedPosToRoot();
+        }
+
+        public void PathToTargetTile(int tile)
+        {
+            pather.StartPath(tile, true);
+            tweener.ResetTweenedPosToRoot();
+        }
+
+        public void FindParentSettlement()
+        {
+            this.ParentSettlement = WorldUtility.GetFriendlyRimWarSettlementsInRange(this.Tile, 20, this.Faction, WorldUtility.GetRimWarData(), WorldUtility.GetRimWarDataForFaction(this.Faction)).RandomElement();
+            if (this.parentSettlement == null)
+            {
+                //expand search parameters
+                this.ParentSettlement = WorldUtility.GetFriendlyRimWarSettlementsInRange(this.Tile, 200, this.Faction, WorldUtility.GetRimWarData(), WorldUtility.GetRimWarDataForFaction(this.Faction)).RandomElement();
+                if (this.parentSettlement == null)
+                {
+                    //warband is lost, no nearby parent settlement
+                    Find.WorldObjects.Remove(this);
+                }
+                else
+                {
+                    PathToTarget(Find.World.worldObjects.WorldObjectAt(this.ParentSettlement.Tile, WorldObjectDefOf.Settlement));
+                }
+            }
+            else
+            {
+                PathToTarget(Find.World.worldObjects.WorldObjectAt(this.ParentSettlement.Tile, WorldObjectDefOf.Settlement));
+            }
+        }
+
+        public void FindHostileSettlement()
+        {
+            this.DestinationTarget = Find.World.worldObjects.WorldObjectOfDefAt(WorldObjectDefOf.Settlement, WorldUtility.GetHostileRimWarSettlementsInRange(this.Tile, 20, this.Faction, WorldUtility.GetRimWarData(), WorldUtility.GetRimWarDataForFaction(this.Faction)).RandomElement().Tile);
+            if (this.DestinationTarget != null)
+            {
+                PathToTarget(this.DestinationTarget);
+            }
+            else
+            {
+                if (this.ParentSettlement == null)
+                {
+                    FindParentSettlement();
+                }
+                else
+                {
+                    PathToTarget(Find.World.worldObjects.WorldObjectAt(this.ParentSettlement.Tile, WorldObjectDefOf.Settlement));
+                }
             }
         }
     }

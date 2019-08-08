@@ -12,142 +12,23 @@ namespace RimWar.Planet
     public class Settler : WarObject
     {
         private int lastEventTick = 0;
-        private bool movesAtNight = false;
         private int ticksPerMove = 2000;
-        private int searchTick = 60;
-        private int destinationTile = -1;
-
-        public int DestinationTile
-        {
-            get
-            {
-                return this.destinationTile;
-            }
-            set
-            {
-                this.destinationTile = value;
-            }
-        }
+        private int searchTick = 60;        
 
         public override void ExposeData()
         {
             base.ExposeData();
-            Scribe_Values.Look<bool>(ref this.movesAtNight, "movesAtNight", false, false);
-            Scribe_Values.Look<int>(ref this.lastEventTick, "lastEventTick", 0, false);
-            Scribe_Values.Look<int>(ref this.destinationTile, "destinationTile", -1, false);
+            Scribe_Values.Look<int>(ref this.lastEventTick, "lastEventTick", 0, false);            
             Scribe_Values.Look<int>(ref this.ticksPerMove, "ticksPerMove", 2000, false);                       
-        }
-
-        public override void Tick()
-        {
-            base.Tick();
-            if(Find.TickManager.TicksGame % this.searchTick == 0)
-            {
-                //scan for nearby engagements
-                this.searchTick = Rand.Range(300, 500);
-                ScanForNearbyEnemy(1); //WorldUtility.GetRimWarDataForFaction(this.Faction).GetEngagementRange()
-                if (this.DestinationTarget != null && this.DestinationTarget.Tile != pather.Destination)
-                {
-                    PathToTarget(this.DestinationTarget);
-                }
-                if (DestinationTarget is Warband || DestinationTarget is Caravan)
-                {
-                    EngageNearbyEnemy();
-                }
-                
-            }
-            if(Find.TickManager.TicksGame % 60 == 0)
-            {
-                if (this.ParentSettlement == null)
-                {
-                    FindParentSettlement();                    
-                }
-                //target is gone; return home
-                if (this.DestinationTarget == null)
-                {
-                    this.DestinationTarget = Find.World.worldObjects.WorldObjectAt(this.ParentSettlement.Tile, WorldObjectDefOf.Settlement);
-                    if (DestinationTarget != null && DestinationTarget.Tile != pather.Destination)
-                    {
-                        pather.StartPath(DestinationTarget.Tile, true, false);
-                    }
-                    else
-                    {
-                        //not heading in the right direction; pause then attempt to reroute
-                        pather.StopDead();
-                    }
-                }                
-            }
-        }
-
-        public void ScanForNearbyEnemy(int range)
-        {
-            List<WorldObject> worldObjects = WorldUtility.GetWorldObjectsInRange(this.Tile, range);
-            if (worldObjects != null && worldObjects.Count > 0)
-            {
-                for (int i = 0; i < worldObjects.Count; i++)
-                {
-                    WorldObject wo = worldObjects[i];
-                    if (wo.Faction != this.Faction && wo != this.DestinationTarget)
-                    {
-                        //Log.Message("" + this.Name + " scanned nearby object " + this.targetWorldObject.Label);
-                        if (wo is Caravan && wo.Faction.HostileTo(this.Faction)) //or rimwar caravan, or diplomat, or merchant; ignore scouts and settlements
-                        {
-                            //Log.Message(this.Label + " engaging nearby warband " + wo.Label);
-                            this.DestinationTarget = worldObjects[i];                            
-                            break;
-                        }
-                        else if(wo is Caravan && wo.Faction.HostileTo(this.Faction))
-                        {
-                            this.DestinationTarget = worldObjects[i];
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        public void PathToTarget(WorldObject wo)
-        {
-            pather.StartPath(wo.Tile, true);
-            tweener.ResetTweenedPosToRoot();
-        }
-
-        public void EngageNearbyEnemy()
-        {
-            if(this.DestinationTarget != null && (this.DestinationTarget.Tile == this.Tile || Find.WorldGrid.TraversalDistanceBetween(this.Tile, this.DestinationTarget.Tile) <= 1))
-            {
-                ImmediateAction(this.DestinationTarget);
-            }
-            else if( this.DestinationTarget != null && Find.WorldGrid.TraversalDistanceBetween(this.Tile, this.DestinationTarget.Tile) <= 2)
-            {
-                PathToTarget(this.DestinationTarget);
-            }
-            else
-            {
-                this.DestinationTarget = null;
-
-            }
-                   
-        }
+        }        
 
         public Settler()
         {
 
         }
 
-        public override int RimWarPoints { get => base.RimWarPoints; set => base.RimWarPoints = value; }        
-
-        public bool MovesAtNight
-        {
-            get
-            {
-                return movesAtNight;
-            }
-            set
-            {
-                movesAtNight = value;
-            }
-        }
+        public override int RimWarPoints { get => base.RimWarPoints; set => base.RimWarPoints = value; }
+        public override bool MovesAtNight { get => base.MovesAtNight; set => base.MovesAtNight = value; }
 
         public override bool NightResting
         {
@@ -161,7 +42,7 @@ namespace RimWar.Planet
                 {
                     return false;
                 }
-                if (movesAtNight)
+                if (MovesAtNight)
                 {
                     return !CaravanNightRestUtility.RestingNowAt(base.Tile);
                 }
@@ -191,11 +72,11 @@ namespace RimWar.Planet
                 WorldObject wo = Find.World.worldObjects.ObjectsAt(pather.Destination).FirstOrDefault();
                 if (wo.Faction != this.Faction)
                 {
-                    stringBuilder.Append("RW_WarbandInspectString".Translate(this.Name, "RW_Attacking".Translate(), wo.Label));
+                    stringBuilder.Append("RW_SettlerInspectString".Translate(this.Name, "RW_EstablishingSettlement".Translate()));
                 }
                 else
                 {
-                    stringBuilder.Append("RW_WarbandInspectString".Translate(this.Name, "RW_ReturningTo".Translate(), wo.Label));
+                    stringBuilder.Append("RW_WarObjectInspectString".Translate(this.Name, "RW_ReturningTo".Translate(), wo.Label));
                 }
             }
 
@@ -221,20 +102,106 @@ namespace RimWar.Planet
             return stringBuilder.ToString();
         }
 
+        public override void Tick()
+        {
+            base.Tick();
+            if (Find.TickManager.TicksGame % this.searchTick == 0)
+            {
+                //scan for nearby engagements
+                this.searchTick = Rand.Range(3000, 5000);
+                ScanForNearbyEnemy(1); //WorldUtility.GetRimWarDataForFaction(this.Faction).GetEngagementRange()
+                if(DestinationTarget != null)
+                {
+                    if (this.DestinationTarget.Tile != pather.Destination)
+                    {
+                        PathToTarget(DestinationTarget);
+                    }
+                }
+                else if (this.DestinationTile > 0 && this.DestinationTile != pather.Destination)
+                {
+                    PathToTargetTile(this.DestinationTile);
+                }
+                //else
+                //{
+                //    if (this.ParentSettlement != null)
+                //    {
+                //        this.DestinationTarget = Find.World.worldObjects.WorldObjectAt(this.ParentSettlement.Tile, WorldObjectDefOf.Settlement);
+                //    }
+                //}
+            }
+            if (Find.TickManager.TicksGame % 60 == 0)
+            {
+                if (this.ParentSettlement == null)
+                {
+                    FindParentSettlement();
+                }
+                //target is gone; return home
+                if (this.DestinationTile <= 0)
+                {
+                    this.DestinationTarget = Find.World.worldObjects.WorldObjectAt(this.ParentSettlement.Tile, WorldObjectDefOf.Settlement);
+                    if (DestinationTarget != null && DestinationTarget.Tile != pather.Destination)
+                    {
+                        PathToTarget(DestinationTarget);
+                    }
+                    else
+                    {
+                        //not heading in the right direction; pause then attempt to reroute
+                        pather.StopDead();
+                    }
+                }
+            }
+        }
+
+        public void ScanForNearbyEnemy(int range)
+        {
+            List<WorldObject> worldObjects = WorldUtility.GetWorldObjectsInRange(this.Tile, range);
+            if (worldObjects != null && worldObjects.Count > 0)
+            {
+                for (int i = 0; i < worldObjects.Count; i++)
+                {
+                    WorldObject wo = worldObjects[i];
+                    if (wo.Faction != this.Faction && wo.Faction.HostileTo(this.Faction))
+                    {
+                        //Log.Message("" + this.Name + " scanned nearby object " + this.targetWorldObject.Label);
+                        if (wo is Caravan) //or rimwar caravan, or diplomat, or merchant; ignore scouts and settlements
+                        {
+                            //Log.Message(this.Label + " engaging nearby warband " + wo.Label);
+                            this.DestinationTarget = wo;
+                            EngageNearbyEnemy();
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        public void EngageNearbyEnemy()
+        {
+            if (this.DestinationTarget != null && (this.DestinationTarget.Tile == this.Tile))
+            {
+                ImmediateAction(this.DestinationTarget);
+            }
+            else if (this.DestinationTarget != null && Find.WorldGrid.TraversalDistanceBetween(this.Tile, this.DestinationTarget.Tile) >= 1)
+            {
+                PathToTargetTile(this.DestinationTile);
+                this.DestinationTarget = null;
+            }
+            else
+            {
+                this.DestinationTarget = null;
+            }
+        }
+
         public override void ImmediateAction(WorldObject wo)
         {
             if(wo != null)
             {
                 if(wo.Faction != null && wo.Faction.HostileTo(this.Faction))
                 {
-                    if(wo is Warband)
-                    {
-                        IncidentUtility.ResolveRimWarBattle(this, wo as WarObject);
-                        base.ImmediateAction(wo);
-                    }
-                    else if(wo is Caravan)
+                    if(wo is Caravan)
                     {
                         IncidentUtility.DoCaravanAttackWithPoints(this, wo as Caravan, this.rimwarData, PawnsArrivalModeDefOf.EdgeWalkIn);
+                        base.ImmediateAction(wo);
                     }
                 }                
             }
@@ -249,109 +216,73 @@ namespace RimWar.Planet
         {
             //Log.Message("beginning arrival actions");
             WorldObject wo = Find.World.worldObjects.ObjectsAt(pather.Destination).FirstOrDefault();
-            if(wo.Faction != this.Faction)
+            if (wo != null && wo != this)
             {
-                if (wo.Faction.HostileTo(this.Faction))
+                if (wo.Faction != this.Faction)
                 {
-                    if (wo.Faction == Faction.OfPlayer)
+                    if (wo.Faction.HostileTo(this.Faction))
                     {
-                        //Do Raid
-                        RimWorld.Planet.Settlement playerSettlement = Find.World.worldObjects.SettlementAt(this.Tile);
-                        Caravan playerCaravan = Find.World.worldObjects.PlayerControlledCaravanAt(this.Tile);
-                        if (playerSettlement != null)
+                        if (wo.Faction == Faction.OfPlayer)
                         {
-                            //Raid Player Map
-                            IncidentUtility.DoRaidWithPoints(this.RimWarPoints, playerSettlement, WorldUtility.GetRimWarDataForFaction(this.Faction), PawnsArrivalModeDefOf.EdgeWalkIn);
+                            //Do Raid
+                            RimWorld.Planet.Settlement playerSettlement = Find.World.worldObjects.SettlementAt(this.Tile);
+                            Caravan playerCaravan = Find.World.worldObjects.PlayerControlledCaravanAt(this.Tile);
+                            if (playerSettlement != null)
+                            {
+                                //Raid Player Map
+                                IncidentUtility.DoRaidWithPoints(this.RimWarPoints, playerSettlement, WorldUtility.GetRimWarDataForFaction(this.Faction), PawnsArrivalModeDefOf.EdgeWalkIn);
+                            }
+                            else if (playerCaravan != null)
+                            {
+                                //Raid player caravan
+                                IncidentUtility.DoCaravanAttackWithPoints(this, playerCaravan, this.rimwarData, PawnsArrivalModeDefOf.EdgeWalkIn);
+                            }
                         }
-                        else if (playerCaravan != null)
+                        else
                         {
-                            //Raid player caravan
-                            IncidentUtility.DoCaravanAttackWithPoints(this, playerCaravan, this.rimwarData, PawnsArrivalModeDefOf.EdgeWalkIn);
+                            this.DestinationTile = this.ParentSettlement.Tile;
+                            this.DestinationTarget = Find.World.worldObjects.WorldObjectAt(this.ParentSettlement.Tile, WorldObjectDefOf.Settlement);
+                            PathToTargetTile(DestinationTile);
                         }
                     }
                     else
                     {
-                        Settlement settlement = WorldUtility.GetRimWarSettlementAtTile(this.Tile);
-                        if (settlement != null)
+                        this.DestinationTile = this.ParentSettlement.Tile;
+                        this.DestinationTarget = Find.World.worldObjects.WorldObjectAt(this.ParentSettlement.Tile, WorldObjectDefOf.Settlement);
+                        PathToTargetTile(DestinationTile);
+                    }
+                }
+                else
+                {
+                    //Log.Message("this tile: " + this.Tile + " parent settlement tile: " + this.ParentSettlement.Tile);
+                    if (this.Tile == ParentSettlement.Tile)
+                    {
+                        if (Find.World.worldObjects.AnyMapParentAt(this.Tile))
                         {
-                            IncidentUtility.ResolveWarObjectAttackOnSettlement(this, this.ParentSettlement, settlement, WorldUtility.GetRimWarDataForFaction(this.Faction));
+                            //reinforce
+                            //Log.Message("attempting to reinforce");
+                            //Log.Message("map is spawn " + Find.World.worldObjects.MapParentAt(this.Tile).Spawned);
+                            //Log.Message("map " + Find.World.worldObjects.MapParentAt(this.Tile).Map + " has faction " + Find.World.worldObjects.MapParentAt(this.Tile).Faction);
+                            this.ParentSettlement.RimWarPoints += this.RimWarPoints;
                         }
-                        else if (wo is Warband)
+                        else
                         {
-                            IncidentUtility.ResolveWorldEngagement(this, wo);
+                            //Log.Message("parent settlement points: " + this.ParentSettlement.RimWarPoints);
+                            if (wo.Faction != this.Faction) //could happen if parent town is taken over while army is away, in which case - perform another raid
+                            {
+
+                            }
+                            this.ParentSettlement.RimWarPoints += this.RimWarPoints;
                         }
-                    }                
+                    }
                 }
             }
             else
             {
-                //Log.Message("this tile: " + this.Tile + " parent settlement tile: " + this.ParentSettlement.Tile);
-                if(this.Tile == ParentSettlement.Tile)
-                {
-                    if(Find.World.worldObjects.AnyMapParentAt(this.Tile))
-                    {
-                        //reinforce
-                        //Log.Message("attempting to reinforce");
-                        //Log.Message("map is spawn " + Find.World.worldObjects.MapParentAt(this.Tile).Spawned);
-                        //Log.Message("map " + Find.World.worldObjects.MapParentAt(this.Tile).Map + " has faction " + Find.World.worldObjects.MapParentAt(this.Tile).Faction);
-                        this.ParentSettlement.RimWarPoints += this.RimWarPoints;
-                    }
-                    else
-                    {
-                        //Log.Message("parent settlement points: " + this.ParentSettlement.RimWarPoints);
-                        if (wo.Faction != this.Faction) //could happen if parent town is taken over while army is away, in which case - perform another raid
-                        {
-
-                        }
-                        this.ParentSettlement.RimWarPoints += this.RimWarPoints;
-                    }
-                }
+                WorldUtility.CreateSettlement(this, this.rimwarData, DestinationTile, this.Faction);                
             }
             //Log.Message("ending arrival actions");
             base.ArrivalAction();
-        }
-
-        public void FindParentSettlement()
-        {
-            this.ParentSettlement = WorldUtility.GetFriendlyRimWarSettlementsInRange(this.Tile, 20, this.Faction, WorldUtility.GetRimWarData(), WorldUtility.GetRimWarDataForFaction(this.Faction)).RandomElement();
-            if(this.ParentSettlement == null)
-            {
-                //expand search parameters
-                WorldUtility.GetFriendlyRimWarSettlementsInRange(this.Tile, 200, this.Faction, WorldUtility.GetRimWarData(), WorldUtility.GetRimWarDataForFaction(this.Faction)).RandomElement();
-                if (this.ParentSettlement == null)
-                {
-                    //warband is lost, no nearby parent settlement
-                    Find.WorldObjects.Remove(this);
-                }
-                else
-                {
-                    PathToTarget(Find.World.worldObjects.WorldObjectAt(this.ParentSettlement.Tile, WorldObjectDefOf.Settlement));
-                }
-            }
-            else
-            {
-                PathToTarget(Find.World.worldObjects.WorldObjectAt(this.ParentSettlement.Tile, WorldObjectDefOf.Settlement));
-            }
-        }
-
-        public void FindHostileSettlement()
-        {
-            this.DestinationTarget = Find.World.worldObjects.WorldObjectOfDefAt(WorldObjectDefOf.Settlement, WorldUtility.GetHostileRimWarSettlementsInRange(this.Tile, 20, this.Faction, WorldUtility.GetRimWarData(), WorldUtility.GetRimWarDataForFaction(this.Faction)).RandomElement().Tile);
-            if (this.DestinationTarget != null)
-            {
-                PathToTarget(this.DestinationTarget);                
-            }
-            else
-            {
-                if (this.ParentSettlement == null)
-                {
-                    FindParentSettlement();
-                }
-                else
-                {
-                    PathToTarget(Find.World.worldObjects.WorldObjectAt(this.ParentSettlement.Tile, WorldObjectDefOf.Settlement));
-                }
-            }
-        }        
+        }    
     }
 }

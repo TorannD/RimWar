@@ -18,8 +18,8 @@ namespace RimWar
 
         public RimWarBehavior behavior;
         public bool createsSettlements;
-        public bool hatesPlayer = false;
-        public bool movesAtNight = false;
+        public bool hatesPlayer;
+        public bool movesAtNight;
         public BiomeDef biomeDef;
 
         //determines behavior weights

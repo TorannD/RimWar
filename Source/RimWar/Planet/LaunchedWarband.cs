@@ -67,61 +67,7 @@ namespace RimWar.Planet
         public override void ArrivalAction()
         {
             //Log.Message("beginning arrival actions");
-            WorldObject wo = Find.World.worldObjects.ObjectsAt(this.destinationTile).FirstOrDefault();
-            if(wo.Faction != this.Faction)
-            {
-                if (wo.Faction.HostileTo(this.Faction))
-                {
-                    if (wo.Faction == Faction.OfPlayer)
-                    {
-                        //Do Raid
-                        RimWorld.Planet.Settlement playerSettlement = Find.World.worldObjects.SettlementAt(this.Tile);
-                        Caravan playerCaravan = Find.World.worldObjects.PlayerControlledCaravanAt(this.Tile);
-                        if (playerSettlement != null)
-                        {
-                            //Raid Player Map
-                            IncidentUtility.DoRaidWithPoints(this.RimWarPoints, playerSettlement, WorldUtility.GetRimWarDataForFaction(this.Faction), PawnsArrivalModeDefOf.EdgeWalkIn);
-                        }
-                        else if (playerCaravan != null)
-                        {
-                            //Raid player caravan
-                            //IncidentUtility.DoCaravanAttackWithPoints(this, playerCaravan, this.rimwarData, PawnsArrivalModeDefOf.EdgeWalkIn);
-                        }
-                    }
-                    else
-                    {
-                        Settlement settlement = WorldUtility.GetRimWarSettlementAtTile(this.Tile);
-                        if (settlement != null)
-                        {
-                            //IncidentUtility.ResolveWarbandAttackOnSettlement(this, this.ParentSettlement, settlement, WorldUtility.GetRimWarDataForFaction(this.Faction));
-                        }
-                    }                
-                }
-            }
-            else
-            {
-                //Log.Message("this tile: " + this.Tile + " parent settlement tile: " + this.ParentSettlement.Tile);
-                if(this.Tile == ParentSettlement.Tile)
-                {
-                    if(Find.World.worldObjects.AnyMapParentAt(this.Tile))
-                    {
-                        //reinforce
-                        //Log.Message("attempting to reinforce");
-                        //Log.Message("map is spawn " + Find.World.worldObjects.MapParentAt(this.Tile).Spawned);
-                        //Log.Message("map " + Find.World.worldObjects.MapParentAt(this.Tile).Map + " has faction " + Find.World.worldObjects.MapParentAt(this.Tile).Faction);
-                        this.ParentSettlement.RimWarPoints += this.RimWarPoints;
-                    }
-                    else
-                    {
-                        //Log.Message("parent settlement points: " + this.ParentSettlement.RimWarPoints);
-                        if (wo.Faction != this.Faction) //could happen if parent town is taken over while army is away, in which case - perform another raid
-                        {
-
-                        }
-                        this.ParentSettlement.RimWarPoints += this.RimWarPoints;
-                    }
-                }
-            }
+            WorldUtility.CreateWarband(this.RimWarPoints, this.rimwarData, this.ParentSettlement, this.Tile, this.destinationTile, this.DestinationTarget.def);
             //Log.Message("ending arrival actions");
             base.ArrivalAction();
         }      

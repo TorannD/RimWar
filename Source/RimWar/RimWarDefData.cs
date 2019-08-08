@@ -12,7 +12,7 @@ namespace RimWar
         [MustTranslate]
         public string factionDefname;
         public RimWarBehavior behavior;
-        public bool createsSettlements;
+        public bool createsSettlements = true;
         public bool hatesPlayer = false;
         public bool movesAtNight = false;
     }

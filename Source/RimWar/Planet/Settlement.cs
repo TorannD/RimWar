@@ -19,8 +19,21 @@ namespace RimWar.Planet
         public int nextEventTick = 0;
         public int lastSettlementScan = 0;
         private int uniqueID = -1;
-        private List<Settlement> settlementsInRange;
-        List<ConsolidatePoints> consolidatePoints;        
+        private List<RimWar.Planet.Settlement> settlementsInRange;
+        List<ConsolidatePoints> consolidatePoints;
+
+        public void ExposeData()
+        {
+            Scribe_Values.Look<int>(ref this.rimwarPointsInt, "rimwarPointsInt", 0, false);
+            Scribe_Values.Look<int>(ref this.nextEventTick, "nextEventTick", 0, false);
+            Scribe_Values.Look<int>(ref this.tile, "tile", 0, false);
+            Scribe_Values.Look<int>(ref this.uniqueID, "uniqueID", -1, false);
+            //Scribe_Collections.Look<Settlement>(ref this.settlementsInRange, "settlementsInRange", LookMode.Deep, new object[0]);
+            Scribe_Collections.Look<ConsolidatePoints>(ref this.consolidatePoints, "consolidatePoints", LookMode.Deep, new object[0]);
+            Scribe_References.Look<Faction>(ref this.faction, "faction");
+
+            //Scribe_References.Look<WorldObject>(ref this.worldObject, "worldObject");
+        }
 
         public List<ConsolidatePoints> SettlementPointGains
         {
@@ -79,6 +92,11 @@ namespace RimWar.Planet
                     this.settlementsInRange = new List<Settlement>();
                     this.settlementsInRange.Clear();
                 }
+                if(this.settlementsInRange.Count == 0 && this.lastSettlementScan <= (Find.TickManager.TicksGame + 120000))
+                {
+                    this.settlementsInRange = WorldUtility.GetRimWarSettlementsInRange(this.Tile, Mathf.RoundToInt(this.RimWarPoints / (100 * .5f)), WorldUtility.GetRimWarData(), WorldUtility.GetRimWarDataForFaction(this.faction));
+                    this.lastSettlementScan = Find.TickManager.TicksGame;
+                }
                 return this.settlementsInRange;
             }
             set
@@ -93,9 +111,9 @@ namespace RimWar.Planet
             {                
                 List<Settlement> tmpSettlements = new List<Settlement>();
                 tmpSettlements.Clear();
-                if (this.settlementsInRange != null)
+                if (OtherSettlementsInRange != null && settlementsInRange.Count > 0)
                 {
-                    for (int i = 0; i < this.settlementsInRange.Count; i++)
+                    for (int i = 0; i < settlementsInRange.Count; i++)
                     {
                         if (settlementsInRange[i].Faction.HostileTo(this.Faction))
                         {
@@ -113,9 +131,9 @@ namespace RimWar.Planet
             {
                 List<Settlement> tmpSettlements = new List<Settlement>();
                 tmpSettlements.Clear();
-                if (this.settlementsInRange != null)
+                if (OtherSettlementsInRange != null && settlementsInRange.Count > 0)
                 {
-                    for (int i = 0; i < this.settlementsInRange.Count; i++)
+                    for (int i = 0; i < settlementsInRange.Count; i++)
                     {
                         if (!settlementsInRange[i].Faction.HostileTo(this.Faction))
                         {
@@ -161,21 +179,7 @@ namespace RimWar.Planet
                 }
                 return null;
             }
-        }
-
-        public void ExposeData()
-        {
-            Scribe_Values.Look<int>(ref this.lastSettlementScan, "lastSettlementScan", 0, false);
-            Scribe_Values.Look<int>(ref this.rimwarPointsInt, "rimwarPointsInt", 0, false);
-            Scribe_Values.Look<int>(ref this.nextEventTick, "nextEventTick", 0, false);
-            Scribe_Values.Look<int>(ref this.tile, "tile", 0, false);
-            Scribe_Values.Look<int>(ref this.uniqueID, "uniqueID", -1, false);
-            Scribe_Collections.Look<Settlement>(ref this.settlementsInRange, "settlementsInRange", LookMode.Reference, new object[0]);
-            Scribe_Collections.Look<ConsolidatePoints>(ref this.consolidatePoints, "consolidatePoints", LookMode.Deep, new object[0]);
-            Scribe_References.Look<Faction>(ref this.faction, "faction");
-
-            //Scribe_References.Look<WorldObject>(ref this.worldObject, "worldObject");
-        }
+        }        
 
         public Settlement()
         {

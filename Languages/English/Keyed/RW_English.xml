@@ -3,12 +3,10 @@
 
 <!-- ============ WarObject =============-->
 
-<!-- ============ WarObject_PathFollower =============-->
-
 <!-- ============ World Objects =============-->
 <RW_EstimatedTimeToDestination>Estimated time to destination: {0} days</RW_EstimatedTimeToDestination>
-<RW_WarObjectInspectString>{0} of {1} moving to {2}</RW_WarObjectInspectString>
 <RW_WarObjectInspectString>{0} {1} {2}</RW_WarObjectInspectString>
+<RW_SettlerInspectString>{0} {1}</RW_SettlerInspectString>
 <RW_SettlementPoints>Settlement points: {0}</RW_SettlementPoints>
 <RW_WarbandName>Warband of {0}</RW_WarbandName>
 <RW_ScoutName>Scouting party of {0}</RW_ScoutName>
@@ -31,7 +29,21 @@
 <RW_Attacking>attacking</RW_Attacking>
 <RW_Scouting>scouting</RW_Scouting>
 <RW_ReturningTo>returning to</RW_ReturningTo>
-<RW_Trading>trade with</RW_Trading>
+<RW_Trading>trading with</RW_Trading>
 <RW_Diplomacy>engaging in diplomacy with</RW_Diplomacy>
+<RW_EstablishingSettlement>establishing a new settlement</RW_EstablishingSettlement>
+
+<!-- ============ Custom Letters =============-->
+<RW_VictoryChallengeLabel>RimWar Victory Challenge</RW_VictoryChallengeLabel>
+<RW_VictoryChallengeMessage>Your arrival to the Rim has sparked the ire of the {0}.  They are a ruthless faction that has fractured the solidarity of the planet - there can be no lasting peace as long as they remain. Your presence poses a threat to their schemes and they will hunt you until only one of you remains.
+
+Eliminate the {0} by destroying all their settlements to achieve victory.</RW_VictoryChallengeMessage>
+<RW_VictoryAchieved>Victory!
+
+News has spread far and wide of your victory over the vile {0} that has brought peace to the Rim.
+
+Your victory is no small feat; the grit and dedication demonstrated during your Rim War will forever be remembered in the annals of history.
+
+(RimWar statistics coming soon!)</RW_VictoryAchieved>
 
 </LanguageData>
