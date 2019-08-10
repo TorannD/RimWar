@@ -298,8 +298,8 @@ namespace RimWar.Planet
                 endPointsAttacker = (attacker.RimWarPoints + ((Rand.Range(-.1f, .1f) * defender.RimWarPoints))); //loser may lose or gain points
                 endPointsDefender = (defender.RimWarPoints + ((Rand.Range(.1f, .2f) * attacker.RimWarPoints))); //winner always gains points                
             }
-            attacker.TradedWith.Add(defender as WorldObject);
-            defender.TradedWith.Add(attacker as WorldObject);
+            attacker.TradedWith.Add(defender);
+            defender.TradedWith.Add(attacker);
             defender.Faction.TryAffectGoodwillWith(attacker.Faction, 10, false, false, null, null);
             attacker.Faction.TryAffectGoodwillWith(defender.Faction, 10, false, false, null, null);
         }

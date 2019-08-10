@@ -497,11 +497,11 @@ namespace RimWar.Planet
             int pointsNeeded = 0;
             if (targetTown.Faction == Faction.OfPlayerSilentFail)
             {
-                pointsNeeded = targetTown.RimWarPoints;
+                pointsNeeded = Mathf.RoundToInt(targetTown.RimWarPoints * 1.25f);
             }
             else
             {
-                pointsNeeded = Mathf.RoundToInt(targetTown.RimWarPoints * 1f);
+                pointsNeeded = Mathf.RoundToInt(targetTown.RimWarPoints);
             }
             if(Rand.Value >= .8f)
             {

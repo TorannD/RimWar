@@ -43,7 +43,7 @@ namespace RimWar.Planet
             base.ExposeData();
             Scribe_Values.Look<int>(ref this.lastEventTick, "lastEventTick", 0, false);
             Scribe_Values.Look<int>(ref this.ticksPerMove, "ticksPerMove", 2500, false);
-            Scribe_Collections.Look<WorldObject>(ref this.tradedWith, "tradedWith", LookMode.Deep, new object[0]);
+            //Scribe_Collections.Look<WorldObject>(ref this.tradedWith, "tradedWith", LookMode.Value);
         }        
 
         public Trader()
@@ -137,6 +137,10 @@ namespace RimWar.Planet
                 if (this.DestinationTarget != null && this.DestinationTarget.Tile != pather.Destination)
                 {
                     PathToTarget(this.DestinationTarget);
+                }
+                if(this.RimWarPoints <= 0 || this.RimWarPoints > 100000000)
+                {
+                    this.ImmediateAction(null);
                 }
 
             }

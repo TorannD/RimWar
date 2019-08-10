@@ -501,7 +501,7 @@ namespace RimWar.Planet
             else
             {
                 rimwarObject.behavior = (RimWarBehavior)Rand.RangeInclusive(0, 5);
-                rimwarObject.createsSettlements = Rand.Value > .5f;
+                rimwarObject.createsSettlements = true;
                 rimwarObject.hatesPlayer = rimwarObject.RimWarFaction.def.permanentEnemy;
             }
         }
