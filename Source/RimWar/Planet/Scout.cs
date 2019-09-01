@@ -44,7 +44,7 @@ namespace RimWar.Planet
                 }
 
             }
-            if(Find.TickManager.TicksGame % 60 == 0)
+            if(true) //Find.TickManager.TicksGame % 60 == 0)
             {
                 if (this.ParentSettlement == null)
                 {
@@ -166,13 +166,16 @@ namespace RimWar.Planet
             //stringBuilder.Append(base.GetInspectString());           
 
             WorldObject wo = Find.World.worldObjects.ObjectsAt(pather.Destination).FirstOrDefault();
-            if (wo.Faction != this.Faction)
+            if (wo != null)
             {
-                stringBuilder.Append("RW_WarObjectInspectString".Translate(this.Name, "RW_Scouting".Translate(), wo.Label));
-            }
-            else
-            {
-                stringBuilder.Append("RW_WarObjectInspectString".Translate(this.Name, "RW_ReturningTo".Translate(), wo.Label));
+                if (wo.Faction != this.Faction)
+                {
+                    stringBuilder.Append("RW_WarObjectInspectString".Translate(this.Name, "RW_Scouting".Translate(), wo.Label));
+                }
+                else
+                {
+                    stringBuilder.Append("RW_WarObjectInspectString".Translate(this.Name, "RW_ReturningTo".Translate(), wo.Label));
+                }
             }
 
             if (pather.Moving)
@@ -298,7 +301,7 @@ namespace RimWar.Planet
                 }
             }
             //Log.Message("ending arrival actions");
-            this.DestinationTarget = null;
+            //this.DestinationTarget = null;
             
         }       
     }

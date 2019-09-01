@@ -68,7 +68,8 @@ namespace RimWar.Planet
                     }
                     if (map != null)
                     {
-                        return Mathf.RoundToInt(StorytellerUtility.DefaultThreatPointsNow(map));
+                        Options.SettingsRef settingsRef = new Options.SettingsRef();
+                        return Mathf.RoundToInt(StorytellerUtility.DefaultThreatPointsNow(map) * 1.5f * settingsRef.rimwarDifficulty);
                     }
                     else
                     {

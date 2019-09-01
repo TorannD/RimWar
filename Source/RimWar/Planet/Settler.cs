@@ -70,14 +70,19 @@ namespace RimWar.Planet
             if (Find.World.worldObjects.AnySettlementAt(pather.Destination))
             {
                 WorldObject wo = Find.World.worldObjects.ObjectsAt(pather.Destination).FirstOrDefault();
+
                 if (wo.Faction != this.Faction)
                 {
                     stringBuilder.Append("RW_SettlerInspectString".Translate(this.Name, "RW_EstablishingSettlement".Translate()));
                 }
                 else
                 {
-                    stringBuilder.Append("RW_WarObjectInspectString".Translate(this.Name, "RW_ReturningTo".Translate(), wo.Label));
+                    if (wo != null)
+                    {
+                        stringBuilder.Append("RW_WarObjectInspectString".Translate(this.Name, "RW_ReturningTo".Translate(), wo.Label));
+                    }
                 }
+                
             }
 
             if (pather.Moving)
@@ -129,7 +134,7 @@ namespace RimWar.Planet
                 //    }
                 //}
             }
-            if (Find.TickManager.TicksGame % 60 == 0)
+            if (true) //Find.TickManager.TicksGame % 60 == 0)
             {
                 if (this.ParentSettlement == null)
                 {

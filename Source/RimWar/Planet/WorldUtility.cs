@@ -209,7 +209,7 @@ namespace RimWar.Planet
             return warband;
         }        
 
-        public static void CreateWarband(int power, RimWarData rwd, Settlement parentSettlement, int startingTile, int destinationTile, WorldObjectDef worldDef)
+        public static void CreateWarband(int power, RimWarData rwd, Settlement parentSettlement, int startingTile, int destinationTile, WorldObjectDef worldDef, bool launched = false)
         {
             //Log.Message("generating warband for " + rwd.RimWarFaction.Name + " from " + startingTile + " to " + destinationTile);
             Warband warband = new Warband();            
@@ -217,6 +217,7 @@ namespace RimWar.Planet
             warband.ParentSettlement = parentSettlement;
             warband.MovesAtNight = rwd.movesAtNight;
             warband.RimWarPoints = power;
+            warband.launched = launched;
             if(rwd.behavior == RimWarBehavior.Warmonger)
             {
                 warband.TicksPerMove = 3000;

@@ -45,13 +45,16 @@ namespace RimWar.Planet
             if (Find.World.worldObjects.AnySettlementAt(this.destinationTile))
             {
                 WorldObject wo = Find.World.worldObjects.ObjectsAt(this.destinationTile).FirstOrDefault();
-                if (wo.Faction != this.Faction)
+                if (wo != null)
                 {
-                    stringBuilder.Append("RW_WarbandInspectString".Translate(this.Name, "RW_Attacking".Translate(), wo.Label));
-                }
-                else
-                {
-                    stringBuilder.Append("RW_WarbandInspectString".Translate(this.Name, "RW_ReturningTo".Translate(), wo.Label));
+                    if (wo.Faction != this.Faction)
+                    {
+                        stringBuilder.Append("RW_WarbandInspectString".Translate(this.Name, "RW_Attacking".Translate(), wo.Label));
+                    }
+                    else
+                    {
+                        stringBuilder.Append("RW_WarbandInspectString".Translate(this.Name, "RW_ReturningTo".Translate(), wo.Label));
+                    }
                 }
             }
 
@@ -67,7 +70,16 @@ namespace RimWar.Planet
         public override void ArrivalAction()
         {
             //Log.Message("beginning arrival actions");
-            WorldUtility.CreateWarband(this.RimWarPoints, this.rimwarData, this.ParentSettlement, this.Tile, this.destinationTile, this.DestinationTarget.def);
+            WorldObjectDef dtDef = null;
+            if(this.DestinationTarget == null)
+            {
+                dtDef = WorldObjectDefOf.Settlement;
+            }
+            else
+            {
+                dtDef = this.DestinationTarget.def;
+            }
+            WorldUtility.CreateWarband(this.RimWarPoints, this.rimwarData, this.ParentSettlement, this.Tile, this.destinationTile, dtDef);
             //Log.Message("ending arrival actions");
             base.ArrivalAction();
         }      

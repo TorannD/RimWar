@@ -11,6 +11,7 @@ namespace RimWar.Planet
 {
     public class Warband : WarObject
     {
+        public bool launched = false;
         private int lastEventTick = 0;        
         private int ticksPerMove = 3300;
         private int searchTick = 60;               
@@ -71,13 +72,16 @@ namespace RimWar.Planet
             if (Find.World.worldObjects.AnySettlementAt(pather.Destination))
             {
                 WorldObject wo = Find.World.worldObjects.ObjectsAt(pather.Destination).FirstOrDefault();
-                if (wo.Faction != this.Faction)
+                if (wo != null)
                 {
-                    stringBuilder.Append("RW_WarObjectInspectString".Translate(this.Name, "RW_Attacking".Translate(), wo.Label));
-                }
-                else
-                {
-                    stringBuilder.Append("RW_WarObjectInspectString".Translate(this.Name, "RW_ReturningTo".Translate(), wo.Label));
+                    if (wo.Faction != this.Faction)
+                    {
+                        stringBuilder.Append("RW_WarObjectInspectString".Translate(this.Name, "RW_Attacking".Translate(), wo.Label));
+                    }
+                    else
+                    {
+                        stringBuilder.Append("RW_WarObjectInspectString".Translate(this.Name, "RW_ReturningTo".Translate(), wo.Label));
+                    }
                 }
             }
 
@@ -113,6 +117,7 @@ namespace RimWar.Planet
                 ScanForNearbyEnemy(1); //WorldUtility.GetRimWarDataForFaction(this.Faction).GetEngagementRange()
                 if (this.DestinationTarget != null && this.DestinationTarget.Tile != pather.Destination)
                 {
+                    this.launched = false;
                     PathToTarget(this.DestinationTarget);
                 }
                 if (DestinationTarget is WarObject || DestinationTarget is Caravan)
@@ -121,7 +126,7 @@ namespace RimWar.Planet
                 }
 
             }
-            if (Find.TickManager.TicksGame % 60 == 0)
+            if (true) //Find.TickManager.TicksGame % 60 == 0)
             {
                 if (this.ParentSettlement == null)
                 {
@@ -231,7 +236,14 @@ namespace RimWar.Planet
                             if (playerSettlement != null)
                             {
                                 //Raid Player Map
-                                IncidentUtility.DoRaidWithPoints(this.RimWarPoints, playerSettlement, WorldUtility.GetRimWarDataForFaction(this.Faction), PawnsArrivalModeDefOf.EdgeWalkIn);
+                                if (this.launched)
+                                {
+                                    IncidentUtility.DoRaidWithPoints(this.RimWarPoints, playerSettlement, WorldUtility.GetRimWarDataForFaction(this.Faction), PawnsArrivalModeDefOf.EdgeDrop);
+                                }
+                                else
+                                {
+                                    IncidentUtility.DoRaidWithPoints(this.RimWarPoints, playerSettlement, WorldUtility.GetRimWarDataForFaction(this.Faction), PawnsArrivalModeDefOf.EdgeWalkIn);
+                                }
                             }
                             else if (playerCaravan != null)
                             {
@@ -260,7 +272,28 @@ namespace RimWar.Planet
                             if (playerSettlement != null)
                             {
                                 //Raid Player Map
-                                IncidentUtility.DoReinforcementWithPoints(this.RimWarPoints, playerSettlement, WorldUtility.GetRimWarDataForFaction(this.Faction), PawnsArrivalModeDefOf.EdgeWalkIn);
+                                if ((this.rimwarData.behavior == RimWarBehavior.Warmonger) || (this.rimwarData.behavior == RimWarBehavior.Aggressive && Rand.Chance(.5f)))
+                                {
+                                    if (this.launched)
+                                    {
+                                        IncidentUtility.DoRaidWithPoints(this.RimWarPoints, playerSettlement, WorldUtility.GetRimWarDataForFaction(this.Faction), PawnsArrivalModeDefOf.EdgeDrop);
+                                    }
+                                    else
+                                    {
+                                        IncidentUtility.DoRaidWithPoints(this.RimWarPoints, playerSettlement, WorldUtility.GetRimWarDataForFaction(this.Faction), PawnsArrivalModeDefOf.EdgeWalkIn);
+                                    }
+                                }
+                                else
+                                {
+                                    if (this.launched)
+                                    {
+                                        IncidentUtility.DoRaidWithPoints(this.RimWarPoints, playerSettlement, WorldUtility.GetRimWarDataForFaction(this.Faction), PawnsArrivalModeDefOf.CenterDrop);
+                                    }
+                                    else
+                                    {
+                                        IncidentUtility.DoReinforcementWithPoints(this.RimWarPoints, playerSettlement, WorldUtility.GetRimWarDataForFaction(this.Faction), PawnsArrivalModeDefOf.EdgeWalkIn);
+                                    }
+                                }
                             }
                         }
                     }
@@ -306,7 +339,7 @@ namespace RimWar.Planet
                 }
                 
             }
-            this.DestinationTarget = null;
+            //this.DestinationTarget = null;
             //Log.Message("ending arrival actions");
             
         }       
