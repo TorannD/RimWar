@@ -281,12 +281,18 @@ namespace RimWar.Planet
 
         public virtual void ImmediateAction(WorldObject wo)
         {
-            Find.WorldObjects.Remove(this);
+            if (Find.WorldObjects.Contains(this))
+            {
+                Find.WorldObjects.Remove(this);
+            }
         }
 
         public virtual void ArrivalAction()
         {
-            Find.WorldObjects.Remove(this);
+            if (Find.WorldObjects.Contains(this))
+            {
+                Find.WorldObjects.Remove(this);
+            }
         }
 
         public override string GetInspectString()
@@ -340,24 +346,24 @@ namespace RimWar.Planet
 
         public void FindParentSettlement()
         {
-            this.ParentSettlement = WorldUtility.GetFriendlyRimWarSettlementsInRange(this.Tile, 20, this.Faction, WorldUtility.GetRimWarData(), WorldUtility.GetRimWarDataForFaction(this.Faction)).RandomElement();
-            if (this.parentSettlement == null)
+            List<Settlement> rwdTownList = WorldUtility.GetFriendlyRimWarSettlementsInRange(this.Tile, 20, this.Faction, WorldUtility.GetRimWarData(), WorldUtility.GetRimWarDataForFaction(this.Faction));
+            if(rwdTownList != null && rwdTownList.Count <= 0)
             {
-                //expand search parameters
+                rwdTownList = WorldUtility.GetFriendlyRimWarSettlementsInRange(this.Tile, 200, this.Faction, WorldUtility.GetRimWarData(), WorldUtility.GetRimWarDataForFaction(this.Faction));
+            }
+
+            if(rwdTownList != null && rwdTownList.Count > 0)
+            { 
                 this.ParentSettlement = WorldUtility.GetFriendlyRimWarSettlementsInRange(this.Tile, 200, this.Faction, WorldUtility.GetRimWarData(), WorldUtility.GetRimWarDataForFaction(this.Faction)).RandomElement();
-                if (this.parentSettlement == null)
-                {
-                    //warband is lost, no nearby parent settlement
-                    Find.WorldObjects.Remove(this);
-                }
-                else
-                {
-                    PathToTarget(Find.World.worldObjects.WorldObjectAt(this.ParentSettlement.Tile, WorldObjectDefOf.Settlement));
-                }
+                PathToTarget(Find.World.worldObjects.WorldObjectAt(this.ParentSettlement.Tile, WorldObjectDefOf.Settlement));                
             }
             else
             {
-                PathToTarget(Find.World.worldObjects.WorldObjectAt(this.ParentSettlement.Tile, WorldObjectDefOf.Settlement));
+                //warband is lost, no nearby parent settlement
+                if (Find.WorldObjects.Contains(this))
+                {
+                    Find.WorldObjects.Remove(this);
+                }
             }
         }
 

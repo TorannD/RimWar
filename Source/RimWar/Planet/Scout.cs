@@ -14,7 +14,7 @@ namespace RimWar.Planet
         private int lastEventTick = 0;
         private int ticksPerMove = 4000;
         private int searchTick = 60;
-        private int scanRange = 3;
+        private int scanRange = 2;
 
         public override void ExposeData()
         {
@@ -29,7 +29,7 @@ namespace RimWar.Planet
             if(Find.TickManager.TicksGame % this.searchTick == 0)
             {
                 //scan for nearby engagements
-                this.searchTick = Rand.Range(2000, 3000);
+                this.searchTick = Rand.Range(1500, 2000);
                 ScanForNearbyEnemy(scanRange); //WorldUtility.GetRimWarDataForFaction(this.Faction).GetEngagementRange()                
                 if (this.DestinationTarget != null && this.DestinationTarget.Tile != pather.Destination)
                 {

@@ -27,12 +27,12 @@ namespace RimWar.Harmony
             HarmonyInstance harmonyInstance = HarmonyInstance.Create(id: "rimworld.torann.rimwar");
 
             //Postfix
-            harmonyInstance.Patch(AccessTools.Method(typeof(FactionUIUtility), "DrawFactionRow", new Type[]
-                {
-                    typeof(Faction),
-                    typeof(float),
-                    typeof(Rect)
-                }, null), null, new HarmonyMethod(typeof(HarmonyPatches), "DrawFactionRow_WithFactionPoints_Postfix", null), null);
+            //harmonyInstance.Patch(AccessTools.Method(typeof(FactionUIUtility), "DrawFactionRow", new Type[]
+            //    {
+            //        typeof(Faction),
+            //        typeof(float),
+            //        typeof(Rect)
+            //    }, null), null, new HarmonyMethod(typeof(HarmonyPatches), "DrawFactionRow_WithFactionPoints_Postfix", null), null);
             harmonyInstance.Patch(AccessTools.Method(typeof(SettlementUtility), "AttackNow", new Type[]
                 {
                     typeof(Caravan),
@@ -199,35 +199,35 @@ namespace RimWar.Harmony
             return true;
         }
 
-        private static void DrawFactionRow_WithFactionPoints_Postfix(Faction faction, float rowY, Rect fillRect, ref float __result)
-        {
-            if (!Prefs.DevMode)
-            {
-                Rect rect = new Rect(35f, rowY + __result, 250f, 80f);
-                StringBuilder stringBuilder = new StringBuilder();
-                string text = stringBuilder.ToString();
-                float width = fillRect.width - rect.xMax;
-                float num = Text.CalcHeight(text, width);
-                float num2 = Mathf.Max(80f, num);
-                Rect position = new Rect(10f, rowY + 10f, 15f, 15f);
-                Rect rect2 = new Rect(0f, rowY + __result, fillRect.width, num2);
-                if (Mouse.IsOver(rect2))
-                {
-                    GUI.DrawTexture(rect2, TexUI.HighlightTex);
-                }
-                Text.Font = GameFont.Small;
-                Text.Anchor = TextAnchor.UpperLeft;
-                Widgets.DrawRectFast(position, faction.Color);
-                string label = "RW_FactionPower".Translate(WorldUtility.GetRimWarDataForFaction(faction) == null ? 0 : WorldUtility.GetRimWarDataForFaction(faction).TotalFactionPoints);
-                label += "\n" + "RW_FactionBehavior".Translate(WorldUtility.GetRimWarDataForFaction(faction).behavior.ToString());
-                Widgets.Label(rect, label);
-                if (!faction.IsPlayer)
-                {
+        //private static void DrawFactionRow_WithFactionPoints_Postfix(Faction faction, float rowY, Rect fillRect, ref float __result)
+        //{
+        //    if (!Prefs.DevMode)
+        //    {
+        //        Rect rect = new Rect(35f, rowY + __result, 250f, 80f);
+        //        StringBuilder stringBuilder = new StringBuilder();
+        //        string text = stringBuilder.ToString();
+        //        float width = fillRect.width - rect.xMax;
+        //        float num = Text.CalcHeight(text, width);
+        //        float num2 = Mathf.Max(80f, num);
+        //        Rect position = new Rect(10f, rowY + 10f, 15f, 15f);
+        //        Rect rect2 = new Rect(0f, rowY + __result, fillRect.width, num2);
+        //        if (Mouse.IsOver(rect2))
+        //        {
+        //            GUI.DrawTexture(rect2, TexUI.HighlightTex);
+        //        }
+        //        Text.Font = GameFont.Small;
+        //        Text.Anchor = TextAnchor.UpperLeft;
+        //        Widgets.DrawRectFast(position, faction.Color);
+        //        string label = "RW_FactionPower".Translate(WorldUtility.GetRimWarDataForFaction(faction) == null ? 0 : WorldUtility.GetRimWarDataForFaction(faction).TotalFactionPoints);
+        //        label += "\n" + "RW_FactionBehavior".Translate(WorldUtility.GetRimWarDataForFaction(faction).behavior.ToString());
+        //        Widgets.Label(rect, label);
+        //        if (!faction.IsPlayer)
+        //        {
 
-                }
-                __result += num2;
-            }
-        }
+        //        }
+        //        __result += num2;
+        //    }
+        //}
 
         private static void SettlementBase_InspectString_WithPoints_Postfix(SettlementBase __instance, ref string __result)
         {

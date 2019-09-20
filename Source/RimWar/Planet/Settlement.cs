@@ -28,7 +28,7 @@ namespace RimWar.Planet
             Scribe_Values.Look<int>(ref this.nextEventTick, "nextEventTick", 0, false);
             Scribe_Values.Look<int>(ref this.tile, "tile", 0, false);
             Scribe_Values.Look<int>(ref this.uniqueID, "uniqueID", -1, false);
-            //Scribe_Collections.Look<Settlement>(ref this.settlementsInRange, "settlementsInRange", LookMode.Deep, new object[0]);
+            Scribe_Collections.Look<Settlement>(ref this.settlementsInRange, "settlementsInRange", LookMode.Reference, new object[0]);
             Scribe_Collections.Look<ConsolidatePoints>(ref this.consolidatePoints, "consolidatePoints", LookMode.Deep, new object[0]);
             Scribe_References.Look<Faction>(ref this.faction, "faction");
 
@@ -200,10 +200,16 @@ namespace RimWar.Planet
 
         public void SetUniqueId()
         {
-            int newId = Rand.Range(0, 10000000);
-            if (uniqueID != -1 && newId < 0)
+            int newId = 0;
+            bool idSet = false;
+            while (!idSet)
             {
-                Log.Error("Tried to set warobject with uniqueId " + uniqueID + " to have uniqueId " + newId);
+                newId = Rand.Range(0, 10000000);
+                if (uniqueID != -1 && newId < 0)
+                {
+                    Log.Error("Tried to set warobject with uniqueId " + uniqueID + " to have uniqueId " + newId);
+                }
+                idSet = WorldUtility.Get_WCPT().SettlementHasUniqueID(newId);
             }
             uniqueID = newId;
         }

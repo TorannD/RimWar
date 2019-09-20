@@ -100,9 +100,9 @@ namespace RimWar.Planet
                     if (rwd.FactionSettlements != null && rwd.FactionSettlements.Count > 0)
                     {
                         Settlement rwdTown = rwd.FactionSettlements.RandomElement();
-                        if (rwdTown.lastSettlementScan == 0 || rwdTown.lastSettlementScan + 120000 <= Find.TickManager.TicksGame)
+                        if (rwdTown.lastSettlementScan == 0 || rwdTown.lastSettlementScan + 180000 <= Find.TickManager.TicksGame)
                         {
-                            rwdTown.OtherSettlementsInRange = WorldUtility.GetRimWarSettlementsInRange(rwdTown.Tile, Mathf.RoundToInt(rwdTown.RimWarPoints / (this.targetRangeDivider * .5f)), this.RimWarData, rwd);
+                            rwdTown.OtherSettlementsInRange = WorldUtility.GetRimWarSettlementsInRange(rwdTown.Tile, Mathf.RoundToInt(rwdTown.RimWarPoints / (this.targetRangeDivider)), this.RimWarData, rwd);
                             rwdTown.lastSettlementScan = Find.TickManager.TicksGame;
                         }
                         if (rwd.behavior != RimWarBehavior.Player && rwdTown.nextEventTick <= currentTick && ((!CaravanNightRestUtility.RestingNowAt(rwdTown.Tile) && !rwd.movesAtNight) || (CaravanNightRestUtility.RestingNowAt(rwdTown.Tile) && rwd.movesAtNight)))
@@ -746,7 +746,7 @@ namespace RimWar.Planet
                 //Log.Message("attempting settler mission");
                 if (rwdTown.RimWarPoints > 2000)
                 {
-                    int targetRange = Mathf.RoundToInt(rwdTown.RimWarPoints / this.targetRangeDivider);
+                    int targetRange = Mathf.Clamp(Mathf.RoundToInt(rwdTown.RimWarPoints / this.targetRangeDivider), 11, 35);
                     if (rwd.behavior == RimWarBehavior.Expansionist)
                     {
                         targetRange = Mathf.RoundToInt(targetRange * 1.5f);
@@ -757,7 +757,7 @@ namespace RimWar.Planet
                     }
                     List<int> tmpTiles = new List<int>();
                     tmpTiles.Clear();
-                    for (int i = 0; i < 5; i++)
+                    for (int i = 0; i < 2; i++)
                     {
                         int tile = -1;
                         TileFinder.TryFindNewSiteTile(out tile, 10, targetRange, true, true, rwdTown.Tile);
@@ -910,6 +910,22 @@ namespace RimWar.Planet
             {
                 Log.Warning("Found null when attempting to generate a diplomat: rwd " + rwd + " rwdTown " + rwdTown);
             }
+        }
+
+        public bool SettlementHasUniqueID(int id)
+        {
+            bool isUnique = true;
+            for(int i = 0; i < this.RimWarData.Count; i++)
+            {
+                for(int j = 0; j < this.RimWarData[i].FactionSettlements.Count; j++)
+                {
+                    if(this.RimWarData[i].FactionSettlements[j] != null && this.RimWarData[i].FactionSettlements[j].GetUniqueLoadID() == id.ToString())
+                    {
+                        isUnique = false;
+                    }
+                }
+            }
+            return isUnique;
         }
     }
 }

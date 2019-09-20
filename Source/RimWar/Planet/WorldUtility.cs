@@ -15,6 +15,20 @@ namespace RimWar.Planet
 
         private static List<Pawn> tmpPawns = new List<Pawn>();
 
+        public static WorldComponent_PowerTracker Get_WCPT()
+        {
+            List<WorldComponent> components = Find.World.components;
+            for (int i = 0; i < components.Count; i++)
+            {
+                WorldComponent_PowerTracker wcpt = components[i] as WorldComponent_PowerTracker;
+                if (wcpt != null)
+                {
+                    return wcpt;
+                }
+            }
+            return null;
+        }
+
         public static RimWarData GetRimWarDataForFaction(Faction faction)
         {
             if(faction != null)
