@@ -12,14 +12,14 @@ namespace RimWar.Planet
     public class Settler : WarObject
     {
         private int lastEventTick = 0;
-        private int ticksPerMove = 2000;
+        private int ticksPerMove = 4000;
         private int searchTick = 60;        
 
         public override void ExposeData()
         {
             base.ExposeData();
             Scribe_Values.Look<int>(ref this.lastEventTick, "lastEventTick", 0, false);            
-            Scribe_Values.Look<int>(ref this.ticksPerMove, "ticksPerMove", 2000, false);                       
+            Scribe_Values.Look<int>(ref this.ticksPerMove, "ticksPerMove", 4000, false);                       
         }        
 
         public Settler()

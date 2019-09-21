@@ -36,7 +36,7 @@ namespace RimWar.Planet
 
         public int Destination => destTile;
 
-        public bool Moving => moving && warObject.Spawned;
+        public bool Moving => moving;
         public bool MovingNow => Moving && !Paused && !warObject.CantMove;
 
         public void ExposeData()

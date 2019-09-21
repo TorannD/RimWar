@@ -12,14 +12,14 @@ namespace RimWar.Planet
     public class Diplomat : WarObject
     {
         private int lastEventTick = 0;
-        private int ticksPerMove = 3500;
+        private int ticksPerMove = 5500;
         private int searchTick = 60;               
 
         public override void ExposeData()
         {
             base.ExposeData();
             Scribe_Values.Look<int>(ref this.lastEventTick, "lastEventTick", 0, false);
-            Scribe_Values.Look<int>(ref this.ticksPerMove, "ticksPerMove", 3500, false);                       
+            Scribe_Values.Look<int>(ref this.ticksPerMove, "ticksPerMove", 5500, false);                       
         }
 
         public override void Tick()

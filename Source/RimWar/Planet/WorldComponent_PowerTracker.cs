@@ -151,7 +151,7 @@ namespace RimWar.Planet
                                 {
                                     Log.Warning("attempted to generate undefined RimWar settlement action");
                                 }
-                                rwdTown.nextEventTick = currentTick + Rand.Range(2500 * 12, 2500 * 24);
+                                rwdTown.nextEventTick = currentTick + Rand.Range(2500 * 24, 2500 * 48); //one to two game days
                             }
                         }
                     }
@@ -173,25 +173,25 @@ namespace RimWar.Planet
                 }
                 else if (newAction == RimWarAction.Diplomat)
                 {
-                    try
-                    {
+                    //try
+                    //{
                         Settlement rwdSettlement = rwd.FactionSettlements.RandomElement();
                         Settlement rwdPlayerSettlement = WorldUtility.GetRimWarDataForFaction(Faction.OfPlayer).FactionSettlements.RandomElement();
                         if(rwdSettlement != null && rwdPlayerSettlement != null)
                         {
                             WorldUtility.CreateDiplomat(WorldUtility.CalculateDiplomatPoints(rwdSettlement), rwd, rwdSettlement, rwdSettlement.Tile, rwdPlayerSettlement.Tile, WorldObjectDefOf.Settlement);
                         }
-                    }
-                    catch(NullReferenceException ex)
-                    {
-                        Log.Warning("Failed global diplomatic actions");
-                    }
+                    //}
+                    //catch(NullReferenceException ex)
+                    //{
+                    //    Log.Warning("Failed global diplomatic actions");
+                    //}
                 }
                 else if (newAction == RimWarAction.LaunchedWarband)
                 {
                     //Log.Message("Global Launched Warband attempt by " + rwd.RimWarFaction.Name);
-                    try
-                    {
+                    //try
+                    //{
                         Settlement rwdTown = rwd.FactionSettlements.RandomElement();
                         Settlement rwdPlayerSettlement = WorldUtility.GetRimWarDataForFaction(Faction.OfPlayer).FactionSettlements.RandomElement();
                         if (rwdTown != null && rwdPlayerSettlement != null)
@@ -210,18 +210,18 @@ namespace RimWar.Planet
                             WorldUtility.CreateLaunchedWarband(pts, rwd, rwdTown, rwdTown.Tile, rwdPlayerSettlement.Tile, WorldObjectDefOf.Settlement);
                             //rwdTown.RimWarPoints = rwdTown.RimWarPoints - pts;                          
                         }
-                    }
-                    catch (NullReferenceException ex)
-                    {
-                        Log.Warning("Failed global launched warband actions");
-                    }
+                    //}
+                    //catch (NullReferenceException ex)
+                    //{
+                    //    Log.Warning("Failed global launched warband actions");
+                    //}
                     
                 }
                 else if (newAction == RimWarAction.ScoutingParty)
                 {
                     //Log.Message("Global Scout attempt by " + rwd.RimWarFaction.Name);
-                    try
-                    {
+                    //try
+                    //{
                         Settlement rwdTown = rwd.FactionSettlements.RandomElement();
                         Settlement rwdPlayerSettlement = WorldUtility.GetRimWarDataForFaction(Faction.OfPlayer).FactionSettlements.RandomElement();
                         if (rwdTown != null && rwdPlayerSettlement != null)
@@ -232,11 +232,11 @@ namespace RimWar.Planet
                             WorldUtility.CreateScout(pts, rwd, rwdTown, rwdTown.Tile, rwdPlayerSettlement.Tile, WorldObjectDefOf.Settlement);
                             //rwdTown.RimWarPoints = rwdTown.RimWarPoints - pts;                          
                         }
-                    }
-                    catch (NullReferenceException ex)
-                    {
-                        Log.Warning("Failed global launched warband actions");
-                    }
+                    //}
+                    //catch (NullReferenceException ex)
+                    //{
+                    //    Log.Warning("Failed global launched warband actions");
+                    //}
                 }
                 else if (newAction == RimWarAction.Settler)
                 {
