@@ -155,7 +155,7 @@ namespace RimWar.Planet
             PawnGroupKindDef combat = PawnGroupKindDefOf.Combat;
             parms.faction = faction;
             parms.generateFightersOnly = true;
-            parms.raidArrivalMode = PawnsArrivalModeDefOf.EdgeWalkIn;
+            parms.raidArrivalMode = IncidentUtility.PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.EdgeWalkIn);
             parms.target = target;
             //parms = ResolveRaidStrategy(parms, combat);
             //parms.points = AdjustedRaidPoints((float)power, parms.raidArrivalMode, parms.raidStrategy, faction, combat);

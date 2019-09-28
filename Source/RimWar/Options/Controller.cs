@@ -50,6 +50,9 @@ namespace RimWar.Options
             num++;
             Rect rowRect2 = UIHelper.GetRowRect(rowRect1, rowHeight, num);
             Settings.Instance.maxFactionSettlements = Mathf.RoundToInt(Widgets.HorizontalSlider(rowRect2, Settings.Instance.maxFactionSettlements, 1, 30, false, "RW_maxFactionSettlements".Translate() + " " + Settings.Instance.maxFactionSettlements, "1", "30", 1f));
+            Rect rowRect2ShiftRight = UIHelper.GetRowRect(rowRect2, rowHeight, num);
+            rowRect2ShiftRight.x += rowRect2.width + 56f;
+            Settings.Instance.averageEventFrequency = Mathf.RoundToInt(Widgets.HorizontalSlider(rowRect2ShiftRight, Settings.Instance.averageEventFrequency, 20, 1000, false, "RW_eventFrequency".Translate() + " " + Settings.Instance.averageEventFrequency, "20", "1000", 1f));
             num++;
             num++;
             Rect rowRect20 = UIHelper.GetRowRect(rowRect2, rowHeight, num);
@@ -61,7 +64,8 @@ namespace RimWar.Options
                 Settings.Instance.randomizeFactionBehavior = false;
                 Settings.Instance.maxFactionSettlements = 20;
                 Settings.Instance.rimwarDifficulty = 1f;
-                Settings.Instance.storytellerBasedDifficulty = true;                
+                Settings.Instance.storytellerBasedDifficulty = true;
+                Settings.Instance.averageEventFrequency = 50;
             }           
 
             Widgets.EndScrollView();

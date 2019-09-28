@@ -189,7 +189,8 @@ namespace RimWar.Planet
                 {
                     if(wo is Caravan)
                     {
-                        IncidentUtility.DoPeaceTalks_Caravan(this, wo as Caravan, this.rimwarData, PawnsArrivalModeDefOf.EdgeWalkIn);
+                        IncidentUtility.DoPeaceTalks_Caravan(this, wo as Caravan, this.rimwarData, IncidentUtility.PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.EdgeWalkIn));
+                        base.ImmediateAction(null);
                     }
                 }                
             }
@@ -218,12 +219,12 @@ namespace RimWar.Planet
                             if (playerSettlement != null)
                             {
                                 //Raid Player Map
-                                IncidentUtility.DoPeaceTalks_Settlement(this, playerSettlement, this.rimwarData, PawnsArrivalModeDefOf.EdgeWalkIn);
+                                IncidentUtility.DoPeaceTalks_Settlement(this, playerSettlement, this.rimwarData, IncidentUtility.PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.EdgeWalkIn));
                             }
                             else if (playerCaravan != null)
                             {
                                 //Raid player caravan
-                                IncidentUtility.DoPeaceTalks_Caravan(this, playerCaravan, this.rimwarData, PawnsArrivalModeDefOf.EdgeWalkIn);
+                                IncidentUtility.DoPeaceTalks_Caravan(this, playerCaravan, this.rimwarData, IncidentUtility.PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.EdgeWalkIn));
                             }
                         }
                         else

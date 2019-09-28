@@ -22,7 +22,7 @@ namespace RimWar.Planet
                 {
                     if (wo is Caravan)
                     {
-                        DoCaravanAttackWithPoints(warObject, wo as Caravan, warObject.rimwarData, PawnsArrivalModeDefOf.EdgeWalkIn);
+                        DoCaravanAttackWithPoints(warObject, wo as Caravan, warObject.rimwarData, PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.EdgeWalkIn));
                     }
                     else if (wo is WarObject)
                     {
@@ -39,12 +39,12 @@ namespace RimWar.Planet
                             if(!trader.TradedWith.Contains(wo))
                             {
                                 //attempt to trade with player
-                                DoCaravanTradeWithPoints(warObject, wo as Caravan, warObject.rimwarData, PawnsArrivalModeDefOf.EdgeWalkIn);
+                                DoCaravanTradeWithPoints(warObject, wo as Caravan, warObject.rimwarData, PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.EdgeWalkIn));
                             }
                         }
                         else if(warObject is Diplomat)
                         {
-                            DoPeaceTalks_Caravan(warObject, wo as Caravan, warObject.rimwarData, PawnsArrivalModeDefOf.EdgeWalkIn);
+                            DoPeaceTalks_Caravan(warObject, wo as Caravan, warObject.rimwarData, PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.EdgeWalkIn));
                         }
                         else
                         {
@@ -368,7 +368,7 @@ namespace RimWar.Planet
             parms.raidArrivalMode = arrivalMode;
             parms.target = playerSettlement.Map;
             parms.points = points;
-            parms.raidStrategy = RaidStrategyDefOf.ImmediateAttack;
+            parms.raidStrategy = RaidStrategyOrRandom(RaidStrategyDefOf.ImmediateAttack);
             parms.points = AdjustedRaidPoints((float)points, parms.raidArrivalMode, parms.raidStrategy, rwd.RimWarFaction, combat);
             //Log.Message("adjusted points " + parms.points);
             //PawnGroupMakerParms defaultPawnGroupMakerParms = IncidentParmsUtility.GetDefaultPawnGroupMakerParms(combat, parms);
@@ -391,7 +391,7 @@ namespace RimWar.Planet
             parms.raidArrivalMode = arrivalMode;
             parms.points = warObject.RimWarPoints;
             parms.target = playerCaravan;
-            parms.raidStrategy = RaidStrategyDefOf.ImmediateAttack;
+            parms.raidStrategy = RaidStrategyOrRandom(RaidStrategyDefOf.ImmediateAttack);
             if (warObject is Trader)
             {
                 kindDef = PawnGroupKindDefOf.Trader;
@@ -441,7 +441,7 @@ namespace RimWar.Planet
             parms.raidArrivalMode = arrivalMode;
             parms.points = warObject.RimWarPoints;
             parms.target = playerCaravan;
-            parms.raidStrategy = RaidStrategyDefOf.ImmediateAttack;            
+            parms.raidStrategy = RaidStrategyOrRandom(RaidStrategyDefOf.ImmediateAttack);            
             IncidentWorker_CaravanMeeting iw_caravanMeeting = new IncidentWorker_CaravanMeeting();
             iw_caravanMeeting.TryExecute(parms);           
         }
@@ -466,7 +466,7 @@ namespace RimWar.Planet
             parms.raidArrivalMode = arrivalMode;
             parms.points = warObject.RimWarPoints;
             parms.target = playerCaravan;
-            parms.raidStrategy = RaidStrategyDefOf.ImmediateAttack;
+            parms.raidStrategy = RaidStrategyOrRandom(RaidStrategyDefOf.ImmediateAttack);
             IncidentDef def = new IncidentDef();
             def = IncidentDef.Named("Quest_PeaceTalks");
             PeaceTalks peaceTalks = (PeaceTalks)WorldObjectMaker.MakeWorldObject(WorldObjectDefOf.PeaceTalks);
@@ -489,7 +489,7 @@ namespace RimWar.Planet
             parms.raidArrivalMode = arrivalMode;
             parms.points = warObject.RimWarPoints;
             parms.target = playerSettlement.Map;
-            parms.raidStrategy = RaidStrategyDefOf.ImmediateAttack;
+            parms.raidStrategy = RaidStrategyOrRandom(RaidStrategyDefOf.ImmediateAttack);
             IncidentWorker_QuestPeaceTalks iw_peaceTalkQuest = new IncidentWorker_QuestPeaceTalks();
             iw_peaceTalkQuest.TryExecute(parms);
         }
@@ -518,7 +518,7 @@ namespace RimWar.Planet
                       select d).TryRandomElementByWeight((RaidStrategyDef d) => d.Worker.SelectionWeight(map, parms.points), out parms.raidStrategy))
                 {
                     //Log.Error("No raid stategy for " + parms.faction + " with points " + parms.points + ", groupKind=" + groupKind + "\nparms=" + parms);
-                    parms.raidStrategy = RaidStrategyDefOf.ImmediateAttack;
+                    parms.raidStrategy = RaidStrategyOrRandom(RaidStrategyDefOf.ImmediateAttack);
                     if (!Prefs.DevMode)
                     {
                         parms.raidStrategy = RaidStrategyDefOf.ImmediateAttack;
@@ -526,6 +526,47 @@ namespace RimWar.Planet
                 }
             }
             return parms;
+        }
+
+        public static PawnsArrivalModeDef PawnsArrivalModeOrRandom(PawnsArrivalModeDef arrivalMode)
+        {
+            try
+            {
+                foreach (PawnsArrivalModeDef allDefs in DefDatabase<PawnsArrivalModeDef>.AllDefs)
+                {
+                    if (allDefs.defName == arrivalMode.defName)
+                    {
+                        return arrivalMode;
+                    }
+                }
+            }
+            catch
+            {
+
+            }
+
+            return DefDatabase<PawnsArrivalModeDef>.AllDefs.RandomElement();
+        }
+
+        public static RaidStrategyDef RaidStrategyOrRandom(RaidStrategyDef raidStrategy)
+        {
+            try
+            {
+                foreach (RaidStrategyDef allDefs in DefDatabase<RaidStrategyDef>.AllDefs)
+                {
+                    if (allDefs.defName == raidStrategy.defName)
+                    {
+                        return raidStrategy;
+                    }
+                }
+            }
+            catch
+            {
+
+            }
+
+            return DefDatabase<RaidStrategyDef>.AllDefs.RandomElement();
+            
         }
     }
 }

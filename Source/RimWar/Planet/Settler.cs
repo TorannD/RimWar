@@ -205,7 +205,7 @@ namespace RimWar.Planet
                 {
                     if(wo is Caravan)
                     {
-                        IncidentUtility.DoCaravanAttackWithPoints(this, wo as Caravan, this.rimwarData, PawnsArrivalModeDefOf.EdgeWalkIn);
+                        IncidentUtility.DoCaravanAttackWithPoints(this, wo as Caravan, this.rimwarData, IncidentUtility.PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.EdgeWalkIn));
                         base.ImmediateAction(wo);
                     }
                 }                
@@ -235,12 +235,12 @@ namespace RimWar.Planet
                             if (playerSettlement != null)
                             {
                                 //Raid Player Map
-                                IncidentUtility.DoRaidWithPoints(this.RimWarPoints, playerSettlement, WorldUtility.GetRimWarDataForFaction(this.Faction), PawnsArrivalModeDefOf.EdgeWalkIn);
+                                IncidentUtility.DoRaidWithPoints(this.RimWarPoints, playerSettlement, WorldUtility.GetRimWarDataForFaction(this.Faction), IncidentUtility.PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.EdgeWalkIn));
                             }
                             else if (playerCaravan != null)
                             {
                                 //Raid player caravan
-                                IncidentUtility.DoCaravanAttackWithPoints(this, playerCaravan, this.rimwarData, PawnsArrivalModeDefOf.EdgeWalkIn);
+                                IncidentUtility.DoCaravanAttackWithPoints(this, playerCaravan, this.rimwarData, IncidentUtility.PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.EdgeWalkIn));
                             }
                         }
                         else

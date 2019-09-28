@@ -57,6 +57,8 @@
     <Compile Include="Options\Controller.cs" />
     <Compile Include="Options\SettingsRef.cs" />
     <Compile Include="Options\Settings.cs" />
+    <Compile Include="Planet\CaravanArrivalAction_EngageWarObject.cs" />
+    <Compile Include="Planet\CaravanArrivalAction_AttackWarObject.cs" />
     <Compile Include="Planet\IncidentUtility.cs" />
     <Compile Include="Planet\Scout.cs" />
     <Compile Include="Planet\Trader.cs" />

@@ -26,7 +26,7 @@ namespace RimWar.Planet
         public override void Tick()
         {
             base.Tick();
-            if(Find.TickManager.TicksGame % this.searchTick == 0)
+            if (Find.TickManager.TicksGame % this.searchTick == 0)
             {
                 //scan for nearby engagements
                 this.searchTick = Rand.Range(1500, 2000);
@@ -44,7 +44,7 @@ namespace RimWar.Planet
                 }
 
             }
-            if(true) //Find.TickManager.TicksGame % 60 == 0)
+            if (true) //Find.TickManager.TicksGame % 60 == 0)
             {
                 if (this.ParentSettlement == null)
                 {
@@ -213,7 +213,7 @@ namespace RimWar.Planet
                     }
                     else if(wo is Caravan)
                     {
-                        IncidentUtility.DoCaravanAttackWithPoints(this, wo as Caravan, this.rimwarData, PawnsArrivalModeDefOf.EdgeWalkIn);
+                        IncidentUtility.DoCaravanAttackWithPoints(this, wo as Caravan, this.rimwarData, IncidentUtility.PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.EdgeWalkIn));
                     }
                 }                
             }
@@ -240,12 +240,12 @@ namespace RimWar.Planet
                         if (playerSettlement != null)
                         {
                             //Raid Player Map
-                            IncidentUtility.DoRaidWithPoints(this.RimWarPoints, playerSettlement, WorldUtility.GetRimWarDataForFaction(this.Faction), PawnsArrivalModeDefOf.EdgeWalkIn);
+                            IncidentUtility.DoRaidWithPoints(this.RimWarPoints, playerSettlement, WorldUtility.GetRimWarDataForFaction(this.Faction), IncidentUtility.PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.EdgeWalkIn));
                         }
                         else if (playerCaravan != null)
                         {
                             //Raid player caravan
-                            IncidentUtility.DoCaravanAttackWithPoints(this, playerCaravan, this.rimwarData, PawnsArrivalModeDefOf.EdgeWalkIn);
+                            IncidentUtility.DoCaravanAttackWithPoints(this, playerCaravan, this.rimwarData, IncidentUtility.PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.EdgeWalkIn));
                         }
                     }
                     else
@@ -269,7 +269,7 @@ namespace RimWar.Planet
                         if (playerSettlement != null)
                         {
                             //Raid Player Map
-                            IncidentUtility.DoReinforcementWithPoints(this.RimWarPoints, playerSettlement, WorldUtility.GetRimWarDataForFaction(this.Faction), PawnsArrivalModeDefOf.EdgeWalkIn);
+                            IncidentUtility.DoReinforcementWithPoints(this.RimWarPoints, playerSettlement, WorldUtility.GetRimWarDataForFaction(this.Faction), IncidentUtility.PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.EdgeWalkIn));
                         }
                     }
                 }

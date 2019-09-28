@@ -41,6 +41,13 @@ namespace RimWar.Harmony
             harmonyInstance.Patch(AccessTools.Method(typeof(SettlementBase), "GetInspectString", new Type[]
                 {
                 }, null), null, new HarmonyMethod(typeof(HarmonyPatches), "SettlementBase_InspectString_WithPoints_Postfix", null), null);
+            harmonyInstance.Patch(AccessTools.Method(typeof(Caravan_PathFollower), "StartPath", new Type[]
+                {
+                    typeof(int),
+                    typeof(CaravanArrivalAction),
+                    typeof(bool),
+                    typeof(bool)
+                }, null), null, new HarmonyMethod(typeof(HarmonyPatches), "Pather_StartPath_WarObjects", null), null);
 
             //Prefix
             harmonyInstance.Patch(AccessTools.Method(typeof(IncidentWorker), "TryExecute", new Type[]
@@ -78,6 +85,27 @@ namespace RimWar.Harmony
                     typeof(Map),
                     typeof(Faction)
                 }, null), new HarmonyMethod(typeof(HarmonyPatches), "CallForAid_Replacement_Patch", null), null, null);
+        }
+
+        public static void Pather_StartPath_WarObjects(Caravan_PathFollower __instance, int destTile, CaravanArrivalAction arrivalAction, ref bool __result, bool repathImmediately = false, bool resetPauseStatus = true)
+        {
+            if(__result == true)
+            {
+                if (arrivalAction is RimWar.Planet.CaravanArrivalAction_AttackWarObject)
+                {
+                    Log.Message("assigning war object action: attack");
+                    Caravan caravan = Traverse.Create(root: __instance).Field(name: "caravan").GetValue<Caravan>();
+                    CaravanArrivalAction_AttackWarObject woAction = arrivalAction as CaravanArrivalAction_AttackWarObject;
+                    RimWar.Planet.WorldUtility.Get_WCPT().AssignCaravanTargets(caravan, woAction.wo);
+                }
+                else if(arrivalAction is RimWar.Planet.CaravanArrivalAction_EngageWarObject)
+                {
+                    Log.Message("assigning war object action: engage");
+                    Caravan caravan = Traverse.Create(root: __instance).Field(name: "caravan").GetValue<Caravan>();
+                    CaravanArrivalAction_EngageWarObject woAction = arrivalAction as CaravanArrivalAction_EngageWarObject;
+                    RimWar.Planet.WorldUtility.Get_WCPT().AssignCaravanTargets(caravan, woAction.wo);
+                }
+            }
         }
 
         public static void AttackNow_SettlementReinforcement_Postfix(SettlementUtility __instance, Caravan caravan, SettlementBase settlement)

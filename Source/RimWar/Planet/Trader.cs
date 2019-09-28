@@ -206,7 +206,8 @@ namespace RimWar.Planet
                     //resolve combat
                     if (wo is Caravan)
                     {
-                        IncidentUtility.DoCaravanAttackWithPoints(this, wo as Caravan, this.rimwarData, PawnsArrivalModeDefOf.EdgeWalkIn);
+                        IncidentUtility.DoCaravanAttackWithPoints(this, wo as Caravan, this.rimwarData, IncidentUtility.PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.EdgeWalkIn));
+                        base.ImmediateAction(wo);
                     }
                 }
                 else
@@ -214,7 +215,7 @@ namespace RimWar.Planet
                     if (wo is Caravan && !TradedWith.Contains(wo))
                     {
                         //trade with player
-                        IncidentUtility.DoCaravanTradeWithPoints(this, wo as Caravan, this.rimwarData, PawnsArrivalModeDefOf.EdgeWalkIn);
+                        IncidentUtility.DoCaravanTradeWithPoints(this, wo as Caravan, this.rimwarData, IncidentUtility.PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.EdgeWalkIn));
                         this.TradedWith.Add(wo);
                     }
                     else if (wo is Trader && !TradedWith.Contains(wo))
@@ -232,8 +233,21 @@ namespace RimWar.Planet
             {
                 if(wo.Faction != null && wo.Faction.HostileTo(this.Faction))
                 {
-
-                }                
+                    if(wo is Caravan)
+                    {
+                        IncidentUtility.DoCaravanAttackWithPoints(this, wo as Caravan, this.rimwarData, IncidentUtility.PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.EdgeWalkIn));
+                        base.ImmediateAction(wo);
+                    }
+                }    
+                else if(wo.Faction != null && !wo.Faction.HostileTo(this.Faction))
+                {
+                    if (wo is Caravan && !TradedWith.Contains(wo))
+                    {
+                        //trade with player
+                        IncidentUtility.DoCaravanTradeWithPoints(this, wo as Caravan, this.rimwarData, IncidentUtility.PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.EdgeWalkIn));
+                        this.TradedWith.Add(wo);
+                    }
+                }
             }
             else
             {
@@ -261,7 +275,7 @@ namespace RimWar.Planet
                             RimWorld.Planet.Settlement playerSettlement = Find.World.worldObjects.SettlementAt(this.Tile);
                             if (playerSettlement != null)
                             {
-                                IncidentUtility.DoSettlementTradeWithPoints(this, playerSettlement, this.rimwarData, PawnsArrivalModeDefOf.EdgeWalkIn);
+                                IncidentUtility.DoSettlementTradeWithPoints(this, playerSettlement, this.rimwarData, IncidentUtility.PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.EdgeWalkIn));
                                 if (this.ParentSettlement != null)
                                 {
                                     this.ParentSettlement.RimWarPoints += Mathf.RoundToInt(this.RimWarPoints * (Rand.Range(1.05f, 1.25f)));

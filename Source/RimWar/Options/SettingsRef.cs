@@ -12,5 +12,6 @@ namespace RimWar.Options
         public bool storytellerBasedDifficulty = Settings.Instance.storytellerBasedDifficulty;
         public float rimwarDifficulty = Settings.Instance.rimwarDifficulty;
         public int maxFactionSettlements = Settings.Instance.maxFactionSettlements;
+        public int averageEventFrequency = Settings.Instance.averageEventFrequency;
     }
 }

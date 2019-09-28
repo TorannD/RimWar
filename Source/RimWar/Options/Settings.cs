@@ -12,6 +12,7 @@ namespace RimWar.Options
         public bool storytellerBasedDifficulty = true;
         public float rimwarDifficulty = 1f;
         public int maxFactionSettlements = 20;
+        public int averageEventFrequency = 50;
 
         public override void ExposeData()
         {
@@ -19,6 +20,7 @@ namespace RimWar.Options
             Scribe_Values.Look<bool>(ref this.storytellerBasedDifficulty, "storytellerBasedDifficulty", true, false);
             Scribe_Values.Look<float>(ref this.rimwarDifficulty, "rimwarDifficulty", 1f, false);
             Scribe_Values.Look<int>(ref this.maxFactionSettlements, "maxFactionSettlements", 20, false);
+            Scribe_Values.Look<int>(ref this.averageEventFrequency, "averageEventFrequency", 50, false);
         }
 
         public static Settings Instance;

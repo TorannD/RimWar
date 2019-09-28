@@ -32,6 +32,8 @@ namespace RimWar.Planet
         private WorldObject targetWorldObject = null;
         private int destinationTile = -1;
 
+        private int nextTweenerUpdate = 0;
+
 
         private static readonly Color WarObjectDefaultColor = new Color(1f, 1f, 1f);
 
@@ -260,7 +262,11 @@ namespace RimWar.Planet
         {
             base.Tick();
             pather.PatherTick();
-            tweener.TweenerTick();
+            if(this.nextTweenerUpdate <= Find.TickManager.TicksGame)
+            {
+                this.nextTweenerUpdate = Find.TickManager.TicksGame + Rand.Range(400, 500);
+                tweener.TweenerTick();
+            }            
             if(this.DestinationReached)
             {
                 ArrivalAction();
@@ -385,6 +391,35 @@ namespace RimWar.Planet
                     PathToTarget(Find.World.worldObjects.WorldObjectAt(this.ParentSettlement.Tile, WorldObjectDefOf.Settlement));
                 }
             }
+        }
+
+        public override IEnumerable<FloatMenuOption> GetFloatMenuOptions(Caravan caravan)
+        {
+            //using (IEnumerator<FloatMenuOption> enumerator = base.GetFloatMenuOptions(caravan).GetEnumerator())
+            //{
+            //    if (enumerator.MoveNext())
+            //    {
+            //        FloatMenuOption o = enumerator.Current;
+            //        yield return o;
+            //    }
+            //}
+            using (IEnumerator<FloatMenuOption> enumerator2 = CaravanArrivalAction_AttackWarObject.GetFloatMenuOptions(caravan, this).GetEnumerator())
+            {
+                if (enumerator2.MoveNext())
+                {
+                    FloatMenuOption f2 = enumerator2.Current;
+                    yield return f2;
+                }
+            }
+            using (IEnumerator<FloatMenuOption> enumerator3 = CaravanArrivalAction_EngageWarObject.GetFloatMenuOptions(caravan, this).GetEnumerator())
+            {
+                if (enumerator3.MoveNext())
+                {
+                    FloatMenuOption f3 = enumerator3.Current;
+                    yield return f3;
+                }
+            }
+            yield break;
         }
     }
 }

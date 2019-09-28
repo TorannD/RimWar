@@ -18,12 +18,15 @@ namespace RimWar.Planet
         private int targetRangeDivider = 100;
         private int totalTowns = 10;
         public Faction victoryFaction = null;
-
+        private List<WarObject> caravanTargets = new List<WarObject>();
+        private List<Caravan> caravansWithTargets = new List<Caravan>();
         public override void ExposeData()
         {
             base.ExposeData();
             Scribe_References.Look<Faction>(ref this.victoryFaction, "victoryFaction");
             Scribe_Collections.Look<RimWarData>(ref this.rimwarData, "rimwarData", LookMode.Deep);
+            Scribe_Collections.Look<WarObject>(ref this.caravanTargets, "caravanTargets", LookMode.Reference, new object[0]);
+            Scribe_Collections.Look<Caravan>(ref this.caravansWithTargets, "caravansWithTargets", LookMode.Reference, new object[0]);
         }
 
         List<WorldObject> worldObjects;
@@ -79,7 +82,10 @@ namespace RimWar.Planet
             {
                 Initialize();
             }
-
+            if(currentTick % 60 == 0)
+            {
+                AdjustCaravanTargets();
+            }
             if (currentTick % 2500 == 0)
             {
                 UpdateFactions();
@@ -91,8 +97,9 @@ namespace RimWar.Planet
             }
             if (currentTick >= this.nextEvaluationTick)
             {
+                Options.SettingsRef settingsRef = new Options.SettingsRef();
                 //Log.Message("checking events");
-                this.nextEvaluationTick = currentTick + Rand.Range(30, 100);
+                this.nextEvaluationTick = currentTick + Rand.Range((int)(settingsRef.averageEventFrequency * .5f) , (int)(settingsRef.averageEventFrequency * 1.5f));
                 //Log.Message("current tick: " + currentTick + " next evaluation at " + this.nextEvaluationTick);
                 if (this.RimWarData != null && this.RimWarData.Count > 0)
                 {
@@ -158,6 +165,54 @@ namespace RimWar.Planet
                 }
             }
             base.WorldComponentTick();
+        }
+
+        public void AdjustCaravanTargets()
+        {
+            if (this.caravansWithTargets != null && this.caravansWithTargets.Count > 0 && this.caravanTargets != null && this.caravanTargets.Count > 0)
+            {
+                Caravan caravan = null;
+                CaravanArrivalAction newAction = null;
+                int newTile = -1;
+                for (int i = 0; i < this.caravansWithTargets.Count; i++)
+                {
+                    if (Find.WorldObjects.Contains(this.caravanTargets[i]))
+                    {
+                        if (this.caravansWithTargets[i].pather.Destination != this.caravanTargets[i].Tile)
+                        {
+                            newTile = this.caravanTargets[i].Tile;
+                            this.caravanTargets.Remove(this.caravanTargets[i]);
+                            caravan = caravansWithTargets[i];
+                            newAction = caravansWithTargets[i].pather.ArrivalAction;
+                            this.caravansWithTargets.Remove(this.caravansWithTargets[i]);
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        this.caravanTargets.Remove(this.caravanTargets[i]);
+                        this.caravansWithTargets.Remove(this.caravansWithTargets[i]);
+                        break;
+                    }
+                }
+                if(newTile != -1)
+                {
+                    caravan.pather.StartPath(newTile, newAction);
+                }
+            }
+        }
+
+        public void AssignCaravanTargets(Caravan caravan, WarObject warObject)
+        {
+            if(this.caravansWithTargets == null || this.caravanTargets == null)
+            {
+                this.caravansWithTargets = new List<Caravan>();
+                this.caravansWithTargets.Clear();
+                this.caravanTargets = new List<WarObject>();
+                this.caravanTargets.Clear();
+            }
+            this.caravansWithTargets.Add(caravan);
+            this.caravanTargets.Add(warObject);
         }
 
         public void DoGlobalRWDAction()

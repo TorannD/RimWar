@@ -24,6 +24,7 @@
 <RW_storytellerBasedDifficulty>RimWar difficulty uses game difficulty</RW_storytellerBasedDifficulty>
 <RW_maxFactionSettlements>RimWar settlement growth limit</RW_maxFactionSettlements>
 <RW_rimwarDifficulty>Difficulty</RW_rimwarDifficulty>
+<RW_eventFrequency>Global Event Frequency</RW_eventFrequency>
 
 <!-- ============ Actions =============-->
 <RW_Attacking>attacking</RW_Attacking>
@@ -32,6 +33,9 @@
 <RW_Trading>trading with</RW_Trading>
 <RW_Diplomacy>engaging in diplomacy with</RW_Diplomacy>
 <RW_EstablishingSettlement>establishing a new settlement</RW_EstablishingSettlement>
+<RW_AttackWarObject>Attack {0}</RW_AttackWarObject>
+<RW_EngageWarObject>Interact with {0}</RW_EngageWarObject>
+<RW_engagingWarObject>Interacting with {0}</RW_engagingWarObject>
 
 <!-- ============ Custom Letters =============-->
 <RW_VictoryChallengeLabel>RimWar Victory Challenge</RW_VictoryChallengeLabel>
