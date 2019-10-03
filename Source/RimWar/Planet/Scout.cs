@@ -12,7 +12,7 @@ namespace RimWar.Planet
     public class Scout : WarObject
     {
         private int lastEventTick = 0;
-        private int ticksPerMove = 6000;
+        private int ticksPerMove = 2000;
         private int searchTick = 60;
         private int scanRange = 2;
 
@@ -20,7 +20,7 @@ namespace RimWar.Planet
         {
             base.ExposeData();
             Scribe_Values.Look<int>(ref this.lastEventTick, "lastEventTick", 0, false);
-            Scribe_Values.Look<int>(ref this.ticksPerMove, "ticksPerMove", 6000, false);
+            Scribe_Values.Look<int>(ref this.ticksPerMove, "ticksPerMove", 2000, false);
         }
 
         public override void Tick()

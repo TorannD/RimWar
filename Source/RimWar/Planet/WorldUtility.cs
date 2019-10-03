@@ -234,11 +234,11 @@ namespace RimWar.Planet
             warband.launched = launched;
             if(rwd.behavior == RimWarBehavior.Warmonger)
             {
-                warband.TicksPerMove = 3000;
+                warband.TicksPerMove = (int)(warband.TicksPerMove * .9f);
             }
             if(rwd.behavior == RimWarBehavior.Merchant)
             {
-                warband.TicksPerMove = 3600;
+                warband.TicksPerMove = (int)(warband.TicksPerMove * 1.1f);
             }
             if (!warband.pather.Moving && warband.Tile != destinationTile)
             {
@@ -310,15 +310,15 @@ namespace RimWar.Planet
             scout.RimWarPoints = power;
             if (rwd.behavior == RimWarBehavior.Expansionist)
             {
-                scout.TicksPerMove = 4500;
+                scout.TicksPerMove = (int)(scout.TicksPerMove * .8f);
             }
             else if (rwd.behavior == RimWarBehavior.Aggressive)
             {
-                scout.TicksPerMove = 4200;
+                scout.TicksPerMove = (int)(scout.TicksPerMove * .9f);
             }
             else if(rwd.behavior == RimWarBehavior.Warmonger)
             {
-                scout.TicksPerMove = 3800;
+                scout.TicksPerMove = (int)(scout.TicksPerMove * .9f);
             }
             if (!scout.pather.Moving && scout.Tile != destinationTile)
             {
@@ -357,15 +357,15 @@ namespace RimWar.Planet
             trader.RimWarPoints = power;
             if (rwd.behavior == RimWarBehavior.Expansionist)
             {
-                trader.TicksPerMove = 2800;
+                trader.TicksPerMove = (int)(trader.TicksPerMove * .9f);
             }
             else if (rwd.behavior == RimWarBehavior.Merchant)
             {
-                trader.TicksPerMove = 3200;
+                trader.TicksPerMove = (int)(trader.TicksPerMove * .8f);
             }
             else if(rwd.behavior == RimWarBehavior.Warmonger)
             {
-                trader.TicksPerMove = 2200;
+                trader.TicksPerMove = (int)(trader.TicksPerMove * 1.2f);
             }
             if (!trader.pather.Moving && trader.Tile != destinationTile)
             {
@@ -404,15 +404,15 @@ namespace RimWar.Planet
             diplomat.RimWarPoints = power;
             if (rwd.behavior == RimWarBehavior.Expansionist)
             {
-                diplomat.TicksPerMove = 3750;
+                diplomat.TicksPerMove = (int)(diplomat.TicksPerMove * .8f);
             }
             else if (rwd.behavior == RimWarBehavior.Merchant)
             {
-                diplomat.TicksPerMove = 3600;
+                diplomat.TicksPerMove = (int)(diplomat.TicksPerMove * .9f);
             }
             else if (rwd.behavior == RimWarBehavior.Warmonger)
             {
-                diplomat.TicksPerMove = 3000;
+                diplomat.TicksPerMove = (int)(diplomat.TicksPerMove * 1.2f);
             }
             if (!diplomat.pather.Moving && diplomat.Tile != destinationTile)
             {
@@ -452,15 +452,15 @@ namespace RimWar.Planet
             settler.DestinationTile = destinationTile;
             if (rwd.behavior == RimWarBehavior.Expansionist)
             {
-                settler.TicksPerMove = 2500;
+                settler.TicksPerMove = (int)(settler.TicksPerMove * .8f);
             }
             else if (rwd.behavior == RimWarBehavior.Merchant)
             {
-                settler.TicksPerMove = 2200;
+                settler.TicksPerMove = (int)(settler.TicksPerMove * .9f);
             }
             else if (rwd.behavior == RimWarBehavior.Warmonger)
             {
-                settler.TicksPerMove = 1500;
+                settler.TicksPerMove = (int)(settler.TicksPerMove * 1.2f);
             }
             if (!settler.pather.Moving && settler.Tile != destinationTile)
             {

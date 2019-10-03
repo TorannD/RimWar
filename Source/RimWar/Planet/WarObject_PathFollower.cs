@@ -256,8 +256,8 @@ namespace RimWar.Planet
                     Log.Error(warObject + " entering " + nextTile + " which is unwalkable.");
                 }
                 int num = CostToMove(warObject.Tile, nextTile);
-                nextTileCostTotal = (float)num;
-                nextTileCostLeft = (float)num;
+                nextTileCostTotal = (float)(num);
+                nextTileCostLeft = (float)(num);
             }
         }
 
@@ -323,7 +323,7 @@ namespace RimWar.Planet
 
         private float CostToPayThisTick()
         {
-            float num = 1f;
+            float num = warObject.nextMoveTickIncrement; //1f;
             if (DebugSettings.fastCaravans)
             {
                 num = 100f;

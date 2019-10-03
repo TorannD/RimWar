@@ -34,6 +34,19 @@ namespace RimWar.Planet
 
         private int nextTweenerUpdate = 0;
 
+        public int nextMoveTickIncrement = 20;
+        private int nextMoveTick;
+        public virtual int NextMoveTick
+        {
+            get
+            {
+                return nextMoveTick;
+            }
+            set
+            {
+                nextMoveTick = value;
+            }
+        }
 
         private static readonly Color WarObjectDefaultColor = new Color(1f, 1f, 1f);
 
@@ -261,15 +274,20 @@ namespace RimWar.Planet
         public override void Tick()
         {
             base.Tick();
-            pather.PatherTick();
-            if(this.nextTweenerUpdate <= Find.TickManager.TicksGame)
+            if (Find.TickManager.TicksGame >= this.NextMoveTick)
             {
-                this.nextTweenerUpdate = Find.TickManager.TicksGame + Rand.Range(400, 500);
-                tweener.TweenerTick();
-            }            
-            if(this.DestinationReached)
-            {
-                ArrivalAction();
+                pather.PatherTick();
+                if (this.nextTweenerUpdate <= Find.TickManager.TicksGame)
+                {
+                    this.nextTweenerUpdate = Find.TickManager.TicksGame + Rand.Range(400, 500);
+                    tweener.TweenerTick();
+                }
+                if (this.DestinationReached)
+                {
+                    ArrivalAction();
+                }
+                this.NextMoveTick = Find.TickManager.TicksGame + (int)Rand.Range(this.nextMoveTickIncrement * .9f, this.nextMoveTickIncrement * 1.1f);
+
             }
         }
 

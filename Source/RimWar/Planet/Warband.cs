@@ -13,7 +13,7 @@ namespace RimWar.Planet
     {
         public bool launched = false;
         private int lastEventTick = 0;        
-        private int ticksPerMove = 4600;
+        private int ticksPerMove = 2300;
         private int searchTick = 60;               
 
         public override void ExposeData()
@@ -21,7 +21,7 @@ namespace RimWar.Planet
             base.ExposeData();
             
             Scribe_Values.Look<int>(ref this.lastEventTick, "lastEventTick", 0, false);
-            Scribe_Values.Look<int>(ref this.ticksPerMove, "ticksPerMove", 4600, false);                       
+            Scribe_Values.Look<int>(ref this.ticksPerMove, "ticksPerMove", 2300, false);                       
         }        
 
         public Warband()
