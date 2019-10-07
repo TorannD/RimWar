@@ -17,7 +17,7 @@ namespace RimWar.Planet
         private int tile = 0;
         private int rimwarPointsInt = 0;
         public int nextEventTick = 0;
-        public int lastSettlementScan = 0;
+        public int nextSettlementScan = 0;
         private int uniqueID = -1;
         private List<RimWar.Planet.Settlement> settlementsInRange;
         List<ConsolidatePoints> consolidatePoints;
@@ -27,6 +27,7 @@ namespace RimWar.Planet
             Scribe_Values.Look<int>(ref this.rimwarPointsInt, "rimwarPointsInt", 0, false);
             Scribe_Values.Look<int>(ref this.nextEventTick, "nextEventTick", 0, false);
             Scribe_Values.Look<int>(ref this.tile, "tile", 0, false);
+            Scribe_Values.Look<int>(ref this.nextSettlementScan, "nextSettlementScan", 0, false);
             Scribe_Values.Look<int>(ref this.uniqueID, "uniqueID", -1, false);
             Scribe_Collections.Look<Settlement>(ref this.settlementsInRange, "settlementsInRange", LookMode.Reference, new object[0]);
             Scribe_Collections.Look<ConsolidatePoints>(ref this.consolidatePoints, "consolidatePoints", LookMode.Deep, new object[0]);
@@ -69,6 +70,10 @@ namespace RimWar.Planet
                     if (map != null)
                     {
                         Options.SettingsRef settingsRef = new Options.SettingsRef();
+                        if(settingsRef.storytellerBasedDifficulty)
+                        {
+                            return Mathf.RoundToInt(StorytellerUtility.DefaultThreatPointsNow(map) * 1.5f * WorldUtility.GetDifficultyMultiplierFromStoryteller());
+                        }
                         return Mathf.RoundToInt(StorytellerUtility.DefaultThreatPointsNow(map) * 1.5f * settingsRef.rimwarDifficulty);
                     }
                     else
@@ -93,10 +98,11 @@ namespace RimWar.Planet
                     this.settlementsInRange = new List<Settlement>();
                     this.settlementsInRange.Clear();
                 }
-                if(this.settlementsInRange.Count == 0 && this.lastSettlementScan <= (Find.TickManager.TicksGame + 120000))
+                if(this.settlementsInRange.Count == 0 && this.nextSettlementScan <= Find.TickManager.TicksGame)
                 {
-                    this.settlementsInRange = WorldUtility.GetRimWarSettlementsInRange(this.Tile, Mathf.RoundToInt(this.RimWarPoints / (100 * .5f)), WorldUtility.GetRimWarData(), WorldUtility.GetRimWarDataForFaction(this.faction));
-                    this.lastSettlementScan = Find.TickManager.TicksGame;
+                    Options.SettingsRef settingsRef = new Options.SettingsRef();
+                    this.settlementsInRange = WorldUtility.GetRimWarSettlementsInRange(this.Tile, Mathf.Min(Mathf.RoundToInt(this.RimWarPoints / (settingsRef.settlementScanRangeDivider)), (int)settingsRef.maxSettelementScanRange), WorldUtility.GetRimWarData(), WorldUtility.GetRimWarDataForFaction(this.faction));
+                    this.nextSettlementScan = Find.TickManager.TicksGame + settingsRef.settlementScanDelay;
                 }
                 return this.settlementsInRange;
             }

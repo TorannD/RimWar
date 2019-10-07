@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using RimWorld;
 using RimWorld.Planet;
+using RimWar.History;
 using Verse;
 using UnityEngine;
 
@@ -73,6 +74,16 @@ namespace RimWar.Planet
             rwd.FactionSettlements.Add(rimwarSettlement);
             rimwarSettlement.Tile = wo.Tile;
             //Log.Message("settlement: " + wo.Label + " contributes " + rimwarSettlement.RimWarPoints + " points");
+
+            if (Find.TickManager.TicksGame > 20)
+            {
+                RW_Letter let = RW_LetterMaker.Make_RWLetter(RimWarDefOf.RimWar_SettlementEvent);
+                let.label = "RW_LetterSettlementEvent".Translate();
+                let.text = "RW_LetterSettlementEventText".Translate(rwd.RimWarFaction, rimwarSettlement.RimWarPoints);
+                let.lookTargets = wo;
+                let.relatedFaction = rwd.RimWarFaction;
+                RW_LetterMaker.Archive_RWLetter(let);
+            }
         }
 
         public static void CreateSettlement(WarObject warObject, RimWarData rwd, int tile, Faction faction)
@@ -226,13 +237,16 @@ namespace RimWar.Planet
         public static void CreateWarband(int power, RimWarData rwd, Settlement parentSettlement, int startingTile, int destinationTile, WorldObjectDef worldDef, bool launched = false)
         {
             //Log.Message("generating warband for " + rwd.RimWarFaction.Name + " from " + startingTile + " to " + destinationTile);
+            Options.SettingsRef settingsRef = new Options.SettingsRef();
             Warband warband = new Warband();            
             warband = MakeWarband(rwd.RimWarFaction, startingTile);
             warband.ParentSettlement = parentSettlement;
             warband.MovesAtNight = rwd.movesAtNight;
             warband.RimWarPoints = power;
             warband.launched = launched;
-            if(rwd.behavior == RimWarBehavior.Warmonger)
+            warband.TicksPerMove = (int)(warband.TicksPerMove / settingsRef.objectMovementMultiplier);
+            warband.DestinationTarget = Find.World.worldObjects.WorldObjectOfDefAt(worldDef, destinationTile);
+            if (rwd.behavior == RimWarBehavior.Warmonger)
             {
                 warband.TicksPerMove = (int)(warband.TicksPerMove * .9f);
             }
@@ -240,13 +254,17 @@ namespace RimWar.Planet
             {
                 warband.TicksPerMove = (int)(warband.TicksPerMove * 1.1f);
             }
-            if (!warband.pather.Moving && warband.Tile != destinationTile)
+            if (launched)
+            {
+                warband.ArrivalAction();
+            }
+            else if (!warband.pather.Moving && warband.Tile != destinationTile)
             {
                 warband.pather.StartPath(destinationTile, true);
                 warband.pather.nextTileCostLeft /= 2f;
-                warband.tweener.ResetTweenedPosToRoot();
-                warband.DestinationTarget = Find.World.worldObjects.WorldObjectOfDefAt(worldDef, destinationTile);
+                warband.tweener.ResetTweenedPosToRoot();                
             }
+            
             //Log.Message("end create warband");
         }
 
@@ -303,11 +321,13 @@ namespace RimWar.Planet
         public static void CreateScout(int power, RimWarData rwd, Settlement parentSettlement, int startingTile, int destinationTile, WorldObjectDef worldDef)
         {
             //Log.Message("generating scout for " + rwd.RimWarFaction.Name + " from " + startingTile + " to " + destinationTile);
+            Options.SettingsRef settingsRef = new Options.SettingsRef();
             Scout scout = new Scout();
             scout = MakeScout(rwd.RimWarFaction, startingTile);
             scout.ParentSettlement = parentSettlement;
             scout.MovesAtNight = rwd.movesAtNight;
             scout.RimWarPoints = power;
+            scout.TicksPerMove = (int)(scout.TicksPerMove / settingsRef.objectMovementMultiplier);
             if (rwd.behavior == RimWarBehavior.Expansionist)
             {
                 scout.TicksPerMove = (int)(scout.TicksPerMove * .8f);
@@ -350,11 +370,13 @@ namespace RimWar.Planet
         public static void CreateTrader(int power, RimWarData rwd, Settlement parentSettlement, int startingTile, int destinationTile, WorldObjectDef worldDef)
         {
             //Log.Message("generating trader for " + rwd.RimWarFaction.Name + " from " + startingTile + " to " + destinationTile);
+            Options.SettingsRef settingsRef = new Options.SettingsRef();
             Trader trader = new Trader();
             trader = MakeTrader(rwd.RimWarFaction, startingTile);
             trader.ParentSettlement = parentSettlement;
             trader.MovesAtNight = rwd.movesAtNight;
             trader.RimWarPoints = power;
+            trader.TicksPerMove = (int)(trader.TicksPerMove / settingsRef.objectMovementMultiplier);
             if (rwd.behavior == RimWarBehavior.Expansionist)
             {
                 trader.TicksPerMove = (int)(trader.TicksPerMove * .9f);
@@ -397,11 +419,13 @@ namespace RimWar.Planet
         public static void CreateDiplomat(int power, RimWarData rwd, Settlement parentSettlement, int startingTile, int destinationTile, WorldObjectDef worldDef)
         {
             //Log.Message("generating diplomat for " + rwd.RimWarFaction.Name + " from " + startingTile + " to " + destinationTile);
+            Options.SettingsRef settingsRef = new Options.SettingsRef();
             Diplomat diplomat = new Diplomat();
             diplomat = MakeDiplomat(rwd.RimWarFaction, startingTile);
             diplomat.ParentSettlement = parentSettlement;
             diplomat.MovesAtNight = rwd.movesAtNight;
             diplomat.RimWarPoints = power;
+            diplomat.TicksPerMove = (int)(diplomat.TicksPerMove / settingsRef.objectMovementMultiplier);
             if (rwd.behavior == RimWarBehavior.Expansionist)
             {
                 diplomat.TicksPerMove = (int)(diplomat.TicksPerMove * .8f);
@@ -444,12 +468,14 @@ namespace RimWar.Planet
         public static void CreateSettler(int power, RimWarData rwd, Settlement parentSettlement, int startingTile, int destinationTile, WorldObjectDef worldDef)
         {
             //Log.Message("generating Settler for " + rwd.RimWarFaction.Name + " from " + startingTile + " to " + destinationTile);
+            Options.SettingsRef settingsRef = new Options.SettingsRef();
             Settler settler = new Settler();
             settler = MakeSettler(rwd.RimWarFaction, startingTile);
             settler.ParentSettlement = parentSettlement;
             settler.MovesAtNight = rwd.movesAtNight;
             settler.RimWarPoints = power;
             settler.DestinationTile = destinationTile;
+            settler.TicksPerMove = (int)(settler.TicksPerMove / settingsRef.objectMovementMultiplier);
             if (rwd.behavior == RimWarBehavior.Expansionist)
             {
                 settler.TicksPerMove = (int)(settler.TicksPerMove * .8f);
@@ -621,6 +647,40 @@ namespace RimWar.Planet
             }
         }
 
+        public static float GetDifficultyMultiplierFromStoryteller()
+        {
+            Options.SettingsRef settingsRef = new Options.SettingsRef();
+            if(settingsRef.storytellerBasedDifficulty)
+            {
+                int stDif = Find.Storyteller.difficulty.difficulty;
+                if(stDif == 0)
+                {
+                    return .25f;
+                }
+                else if(stDif <= 1)
+                {
+                    return .75f;
+                }
+                else if(stDif <= 2)
+                {
+                    return 1f;
+                }
+                else if(stDif <= 3)
+                {
+                    return 1.2f;
+                }
+                else if(stDif <= 4)
+                {
+                    return 1.35f;
+                }
+                else if(stDif <= 5)
+                {
+                    return 1.5f;
+                }                
+            }
+            return settingsRef.rimwarDifficulty;
+        }
+
         public static void CalculateFactionBehaviorWeights(RimWarData rimwarObject)
         {
             float settlerChance = 0;
@@ -630,6 +690,8 @@ namespace RimWar.Planet
             float diplomatChance = 0;
             float caravanChance = 0;
             float totalChance = 1f;
+
+            Options.SettingsRef settingsRef = new Options.SettingsRef();
 
             if (rimwarObject.behavior == RimWarBehavior.Random)
             {
@@ -643,7 +705,14 @@ namespace RimWar.Planet
                 {
                     warbandLaunchChance = 2f;
                 }
-                diplomatChance = 1f;                
+                if(settingsRef.createDiplomats)
+                {
+                    diplomatChance = 1f;
+                }
+                else
+                {
+                    diplomatChance = 0f;
+                }
                 caravanChance = 3f;
             }
             if (rimwarObject.behavior == RimWarBehavior.Aggressive)
@@ -660,7 +729,14 @@ namespace RimWar.Planet
                 }
                 if (!(rimwarObject.behavior == RimWarBehavior.Warmonger))
                 {
-                    diplomatChance = 1f;
+                    if (settingsRef.createDiplomats)
+                    {
+                        diplomatChance = 1f;
+                    }
+                    else
+                    {
+                        diplomatChance = 0f;
+                    }
                 }
                 caravanChance = 3f;
             }
@@ -678,7 +754,14 @@ namespace RimWar.Planet
                 }
                 if (!(rimwarObject.behavior == RimWarBehavior.Warmonger))
                 {
-                    diplomatChance = 2f;
+                    if (settingsRef.createDiplomats)
+                    {
+                        diplomatChance = 2f;
+                    }
+                    else
+                    {
+                        diplomatChance = 0f;
+                    }
                 }
                 caravanChance = 5f;
             }
@@ -696,7 +779,14 @@ namespace RimWar.Planet
                 }
                 if (!(rimwarObject.behavior == RimWarBehavior.Warmonger))
                 {
-                    diplomatChance = 2f;
+                    if (settingsRef.createDiplomats)
+                    {
+                        diplomatChance = 2f;
+                    }
+                    else
+                    {
+                        diplomatChance = 0f;
+                    }
                 }
                 caravanChance = 4f;
             }
@@ -714,7 +804,14 @@ namespace RimWar.Planet
                 }
                 if (!(rimwarObject.behavior == RimWarBehavior.Warmonger))
                 {
-                    diplomatChance = 2f;
+                    if (settingsRef.createDiplomats)
+                    {
+                        diplomatChance = 2f;
+                    }
+                    else
+                    {
+                        diplomatChance = 0f;
+                    }
                 }
                 caravanChance = 6f;
             }
@@ -732,7 +829,14 @@ namespace RimWar.Planet
                 }
                 if (!(rimwarObject.behavior == RimWarBehavior.Warmonger))
                 {
-                    diplomatChance = 1f;
+                    if (settingsRef.createDiplomats)
+                    {
+                        diplomatChance = 2f;
+                    }
+                    else
+                    {
+                        diplomatChance = 0f;
+                    }
                 }
                 caravanChance = 3f;
             }
@@ -772,6 +876,45 @@ namespace RimWar.Planet
             //Extreme Desert  = 0.1
             
             return mult;
+        }
+
+        public static List<RimWar.Planet.Settlement> GetRimWarSettlements(List<RimWarData> rwdList)
+        {
+            List<RimWar.Planet.Settlement> tmpSettlements = new List<RimWar.Planet.Settlement>();
+            tmpSettlements.Clear();
+            for (int j = 0; j < rwdList.Count; j++)
+            {
+                RimWarData rwd = rwdList[j];
+                for (int i = 0; i < rwd.FactionSettlements.Count; i++)
+                {
+                    tmpSettlements.Add(rwd.FactionSettlements[i]);
+                }
+            }
+            return tmpSettlements;
+        }
+
+        public static void UpdateRWDSettlementLists(RimWarData rwd)
+        {
+            List<RimWar.Planet.Settlement> tmpSettlements = new List<RimWar.Planet.Settlement>();
+            tmpSettlements.Clear();
+            List<RimWar.Planet.Settlement> settlementList = GetRimWarSettlements(GetRimWarData());
+            rwd.HostileSettlements.Clear();
+            rwd.NonHostileSettlements.Clear();
+            for (int i = 0; i < settlementList.Count; i++)
+            {                
+                RimWar.Planet.Settlement st = settlementList[i];
+                if(st.Faction != null)
+                {
+                    if(st.Faction.HostileTo(rwd.RimWarFaction))
+                    {
+                        rwd.HostileSettlements.Add(st);
+                    }
+                    else
+                    {
+                        rwd.NonHostileSettlements.Add(st);
+                    }
+                }
+            }
         }
 
         public static List<RimWorld.Planet.Settlement> GetRimWorldSettlementsInRange(int from, int range)
@@ -814,6 +957,7 @@ namespace RimWar.Planet
                     }
                 }
             }
+            Get_WCPT().settlementSearches++;
             return tmpSettlements;
         }
 
@@ -872,12 +1016,12 @@ namespace RimWar.Planet
             {
                 for (int i = 0; i < settlementsInRange.Count; i++)
                 {
-                    if(settlementsInRange[i].Faction == thisFaction)
+                    if (settlementsInRange[i].Faction == thisFaction)
                     {
                         tmpSettlements.Add(settlementsInRange[i]);
                     }
                 }
-            }
+            }            
             return tmpSettlements;
         }
 
@@ -903,6 +1047,21 @@ namespace RimWar.Planet
                 }
             }
             return null;
+        }
+
+        public static List<Settlement> GetHostileSettlementsToRWD(RimWarData rwd)
+        {
+            List<Settlement> allSettlements = Get_WCPT().AllRimWarSettlements;
+            List<Settlement> tmpList = new List<Settlement>();
+            tmpList.Clear();
+            for(int i = 0; i < allSettlements.Count; i++)
+            {
+                if(allSettlements[i].Faction.HostileTo(rwd.RimWarFaction))
+                {
+                    tmpList.Add(allSettlements[i]);
+                }
+            }
+            return tmpList;
         }
 
         public static List<WarObject> GetRimWarObjectsAt(int tile)
@@ -969,6 +1128,24 @@ namespace RimWar.Planet
                 for (int i = 0; i < tmpObjects.Count; i++)
                 {
                     if (tmpObjects[i] is WarObject && tmpObjects[i].Faction.HostileTo(faction))
+                    {
+                        tmpWarObjects.Add(tmpObjects[i] as WarObject);
+                    }
+                }
+            }
+            return tmpWarObjects;
+        }
+
+        public static List<WarObject> GetWarObjectsInFaction(Faction faction)
+        {
+            List<WarObject> tmpWarObjects = new List<WarObject>();
+            tmpWarObjects.Clear();
+            List<WorldObject> tmpObjects = Find.WorldObjects.AllWorldObjects;
+            if (tmpObjects != null && tmpObjects.Count > 0)
+            {
+                for (int i = 0; i < tmpObjects.Count; i++)
+                {
+                    if (tmpObjects[i] is WarObject && tmpObjects[i].Faction == faction)
                     {
                         tmpWarObjects.Add(tmpObjects[i] as WarObject);
                     }

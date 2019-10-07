@@ -32,9 +32,9 @@ namespace RimWar.Planet
         private WorldObject targetWorldObject = null;
         private int destinationTile = -1;
 
-        private int nextTweenerUpdate = 0;
+        public int nextMoveTickIncrement = 0;
+        public bool canReachDestination = true;
 
-        public int nextMoveTickIncrement = 20;
         private int nextMoveTick;
         public virtual int NextMoveTick
         {
@@ -275,19 +275,25 @@ namespace RimWar.Planet
         {
             base.Tick();
             if (Find.TickManager.TicksGame >= this.NextMoveTick)
-            {
+            {                
                 pather.PatherTick();
-                if (this.nextTweenerUpdate <= Find.TickManager.TicksGame)
-                {
-                    this.nextTweenerUpdate = Find.TickManager.TicksGame + Rand.Range(400, 500);
-                    tweener.TweenerTick();
-                }
+                tweener.TweenerTick();
                 if (this.DestinationReached)
                 {
                     ArrivalAction();
                 }
-                this.NextMoveTick = Find.TickManager.TicksGame + (int)Rand.Range(this.nextMoveTickIncrement * .9f, this.nextMoveTickIncrement * 1.1f);
-
+                Options.SettingsRef settingsRef = new Options.SettingsRef();
+                this.nextMoveTickIncrement = (int)Rand.Range(settingsRef.woEventFrequency * .9f, settingsRef.woEventFrequency * 1.1f);
+                this.NextMoveTick = Find.TickManager.TicksGame + this.nextMoveTickIncrement;
+                if (!canReachDestination)
+                {
+                    if (this.ParentSettlement == null)
+                    {
+                        FindParentSettlement();
+                    }
+                    this.canReachDestination = true;
+                    PathToTarget(ParentSettlement.RimWorld_Settlement);
+                }
             }
         }
 
@@ -370,15 +376,15 @@ namespace RimWar.Planet
 
         public void FindParentSettlement()
         {
-            List<Settlement> rwdTownList = WorldUtility.GetFriendlyRimWarSettlementsInRange(this.Tile, 20, this.Faction, WorldUtility.GetRimWarData(), WorldUtility.GetRimWarDataForFaction(this.Faction));
+            List<Settlement> rwdTownList = WorldUtility.GetFriendlyRimWarSettlementsInRange(this.Tile, 30, this.Faction, WorldUtility.GetRimWarData(), WorldUtility.GetRimWarDataForFaction(this.Faction));
             if(rwdTownList != null && rwdTownList.Count <= 0)
             {
-                rwdTownList = WorldUtility.GetFriendlyRimWarSettlementsInRange(this.Tile, 200, this.Faction, WorldUtility.GetRimWarData(), WorldUtility.GetRimWarDataForFaction(this.Faction));
+                rwdTownList = WorldUtility.GetFriendlyRimWarSettlementsInRange(this.Tile, 100, this.Faction, WorldUtility.GetRimWarData(), WorldUtility.GetRimWarDataForFaction(this.Faction));
             }
 
             if(rwdTownList != null && rwdTownList.Count > 0)
             { 
-                this.ParentSettlement = WorldUtility.GetFriendlyRimWarSettlementsInRange(this.Tile, 200, this.Faction, WorldUtility.GetRimWarData(), WorldUtility.GetRimWarDataForFaction(this.Faction)).RandomElement();
+                this.ParentSettlement = WorldUtility.GetFriendlyRimWarSettlementsInRange(this.Tile, 100, this.Faction, WorldUtility.GetRimWarData(), WorldUtility.GetRimWarDataForFaction(this.Faction)).RandomElement();
                 PathToTarget(Find.World.worldObjects.WorldObjectAt(this.ParentSettlement.Tile, WorldObjectDefOf.Settlement));                
             }
             else
@@ -393,7 +399,7 @@ namespace RimWar.Planet
 
         public void FindHostileSettlement()
         {
-            this.DestinationTarget = Find.World.worldObjects.WorldObjectOfDefAt(WorldObjectDefOf.Settlement, WorldUtility.GetHostileRimWarSettlementsInRange(this.Tile, 20, this.Faction, WorldUtility.GetRimWarData(), WorldUtility.GetRimWarDataForFaction(this.Faction)).RandomElement().Tile);
+            this.DestinationTarget = Find.World.worldObjects.WorldObjectOfDefAt(WorldObjectDefOf.Settlement, WorldUtility.GetHostileRimWarSettlementsInRange(this.Tile, 25, this.Faction, WorldUtility.GetRimWarData(), WorldUtility.GetRimWarDataForFaction(this.Faction)).RandomElement().Tile);
             if (this.DestinationTarget != null)
             {
                 PathToTarget(this.DestinationTarget);

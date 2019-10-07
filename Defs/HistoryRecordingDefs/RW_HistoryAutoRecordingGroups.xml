@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <HistoryAutoRecorderGroupDef>
+    <defName>RimWar_Power</defName>
+    <label>Rivalry</label>
+    <historyAutoRecorderDefs>
+      <li>RW_Rival_Power</li>
+	  <li>RW_Player_Power</li>
+    </historyAutoRecorderDefs>
+  </HistoryAutoRecorderGroupDef>
+
+  <HistoryAutoRecorderGroupDef>
+    <defName>RimWar_WorldObjects</defName>
+    <label>World Objects</label>
+    <integersOnly>true</integersOnly>
+    <historyAutoRecorderDefs>
+      <li>RW_SettlementCount</li>
+	  <li>RW_TraderCount</li>
+	  <li>RW_WarbandCount</li>
+	  <li>RW_ScoutCount</li>
+	  <li>RW_SettlerCount</li>
+    </historyAutoRecorderDefs>
+  </HistoryAutoRecorderGroupDef>
+
+  <HistoryAutoRecorderGroupDef>
+    <defName>RimWar_Actions</defName>
+    <label>RimWar Event Stats</label>
+	<integersOnly>false</integersOnly>
+    <historyAutoRecorderDefs>
+      <li>RW_ObjectsCreated_Day</li>
+	  <li>RW_ObjectCreationAttempts_Day</li>
+	  <li>RW_SettlementSearches_Day</li>
+	  <li>RW_GlobalActions_Day</li>
+    </historyAutoRecorderDefs>
+  </HistoryAutoRecorderGroupDef>
+
+</Defs>

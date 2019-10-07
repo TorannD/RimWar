@@ -6,6 +6,7 @@ using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
 using Verse;
+using RimWar.History;
 
 namespace RimWar.Planet
 {

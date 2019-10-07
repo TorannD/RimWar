@@ -11,7 +11,19 @@ namespace RimWar.Options
         public bool randomizeFactionBehavior = Settings.Instance.randomizeFactionBehavior;
         public bool storytellerBasedDifficulty = Settings.Instance.storytellerBasedDifficulty;
         public float rimwarDifficulty = Settings.Instance.rimwarDifficulty;
+        public bool createDiplomats = Settings.Instance.createDiplomats;
+
         public int maxFactionSettlements = Settings.Instance.maxFactionSettlements;
+        public float settlementScanRangeDivider = Settings.Instance.settlementScanRangeDivider;
+        public float objectMovementMultiplier = Settings.Instance.objectMovementMultiplier;
+
         public int averageEventFrequency = Settings.Instance.averageEventFrequency;
+        public int settlementEventDelay = Settings.Instance.settlementEventDelay;
+        public int settlementScanDelay = Settings.Instance.settlementScanDelay;
+        public float maxSettelementScanRange = Settings.Instance.maxSettlementScanRange;
+        public int woEventFrequency = Settings.Instance.woEventFrequency;
+        public int rwdUpdateFrequency = Settings.Instance.rwdUpdateFrequency;
+        public bool forceRandomObject = Settings.Instance.forceRandomObject;
+        
     }
 }

@@ -79,7 +79,7 @@ namespace RimWar.Planet
             {
                 dtDef = this.DestinationTarget.def;
             }
-            WorldUtility.CreateWarband(this.RimWarPoints, this.rimwarData, this.ParentSettlement, this.destinationTile, this.destinationTile, dtDef);
+            WorldUtility.CreateWarband(this.RimWarPoints, this.rimwarData, this.ParentSettlement, this.destinationTile, this.destinationTile, dtDef, true);
             //Log.Message("ending arrival actions");
             base.ArrivalAction();
         }      

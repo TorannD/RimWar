@@ -22,6 +22,8 @@ namespace RimWar
         public bool movesAtNight;
         public BiomeDef biomeDef;
 
+        public int rwdNextUpdateTick = 0;
+
         //determines behavior weights
         public float settlerChance = 0;
         public float warbandChance = 1;
@@ -49,6 +51,56 @@ namespace RimWar
             Scribe_Collections.Look<RimWar.Planet.Settlement>(ref this.factionSettlements, "factionSettlements", LookMode.Deep, new object[0]);
             //Scribe_Collections.Look<Warband>(ref this.factionWarbands, "factionWarbands", LookMode.Reference, new object[0]);
             //Scribe_Collections.Look<RimWar.Planet.Settlement>(ref this.factionSettlements, "factionSettlements", LookMode.Reference, new object[0]);
+        }
+
+        private List<RimWar.Planet.Settlement> hostileSettlements;
+        public List<RimWar.Planet.Settlement> HostileSettlements
+        {
+            get
+            {
+                bool flag = hostileSettlements == null;
+                if(flag)
+                {
+                    hostileSettlements = new List<RimWar.Planet.Settlement>();
+                    hostileSettlements.Clear();
+                }
+                return hostileSettlements;
+            }
+            set
+            {
+                bool flag = hostileSettlements == null;
+                if (flag)
+                {
+                    hostileSettlements = new List<RimWar.Planet.Settlement>();
+                    hostileSettlements.Clear();
+                }
+                hostileSettlements = value;
+            }
+        }
+
+        private List<RimWar.Planet.Settlement> nonHostileSettlements;
+        public List<RimWar.Planet.Settlement> NonHostileSettlements
+        {
+            get
+            {
+                bool flag = nonHostileSettlements == null;
+                if (flag)
+                {
+                    nonHostileSettlements = new List<RimWar.Planet.Settlement>();
+                    nonHostileSettlements.Clear();
+                }
+                return nonHostileSettlements;
+            }
+            set
+            {
+                bool flag = nonHostileSettlements == null;
+                if (flag)
+                {
+                    nonHostileSettlements = new List<RimWar.Planet.Settlement>();
+                    nonHostileSettlements.Clear();
+                }
+                nonHostileSettlements = value;
+            }
         }
 
         public Faction RimWarFaction => rimwarFaction;

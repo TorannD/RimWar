@@ -1,0 +1,105 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <HistoryAutoRecorderDef>
+    <defName>RW_Rival_Power</defName>
+    <label>Rival Power (total)</label>
+    <graphColor>(1, 0, 0, 1)</graphColor>
+    <recordTicksFrequency>25000</recordTicksFrequency>
+    <workerClass>RimWar.History.HistoryAutoRecorderWorker_RWRival_Power</workerClass>
+    <graphLabelY>Amount</graphLabelY>
+  </HistoryAutoRecorderDef>
+  
+  <HistoryAutoRecorderDef>
+    <defName>RW_Player_Power</defName>
+    <label>Player Power (total)</label>
+    <graphColor>(0, 1, 0, 1)</graphColor>
+    <recordTicksFrequency>25000</recordTicksFrequency>
+    <workerClass>RimWar.History.HistoryAutoRecorderWorker_RWPlayer_Power</workerClass>
+    <graphLabelY>Amount</graphLabelY>
+  </HistoryAutoRecorderDef>
+
+  <HistoryAutoRecorderDef>
+    <defName>RW_SettlementCount</defName>
+    <label>settlements x10</label>
+    <graphColor>(0, 0.88, .12, 1)</graphColor>
+    <recordTicksFrequency>60000</recordTicksFrequency>
+    <workerClass>RimWar.History.HistoryAutoRecorderWorker_RWSettlementCount</workerClass>
+    <graphLabelY>Amount</graphLabelY>
+  </HistoryAutoRecorderDef>
+  
+    <HistoryAutoRecorderDef>
+    <defName>RW_TraderCount</defName>
+    <label>traders</label>
+    <graphColor>(0.40, 0.55, .10, 1)</graphColor>
+    <recordTicksFrequency>20000</recordTicksFrequency>
+    <workerClass>RimWar.History.HistoryAutoRecorderWorker_RWTraderCount</workerClass>
+    <graphLabelY>Amount</graphLabelY>
+  </HistoryAutoRecorderDef>
+  
+  <HistoryAutoRecorderDef>
+    <defName>RW_WarbandCount</defName>
+    <label>warbands</label>
+    <graphColor>(0.76, 0.05, 0, 1)</graphColor>
+    <recordTicksFrequency>20000</recordTicksFrequency>
+    <workerClass>RimWar.History.HistoryAutoRecorderWorker_RWWarbandCount</workerClass>
+    <graphLabelY>Amount</graphLabelY>
+  </HistoryAutoRecorderDef>
+  
+  <HistoryAutoRecorderDef>
+    <defName>RW_ScoutCount</defName>
+    <label>scouts</label>
+    <graphColor>(0.66, 0.21, .33, 1)</graphColor>
+    <recordTicksFrequency>20000</recordTicksFrequency>
+    <workerClass>RimWar.History.HistoryAutoRecorderWorker_RWScoutCount</workerClass>
+    <graphLabelY>Amount</graphLabelY>
+  </HistoryAutoRecorderDef>
+  
+  <HistoryAutoRecorderDef>
+    <defName>RW_SettlerCount</defName>
+    <label>settlers</label>
+    <graphColor>(0.0, 0.22, .75, 1)</graphColor>
+    <recordTicksFrequency>20000</recordTicksFrequency>
+    <workerClass>RimWar.History.HistoryAutoRecorderWorker_RWSettlerCount</workerClass>
+    <graphLabelY>Amount</graphLabelY>
+  </HistoryAutoRecorderDef>
+
+  <!-- Debug and performance statistics -->
+
+  <HistoryAutoRecorderDef>
+    <defName>RW_ObjectsCreated_Day</defName>
+    <label>objects created</label>
+    <graphColor>(0, 1, 0, 1)</graphColor>
+    <recordTicksFrequency>60000</recordTicksFrequency>
+    <workerClass>RimWar.History.HistoryAutoRecorderWorker_RWObjectsCreated_Day</workerClass>
+    <graphLabelY>Actions per Day</graphLabelY>
+  </HistoryAutoRecorderDef>
+
+  <HistoryAutoRecorderDef>
+    <defName>RW_ObjectCreationAttempts_Day</defName>
+    <label>creation attempts x10</label>
+    <graphColor>(1, 0, 0, 1)</graphColor>
+    <recordTicksFrequency>60000</recordTicksFrequency>
+    <workerClass>RimWar.History.HistoryAutoRecorderWorker_RWObjectCreationAttempts_Day</workerClass>
+    <graphLabelY>Actions per Day</graphLabelY>
+  </HistoryAutoRecorderDef>
+
+<HistoryAutoRecorderDef>
+    <defName>RW_SettlementSearches_Day</defName>
+    <label>settlement searches</label>
+    <graphColor>(0, 0, 1, 1)</graphColor>
+    <recordTicksFrequency>60000</recordTicksFrequency>
+    <workerClass>RimWar.History.HistoryAutoRecorderWorker_RWSettlementSearches_Day</workerClass>
+    <graphLabelY>Actions per Day</graphLabelY>
+  </HistoryAutoRecorderDef>
+  
+  <HistoryAutoRecorderDef>
+    <defName>RW_GlobalActions_Day</defName>
+    <label>global actions</label>
+    <graphColor>(.8, .8, .8, 1)</graphColor>
+    <recordTicksFrequency>60000</recordTicksFrequency>
+    <workerClass>RimWar.History.HistoryAutoRecorderWorker_RWGlobalActions_Day</workerClass>
+    <graphLabelY>Actions per Day</graphLabelY>
+  </HistoryAutoRecorderDef>
+
+</Defs>

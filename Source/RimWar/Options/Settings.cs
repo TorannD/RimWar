@@ -8,19 +8,48 @@ namespace RimWar.Options
 {
     public class Settings : Verse.ModSettings
     {
+        //mod behavior
         public bool randomizeFactionBehavior = false;
         public bool storytellerBasedDifficulty = true;
         public float rimwarDifficulty = 1f;
-        public int maxFactionSettlements = 20;
-        public int averageEventFrequency = 50;
+        public bool createDiplomats = false;
+
+        //limit controls
+        public int maxFactionSettlements = 30;
+        public float maxSettlementScanRange = 30f;
+        public float settlementScanRangeDivider = 100f;        
+        public float objectMovementMultiplier = 1f;
+
+        //performance controls
+        public int averageEventFrequency = 50;        
+        public int settlementEventDelay = 60000;
+        public int settlementScanDelay = 120000;               
+        public int woEventFrequency = 200;
+        public int rwdUpdateFrequency = 2500;
+        public bool forceRandomObject = false;
+
+        //unused
+        public int maxScanObjects = 100; //potentially an option to limit the iterations a search function performs before returning the result
+        public int maxFactionObjects = 100; //potentially an option to limit the total number of objects a faction has - debug statistics show this is never reach for normal games
 
         public override void ExposeData()
         {
             Scribe_Values.Look<bool>(ref this.randomizeFactionBehavior, "randomizeFactionBehavior", false, false);
             Scribe_Values.Look<bool>(ref this.storytellerBasedDifficulty, "storytellerBasedDifficulty", true, false);
+            Scribe_Values.Look<bool>(ref this.createDiplomats, "createDiplomats", false, false);
             Scribe_Values.Look<float>(ref this.rimwarDifficulty, "rimwarDifficulty", 1f, false);
             Scribe_Values.Look<int>(ref this.maxFactionSettlements, "maxFactionSettlements", 20, false);
+            Scribe_Values.Look<float>(ref this.maxSettlementScanRange, "maxSettlementScanRange", 30f, false);
+            Scribe_Values.Look<float>(ref this.settlementScanRangeDivider, "settlementScanRangeDivider", 100f, false);
+            Scribe_Values.Look<int>(ref this.maxFactionObjects, "maxFactionObjects", 30, false);
+            Scribe_Values.Look<bool>(ref this.forceRandomObject, "forceRandomObject", false, false);
+            Scribe_Values.Look<int>(ref this.maxScanObjects, "maxScanObjects", 100, false);
             Scribe_Values.Look<int>(ref this.averageEventFrequency, "averageEventFrequency", 50, false);
+            Scribe_Values.Look<int>(ref this.settlementEventDelay, "settlementEventDelay", 60000, false);
+            Scribe_Values.Look<int>(ref this.settlementScanDelay, "settlementScanDelay", 120000, false);
+            Scribe_Values.Look<int>(ref this.woEventFrequency, "woEventFrequency", 200, false);
+            Scribe_Values.Look<float>(ref this.objectMovementMultiplier, "objectMovementMultiplier", 1f, false);
+            Scribe_Values.Look<int>(ref this.rwdUpdateFrequency, "rwdUpdateFrequency", 2500, false);
         }
 
         public static Settings Instance;

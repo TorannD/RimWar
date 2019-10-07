@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <MainButtonDef>
+    <defName>RimWar</defName>
+    <label>Rim War</label>
+    <description>Review RimWar events, faction relations, and global standing.</description>
+    <tabWindowClass>RimWar.MainTabWindow_RimWar</tabWindowClass>
+    <order>94</order>
+    <validWithoutMap>true</validWithoutMap>
+  </MainButtonDef>
+
+</Defs>

@@ -54,6 +54,22 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Base.cs" />
+    <Compile Include="History\HistoryAutoRecorderWorker_RWObjectCreationAttempts_Day.cs" />
+    <Compile Include="History\HistoryAutoRecorderWorker_RWGlobalActions_Day.cs" />
+    <Compile Include="History\HistoryAutoRecorderWorker_RWSettlementSearches_Day.cs" />
+    <Compile Include="History\HistoryAutoRecorderWorker_RWPlayer_Power.cs" />
+    <Compile Include="History\HistoryAutoRecorderWorker_RWSettlerCount.cs" />
+    <Compile Include="History\HistoryAutoRecorderWorker_RWScoutCount.cs" />
+    <Compile Include="History\HistoryAutoRecorderWorker_RWObjectsCreated_Day.cs" />
+    <Compile Include="History\HistoryAutoRecorderWorker_RWWarbandCount.cs" />
+    <Compile Include="History\HistoryAutoRecorderWorker_RWTraderCount.cs" />
+    <Compile Include="History\HistoryAutoRecorderWorker_RWSettlementCount.cs" />
+    <Compile Include="RimWarFactionUtility.cs" />
+    <Compile Include="History\RW_LetterMaker.cs" />
+    <Compile Include="History\RW_LetterDef.cs" />
+    <Compile Include="History\RW_Letter.cs" />
+    <Compile Include="History\HistoryAutoRecorderWorker_RWRival_Power.cs" />
+    <Compile Include="MainTabWindow_RimWar.cs" />
     <Compile Include="Options\Controller.cs" />
     <Compile Include="Options\SettingsRef.cs" />
     <Compile Include="Options\Settings.cs" />

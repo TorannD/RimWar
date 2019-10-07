@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Verse;
 using RimWorld;
+using RimWar.History;
 using UnityEngine;
 
 namespace RimWar
@@ -20,6 +21,12 @@ namespace RimWar
         public static WorldObjectDef RW_Settler;
         public static WorldObjectDef RW_Diplomat;
         public static WorldObjectDef RW_Trader;
+
+        public static RW_LetterDef RimWar_HostileEvent;
+        public static RW_LetterDef RimWar_NeutralEvent;
+        public static RW_LetterDef RimWar_TradeEvent;
+        public static RW_LetterDef RimWar_SettlementEvent;
+        public static RW_LetterDef RimWar_FriendlyEvent;
 
     }
 }

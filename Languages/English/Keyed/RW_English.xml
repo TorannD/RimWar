@@ -18,13 +18,35 @@
 <!-- ============ Faction Menu =============-->
 <RW_FactionPower>Faction power: {0}</RW_FactionPower>
 <RW_FactionBehavior>Behavior type: {0}</RW_FactionBehavior>
+<RW_SettlementCount>Settlements: {0}</RW_SettlementCount>
+<RW_WarObjectCount>Roaming Agents: {0}</RW_WarObjectCount>
+<RW_RivalFaction>**Rival**</RW_RivalFaction>
+
+<!-- ============ MainTabWindow =============-->
+<RW_Relations>Relations</RW_Relations>
+<RW_Events>Events</RW_Events>
+<RW_Performance>Performance</RW_Performance>
+<RW_NoEvents>No events</RW_NoEvents>
+<RW_AllyTo>Ally of {0}</RW_AllyTo>
+<RW_NeutralTo>Neutral to {0}</RW_NeutralTo>
 
 <!-- ============ Settings =============-->
 <RW_randomizeFactionBehavior>Random Faction behavior</RW_randomizeFactionBehavior>
 <RW_storytellerBasedDifficulty>RimWar difficulty uses game difficulty</RW_storytellerBasedDifficulty>
-<RW_maxFactionSettlements>RimWar settlement growth limit</RW_maxFactionSettlements>
+<RW_maxFactionSettlements>Max Faction Settlements</RW_maxFactionSettlements>
 <RW_rimwarDifficulty>Difficulty</RW_rimwarDifficulty>
 <RW_eventFrequency>Global Event Frequency</RW_eventFrequency>
+<RW_maxScanRange>Max Scan Range</RW_maxScanRange>
+<RW_scanRange>Settlement Scan Range (adjusted by settlement points)</RW_scanRange>
+<RW_createDiplomats>Diplomats Enabled</RW_createDiplomats>
+<RW_settlementEventFrequency>Settlement Event Frequency (game hrs):</RW_settlementEventFrequency>
+<RW_settlementScanFrequency>Settlement Scan Update Frequency (game hrs):</RW_settlementScanFrequency>
+<RW_warobjectActionFrequency>Mobile Object Action Frequency (seconds):</RW_warobjectActionFrequency>
+<RW_maxScanObjects>Max Objects Scanned per Event</RW_maxScanObjects>
+<RW_forceRandomObject>Replace Scans with Random Selection</RW_forceRandomObject>
+<RW_maxFactionObjects>Max Faction Objects</RW_maxFactionObjects>
+<RW_objectMovementMultiplier>Mobile Object Move Speed</RW_objectMovementMultiplier>
+<RW_rwdUpdateFrequency>RimWar Data Update Frequency (game hrs):</RW_rwdUpdateFrequency>
 
 <!-- ============ Actions =============-->
 <RW_Attacking>attacking</RW_Attacking>
@@ -36,6 +58,26 @@
 <RW_AttackWarObject>Attack {0}</RW_AttackWarObject>
 <RW_EngageWarObject>Interact with {0}</RW_EngageWarObject>
 <RW_engagingWarObject>Interacting with {0}</RW_engagingWarObject>
+
+<RW_LetterBattle>Field Battle</RW_LetterBattle>
+<RW_LetterBattleText>{0} with a combat power of {1} {2} {3} with a combat power of {4}.</RW_LetterBattleText>
+<RW_LetterSettlementBattle>Settlement Assault</RW_LetterSettlementBattle>
+<RW_LetterSettlementBattleText>{0} with combat power of {1} {4} {2} with combat power of {3}.</RW_LetterSettlementBattleText>
+<RW_LetterTradeEvent>Trade Event</RW_LetterTradeEvent>
+<RW_LetterTradeEventText>{0} with a trade power of {1} {2} with {3} a trade power of {4}.</RW_LetterTradeEventText>
+<RW_LetterSettlementEvent>Settlement Established</RW_LetterSettlementEvent>
+<RW_LetterSettlementEventText>{0} has established a new settlement with {1} points.</RW_LetterSettlementEventText>
+
+<RW_LetterPlayerSettlementBattle>Assault on Player Colony</RW_LetterPlayerSettlementBattle>
+<RW_CaravanAmbush>{0} ambushed</RW_CaravanAmbush>
+<RW_CaravanAmbushedText>{0} was ambushed by {1} with {2} combat power.</RW_CaravanAmbushedText>
+<RW_RaidedPlayer>{0} assaulted the player settlement {1} with a combat power of {2}.</RW_RaidedPlayer>
+<RW_LetterPlayerSettlementReinforcement>Assault on Player Colony</RW_LetterPlayerSettlementReinforcement>
+<RW_ReinforcedPlayer>{0} reinforced the player settlement {1} with a combat force of {2} power.</RW_ReinforcedPlayer>
+<RW_CaravanTrade>Caravan Trade</RW_CaravanTrade>
+<RW_CaravanTradeText>{0} traded with {1}</RW_CaravanTradeText>
+<RW_SettlementTrade>Settlement Trade</RW_SettlementTrade>
+<RW_SettlementTradeText>{0} traded with {1}</RW_SettlementTradeText>
 
 <!-- ============ Custom Letters =============-->
 <RW_VictoryChallengeLabel>RimWar Victory Challenge</RW_VictoryChallengeLabel>

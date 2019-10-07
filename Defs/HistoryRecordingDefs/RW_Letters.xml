@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <RimWar.History.RW_LetterDef>
+    <defName>RimWar_HostileEvent</defName>
+    <color>(204, 40, 0)</color>
+    <flashColor>(255, 85, 85)</flashColor>
+    <flashInterval>6</flashInterval>
+    <bounce>true</bounce>
+    <arriveSound>LetterArrive_BadUrgentBig</arriveSound>
+  </RimWar.History.RW_LetterDef>
+
+  <RimWar.History.RW_LetterDef>
+    <defName>RimWar_NeutralEvent</defName>
+    <color>(128, 128, 128)</color>
+    <flashColor>(192, 192, 192)</flashColor>
+    <flashInterval>16</flashInterval>
+    <bounce>true</bounce>
+    <arriveSound>LetterArrive</arriveSound>
+  </RimWar.History.RW_LetterDef>
+  
+    <RimWar.History.RW_LetterDef>
+    <defName>RimWar_TradeEvent</defName>
+    <color>(0, 102, 0)</color>
+    <flashColor>(0, 230, 0)</flashColor>
+    <flashInterval>16</flashInterval>
+    <bounce>true</bounce>
+    <arriveSound>LetterArrive</arriveSound>
+  </RimWar.History.RW_LetterDef>
+  
+  <RimWar.History.RW_LetterDef>
+    <defName>RimWar_SettlementEvent</defName>
+    <color>(127, 0, 255)</color>
+    <flashColor>(192, 90, 255)</flashColor>
+    <flashInterval>16</flashInterval>
+    <bounce>true</bounce>
+    <arriveSound>LetterArrive</arriveSound>
+  </RimWar.History.RW_LetterDef>
+
+  <RimWar.History.RW_LetterDef>
+    <defName>RimWar_FriendlyEvent</defName>
+    <color>(51, 153, 255)</color>
+    <flashColor>(153, 204, 255)</flashColor>
+    <flashInterval>16</flashInterval>
+    <arriveSound>LetterArrive_Good</arriveSound>
+  </RimWar.History.RW_LetterDef>
+
+</Defs>

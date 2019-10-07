@@ -158,6 +158,7 @@ namespace RimWar.Planet
 
         private void PatherFailed()
         {
+            warObject.canReachDestination = false;
             StopDead();
         }
 

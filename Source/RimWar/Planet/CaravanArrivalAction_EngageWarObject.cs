@@ -62,7 +62,7 @@ namespace RimWar.Planet
                 Trader trader = wo as Trader;
                 if(trader.TradedWith.Contains(caravan))
                 {
-                    return false;
+                    return FloatMenuAcceptanceReport.WithFailMessage("Already Traded");
                 }
             }
             return true;
