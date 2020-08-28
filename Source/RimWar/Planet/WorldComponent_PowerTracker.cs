@@ -447,9 +447,9 @@ namespace RimWar.Planet
 
         public void CheckVictoryFactionForDefeat()
         {
-            List<SettlementBase> rivalBases = new List<SettlementBase>();
+            List< RimWorld.Planet.Settlement> rivalBases = new List<RimWorld.Planet.Settlement>();
             rivalBases.Clear();
-            List<SettlementBase> allBases = Find.World.worldObjects.SettlementBases;
+            List< RimWorld.Planet.Settlement> allBases = Find.World.worldObjects.SettlementBases;
             if (allBases != null && allBases.Count > 0)
             {
                 for (int i = 0; i < allBases.Count; i++)

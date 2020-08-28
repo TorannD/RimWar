@@ -16,7 +16,7 @@ namespace RimWar
     [StaticConstructorOnStartup]
     public class MainTabWindow_RimWar : MainTabWindow
     {
-        private enum HistoryTab : byte
+        private enum RimWarTab : byte
         {
             Relations,
             Events,
@@ -27,11 +27,13 @@ namespace RimWar
 
         private FloatRange graphSection;
 
+        private List<TabRecord> tabs = new List<TabRecord>();
+
         private Vector2 messagesScrollPos;
 
         private float messagesLastHeight;
 
-        private static HistoryTab curTab = HistoryTab.Relations;
+        private static RimWarTab curTab = RimWarTab.Relations;
 
         private static bool showLetters = true; //only this is needed
         private static bool showMessages = false;
@@ -60,6 +62,19 @@ namespace RimWar
         public override void PreOpen()
         {
             base.PreOpen();
+            tabs.Clear();
+            tabs.Add(new TabRecord("RW_Relations".Translate(), delegate
+            {
+                curTab = RimWarTab.Relations;
+            }, () => curTab == RimWarTab.Relations));
+            tabs.Add(new TabRecord("RW_Events".Translate(), delegate
+            {
+                curTab = RimWarTab.Events;
+            }, () => curTab == RimWarTab.Events));
+            tabs.Add(new TabRecord("RW_Performance".Translate(), delegate 
+            {
+                curTab = RimWarTab.Performance;
+            }, () => curTab == RimWarTab.Performance));
             historyAutoRecorderGroup = Find.History.Groups().FirstOrDefault((HistoryAutoRecorderGroup x) => x.def.defName == "RimWar_Power");
             if (historyAutoRecorderGroup != null)
             {
@@ -77,32 +92,45 @@ namespace RimWar
             base.DoWindowContents(rect);
             Rect rect2 = rect;
             rect2.yMin += 45f;
-            List<TabRecord> list = new List<TabRecord>();
-            list.Add(new TabRecord("RW_Relations".Translate(), delegate
-            {
-                curTab = HistoryTab.Relations;
-            }, curTab == HistoryTab.Relations));
-            list.Add(new TabRecord("RW_Events".Translate(), delegate
-            {
-                curTab = HistoryTab.Events;
-            }, curTab == HistoryTab.Events));
-            list.Add(new TabRecord("RW_Performance".Translate(), delegate
-            {
-                curTab = HistoryTab.Performance;
-            }, curTab == HistoryTab.Performance));
-            TabDrawer.DrawTabs(rect2, list);
+            TabDrawer.DrawTabs(rect2, tabs);
             switch (curTab)
             {
-                case HistoryTab.Relations:
+                case RimWarTab.Relations:
                     DoRelationsPage(rect2);
                     break;
-                case HistoryTab.Events:
+                case RimWarTab.Events:
                     DoEventsPage(rect2);
                     break;
-                case HistoryTab.Performance:
+                case RimWarTab.Performance:
                     DoPerformancePage(rect2);
                     break;
             }
+            //List<TabRecord> list = new List<TabRecord>();
+            //list.Add(new TabRecord("RW_Relations".Translate(), delegate
+            //{
+            //    curTab = HistoryTab.Relations;
+            //}, curTab == HistoryTab.Relations));
+            //list.Add(new TabRecord("RW_Events".Translate(), delegate
+            //{
+            //    curTab = HistoryTab.Events;
+            //}, curTab == HistoryTab.Events));
+            //list.Add(new TabRecord("RW_Performance".Translate(), delegate
+            //{
+            //    curTab = HistoryTab.Performance;
+            //}, curTab == HistoryTab.Performance));
+            //TabDrawer.DrawTabs(rect2, list);
+            //switch (curTab)
+            //{
+            //    case HistoryTab.Relations:
+            //        DoRelationsPage(rect2);
+            //        break;
+            //    case HistoryTab.Events:
+            //        DoEventsPage(rect2);
+            //        break;
+            //    case HistoryTab.Performance:
+            //        DoPerformancePage(rect2);
+            //        break;
+            //}
         }
 
         private void DoRelationsPage(Rect fillRect)

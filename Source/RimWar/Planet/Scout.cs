@@ -52,7 +52,7 @@ namespace RimWar.Planet
                     FindParentSettlement();                    
                 }
                 //target is gone; return home
-                if (this.DestinationTarget == null)
+                if (this.DestinationTarget == null && this.ParentSettlement != null)
                 {
                     this.DestinationTarget = Find.World.worldObjects.WorldObjectAt(this.ParentSettlement.Tile, WorldObjectDefOf.Settlement);
                     if (DestinationTarget != null && DestinationTarget.Tile != pather.Destination)

@@ -133,7 +133,7 @@ namespace RimWar.Planet
                     FindParentSettlement();
                 }
                 //target is gone; return home
-                if (this.DestinationTarget == null)
+                if (this.DestinationTarget == null && ParentSettlement != null)
                 {
                     this.DestinationTarget = Find.World.worldObjects.WorldObjectAt(this.ParentSettlement.Tile, WorldObjectDefOf.Settlement);
                     if (DestinationTarget != null && DestinationTarget.Tile != pather.Destination)
@@ -303,7 +303,7 @@ namespace RimWar.Planet
                     List<Map> maps = Find.Maps;
                     for (int i =0; i < maps.Count; i++)
                     {
-                        SettlementBase sBase = maps[i].info.parent as SettlementBase;
+                        RimWorld.Planet.Settlement sBase = maps[i].info.parent as RimWorld.Planet.Settlement;
                         if(sBase != null && sBase.Faction != null && sBase.Tile == this.ParentSettlement.Tile)
                         {
                             //reinforcement against player

@@ -4,10 +4,33 @@
 	<name>Rim War</name>
 	<author>Torann</author>
 	<supportedVersions>
-		<li>1.0</li>
+		<li>1.2</li>
 	</supportedVersions>
-	<url></url>
-	<description>Version 0.9.0 - Beta
+	<packageId>Torann.RimWar</packageId>
+	<url>https://discord.gg/4yUHMkk</url>
+	<modDependenciesByVersion>
+		<v1.2>
+		  <li>
+			<packageId>brrainz.harmony</packageId>
+			<displayName>Harmony</displayName>
+			<steamWorkshopUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=2009463077</steamWorkshopUrl>
+			<downloadUrl>https://github.com/pardeike/HarmonyRimWorld/releases/latest</downloadUrl>
+		  </li>
+		  <li>
+			<packageId>UnlimitedHugs.HugsLib</packageId>
+			<displayName>HugsLib</displayName>
+			<steamWorkshopUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=818773962</steamWorkshopUrl>
+			<downloadUrl>https://ludeon.com/forums/index.php?topic=28066.0</downloadUrl>
+		  </li>
+		</v1.2>
+    </modDependenciesByVersion>
+	<loadAfter>
+		<li>brrainz.harmony</li>
+		<li>Ludeon.RimWorld</li>
+		<li>Ludeon.RimWorld.Royalty</li>
+		<li>UnlimitedHugs.HugsLib</li>
+	</loadAfter>
+	<description>Version 0.9.1 - Beta
 Rim War introduces global conquest where factions vie to become the dominant power across the RimWorld.
     
 Gone are the days of random bands of raider seeking only plunder and wanton destruction; factions are now in a race to exert their influence across the RimWorld through mobile armies, trade caravans, base settlement, and diplomacy. Arise from the ashes of your unfortunate circumstances and use all the assets at your disposal to become a powerful influence across the globe.

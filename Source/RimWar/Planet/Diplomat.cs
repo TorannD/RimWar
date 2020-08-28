@@ -219,7 +219,7 @@ namespace RimWar.Planet
                             if (playerSettlement != null)
                             {
                                 //Raid Player Map
-                                IncidentUtility.DoPeaceTalks_Settlement(this, playerSettlement, this.rimwarData, IncidentUtility.PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.EdgeWalkIn));
+                                //IncidentUtility.DoPeaceTalks_Settlement(this, playerSettlement, this.rimwarData, IncidentUtility.PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.EdgeWalkIn));
                             }
                             else if (playerCaravan != null)
                             {

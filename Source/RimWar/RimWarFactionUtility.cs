@@ -97,7 +97,7 @@ namespace RimWar
                 + "\n" + "RW_FactionPower".Translate(rwd == null ? 0 : rwd.TotalFactionPoints)
                 + "\n" + "RW_SettlementCount".Translate((rwd != null && rwd.FactionSettlements != null && rwd.FactionSettlements.Count > 0) ? rwd.FactionSettlements.Count : 0)
                 + "\n" + "RW_WarObjectCount".Translate((rwd != null && WorldUtility.GetWarObjectsInFaction(faction) != null) ? WorldUtility.GetWarObjectsInFaction(faction).Count : 0)
-                + ((faction != WorldUtility.Get_WCPT().victoryFaction) ? string.Empty : ("\n" + "RW_RivalFaction".Translate())); 
+                + ((faction != WorldUtility.Get_WCPT().victoryFaction) ? string.Empty : "\n" + (string)"RW_RivalFaction".Translate()); 
             Widgets.Label(rect, label);
             Rect rect3 = new Rect(rect.xMax, rowY, 60f, 80f);
             Widgets.InfoCardButton(rect3.x, rect3.y, faction.def);

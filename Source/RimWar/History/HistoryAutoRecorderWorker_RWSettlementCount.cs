@@ -17,7 +17,7 @@ namespace RimWar.History
             List<WorldObject> woList = Find.WorldObjects.AllWorldObjects;
             for(int i = 0; i < woList.Count; i++)
             {
-                if(woList[i] is SettlementBase)
+                if(woList[i] is RimWorld.Planet.Settlement)
                 {
                     num++;
                 }

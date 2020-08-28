@@ -1,4 +1,4 @@
-﻿using Harmony;
+﻿using HarmonyLib;
 using RimWorld;
 using RimWorld.Planet;
 using System;
@@ -14,18 +14,25 @@ using Verse.AI;
 using System.Reflection.Emit;
 using RimWar.Planet;
 using RimWar.Utility;
+using RimWar;
 
 namespace RimWar.Harmony
-{   
+{
+    //[StaticConstructorOnStartup]
+    //internal class HarmonyPatches
+    //{
+    //    private static readonly Type patchType = typeof(HarmonyPatches);
+
+    //    static HarmonyPatches()
+    //    {
     [StaticConstructorOnStartup]
-    internal class HarmonyPatches
+    public class RimWarMod : Mod
     {
-        private static readonly Type patchType = typeof(HarmonyPatches);
+        private static readonly Type patchType = typeof(RimWarMod);        
 
-        static HarmonyPatches()
+        public RimWarMod(ModContentPack content) : base(content)
         {
-            HarmonyInstance harmonyInstance = HarmonyInstance.Create(id: "rimworld.torann.rimwar");
-
+            HarmonyLib.Harmony harmonyInstance = new HarmonyLib.Harmony("rimworld.torann.rimwar");
             //Postfix
             //harmonyInstance.Patch(AccessTools.Method(typeof(FactionUIUtility), "DrawFactionRow", new Type[]
             //    {
@@ -36,34 +43,44 @@ namespace RimWar.Harmony
             harmonyInstance.Patch(AccessTools.Method(typeof(SettlementUtility), "AttackNow", new Type[]
                 {
                     typeof(Caravan),
-                    typeof(SettlementBase)
-                }, null), null, new HarmonyMethod(typeof(HarmonyPatches), "AttackNow_SettlementReinforcement_Postfix", null), null);
-            harmonyInstance.Patch(AccessTools.Method(typeof(SettlementBase), "GetInspectString", new Type[]
+                    typeof(RimWorld.Planet.Settlement)
+                }, null), null, new HarmonyMethod(patchType, "AttackNow_SettlementReinforcement_Postfix", null), null);
+            harmonyInstance.Patch(AccessTools.Method(typeof(RimWorld.Planet.Settlement), "GetInspectString", new Type[]
                 {
-                }, null), null, new HarmonyMethod(typeof(HarmonyPatches), "SettlementBase_InspectString_WithPoints_Postfix", null), null);
+                }, null), null, new HarmonyMethod(patchType, "Settlement_InspectString_WithPoints_Postfix", null), null);
             harmonyInstance.Patch(AccessTools.Method(typeof(Caravan_PathFollower), "StartPath", new Type[]
                 {
                     typeof(int),
                     typeof(CaravanArrivalAction),
                     typeof(bool),
                     typeof(bool)
-                }, null), null, new HarmonyMethod(typeof(HarmonyPatches), "Pather_StartPath_WarObjects", null), null);
+                }, null), null, new HarmonyMethod(patchType, "Pather_StartPath_WarObjects", null), null);
+
+            //GET
+
+            //Transpiler
+            //harmonyInstance.Patch(AccessTools.Method(typeof(Page_CreateWorldParams), "DoWindowContents"), null, null,
+            //    new HarmonyMethod(patchType, nameof(RimWar_WorldParams_CoverageTranspiler)));
 
             //Prefix
+            //harmonyInstance.Patch(AccessTools.Method(typeof(Page_CreateWorldParams), "DoWindowsContents", new Type[]
+            //    {
+            //        typeof(Rect)
+            //    }, null), new HarmonyMethod(typeof(RimWarMod), "Page_CreateRimWarWorldParams_CoveragePatch", null), null);
             harmonyInstance.Patch(AccessTools.Method(typeof(IncidentWorker), "TryExecute", new Type[]
                 {
                     typeof(IncidentParms)
-                }, null), new HarmonyMethod(typeof(HarmonyPatches), "IncidentWorker_Prefix", null), null, null);
+                }, null), new HarmonyMethod(patchType, "IncidentWorker_Prefix", null), null, null);
             harmonyInstance.Patch(AccessTools.Method(typeof(IncidentWorker_CaravanDemand), "ActionGive", new Type[]
                 {
                     typeof(Caravan),
                     typeof(List<ThingCount>),
                     typeof(List<Pawn>)
-                }, null), new HarmonyMethod(typeof(HarmonyPatches), "Caravan_Give_Prefix", null), null, null);
+                }, null), new HarmonyMethod(patchType, "Caravan_Give_Prefix", null), null, null);
             harmonyInstance.Patch(AccessTools.Method(typeof(IncidentWorker_NeutralGroup), "TryResolveParms", new Type[]
                 {
                     typeof(IncidentParms)
-                }, null), new HarmonyMethod(typeof(HarmonyPatches), "TryResolveParms_Points_Prefix", null), null, null);
+                }, null), new HarmonyMethod(patchType, "TryResolveParms_Points_Prefix", null), null, null);
             harmonyInstance.Patch(AccessTools.Method(typeof(Faction), "TryAffectGoodwillWith", new Type[]
                 {
                     typeof(Faction),
@@ -72,19 +89,131 @@ namespace RimWar.Harmony
                     typeof(bool),
                     typeof(string),
                     typeof(GlobalTargetInfo?)
-                }, null), new HarmonyMethod(typeof(HarmonyPatches), "TryAffectGoodwillWith_Reduction_Prefix", null), null, null);
+                }, null), new HarmonyMethod(patchType, "TryAffectGoodwillWith_Reduction_Prefix", null), null, null);
             harmonyInstance.Patch(AccessTools.Method(typeof(IncidentQueue), "Add", new Type[]
                 {
                     typeof(IncidentDef),
                     typeof(int),
                     typeof(IncidentParms),
                     typeof(int)
-                }, null), new HarmonyMethod(typeof(HarmonyPatches), "IncidentQueueAdd_Replacement_Prefix", null), null, null);
+                }, null), new HarmonyMethod(patchType, "IncidentQueueAdd_Replacement_Prefix", null), null, null);
             harmonyInstance.Patch(AccessTools.Method(typeof(FactionDialogMaker), "CallForAid", new Type[]
                 {
                     typeof(Map),
                     typeof(Faction)
-                }, null), new HarmonyMethod(typeof(HarmonyPatches), "CallForAid_Replacement_Patch", null), null, null);
+                }, null), new HarmonyMethod(patchType, "CallForAid_Replacement_Patch", null), null, null);
+        }
+
+        public static IEnumerable<CodeInstruction> RimWar_WorldParams_CoverageTranspiler(IEnumerable<CodeInstruction> instructions)
+        {
+
+            foreach (CodeInstruction instruction in instructions)
+            {
+                var strOperand = instruction.ToString();
+                if (strOperand.Contains("ldsfld") && !strOperand.Contains("Tick_Tiny"))
+                {
+                    Log.Message("operand string is " + strOperand);
+                    yield return instruction;
+                    yield return new CodeInstruction(opcode: OpCodes.Call, operand: AccessTools.Method(type: patchType, name: nameof(RimWar_PlanetCoverage)));
+                }
+                else
+                {
+                    yield return instruction;
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(Scenario), "GetFirstConfigPage", null)]
+        public class RimWarConfigs_Scenario_Patch
+        {
+            public static bool Prefix(Scenario __instance, ref Page __result)
+            {
+                List<ScenPart> parts = Traverse.Create(__instance).Field(name: "parts").GetValue<List<ScenPart>>();
+                List<Page> list = new List<Page>();
+                list.Add(new Page_SelectStoryteller());
+                list.Add(new RimWar.Options.Page_CreateRimWarWorldParams());
+                list.Add(new Page_SelectStartingSite());
+                foreach (Page item in parts.SelectMany((ScenPart p) => p.GetConfigPages()))
+                {
+                    list.Add(item);
+                }
+                Page page = PageUtility.StitchedPages(list);
+                if (page != null)
+                {
+                    Page page2 = page;
+                    while (page2.next != null)
+                    {
+                        page2 = page2.next;
+                    }
+                    page2.nextAct = delegate
+                    {
+                        PageUtility.InitGameStart();
+                    };
+                }
+                __result = page;
+                return false;
+            }
+        }
+
+        private static void RimWar_PlanetCoverage()
+        {
+            float planetCoverage = (float)AccessTools.Field(typeof(Page_CreateWorldParams), "planetCoverage").GetValue(null);
+            List<FloatMenuOption> list = new List<FloatMenuOption>();
+            float[] array = Prefs.DevMode ? RimWar_PlanetCoveragesDev() : RimWar_PlanetCoveragesDev();
+            foreach (float coverage in array)
+            {
+                string text = coverage.ToStringPercent();
+                if (coverage <= 0.1f)
+                {
+                    text += " (dev)";
+                }
+                FloatMenuOption item = new FloatMenuOption(text, delegate
+                {
+                    if (planetCoverage != coverage)
+                    {
+                        planetCoverage = coverage;
+                        if (planetCoverage == 1f)
+                        {
+                            Messages.Message("MessageMaxPlanetCoveragePerformanceWarning".Translate(), MessageTypeDefOf.CautionInput, historical: false);
+                        }
+                    }
+                });
+                list.Add(item);
+            }
+            Find.WindowStack.Add(new FloatMenu(list));
+        }
+
+        private static float[] RimWar_PlanetCoverages()
+        {
+            float[] pCoverages = new float[7]
+            {
+                0.07f,
+                0.1f,
+                0.15f,
+                0.2f,
+                0.3f,
+                0.5f,
+                1f
+            };
+            float[] array = pCoverages;
+            return array;
+        }
+
+        private static float[] RimWar_PlanetCoveragesDev()
+        {
+            float[] pCoverages = new float[8]
+            {
+                0.07f,
+                0.1f,
+                0.15f,
+                0.2f,
+                0.3f,
+                0.5f,
+                1f,
+                0.05f
+            };
+            float[] array = pCoverages;
+            return array;
         }
 
         public static void Pather_StartPath_WarObjects(Caravan_PathFollower __instance, int destTile, CaravanArrivalAction arrivalAction, ref bool __result, bool repathImmediately = false, bool resetPauseStatus = true)
@@ -108,7 +237,7 @@ namespace RimWar.Harmony
             }
         }
 
-        public static void AttackNow_SettlementReinforcement_Postfix(SettlementUtility __instance, Caravan caravan, SettlementBase settlement)
+        public static void AttackNow_SettlementReinforcement_Postfix(SettlementUtility __instance, Caravan caravan, RimWorld.Planet.Settlement settlement)
         {
             RimWar.Planet.Settlement rwSettlement = WorldUtility.GetRimWarSettlementAtTile(settlement.Tile);
             if(rwSettlement != null && rwSettlement.RimWarPoints > 1050)
@@ -257,7 +386,7 @@ namespace RimWar.Harmony
         //    }
         //}
 
-        private static void SettlementBase_InspectString_WithPoints_Postfix(SettlementBase __instance, ref string __result)
+        private static void Settlement_InspectString_WithPoints_Postfix(RimWorld.Planet.Settlement __instance, ref string __result)
         {
             if (!__instance.Faction.def.hidden)
             {
@@ -340,15 +469,15 @@ namespace RimWar.Harmony
             }
         }
 
-        [HarmonyPatch(typeof(IncidentWorker_QuestPeaceTalks), "CanFireNowSub", null)]
-        public class CanFireNow_QuestPeaceTalks_RemovalPatch
-        {
-            public static bool Prefix(IncidentWorker_QuestPeaceTalks __instance, IncidentParms parms, ref bool __result)
-            {
-                __result = false;
-                return false;
-            }
-        }
+        //[HarmonyPatch(typeof(IncidentWorker_QuestPeaceTalks), "CanFireNowSub", null)]
+        //public class CanFireNow_QuestPeaceTalks_RemovalPatch
+        //{
+        //    public static bool Prefix(IncidentWorker_QuestPeaceTalks __instance, IncidentParms parms, ref bool __result)
+        //    {
+        //        __result = false;
+        //        return false;
+        //    }
+        //}
 
         [HarmonyPatch(typeof(IncidentWorker_PawnsArrive), "CanFireNowSub", null)]
         public class CanFireNow_PawnsArrive_RemovalPatch

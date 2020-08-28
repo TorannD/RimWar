@@ -568,18 +568,18 @@ namespace RimWar.Planet
             //iw_peaceTalkQuest.TryExecute(parms);
         }
 
-        public static void DoPeaceTalks_Settlement(WarObject warObject, RimWorld.Planet.Settlement playerSettlement, RimWarData rwd, PawnsArrivalModeDef arrivalMode)
-        {
-            IncidentParms parms = new IncidentParms();
-            PawnGroupKindDef kindDef = PawnGroupKindDefOf.Peaceful;
-            parms.faction = rwd.RimWarFaction;
-            parms.raidArrivalMode = arrivalMode;
-            parms.points = warObject.RimWarPoints;
-            parms.target = playerSettlement.Map;
-            parms.raidStrategy = RaidStrategyOrRandom(RaidStrategyDefOf.ImmediateAttack);
-            IncidentWorker_QuestPeaceTalks iw_peaceTalkQuest = new IncidentWorker_QuestPeaceTalks();
-            iw_peaceTalkQuest.TryExecute(parms);
-        }
+        //public static void DoPeaceTalks_Settlement(WarObject warObject, RimWorld.Planet.Settlement playerSettlement, RimWarData rwd, PawnsArrivalModeDef arrivalMode)
+        //{
+        //    IncidentParms parms = new IncidentParms();
+        //    PawnGroupKindDef kindDef = PawnGroupKindDefOf.Peaceful;
+        //    parms.faction = rwd.RimWarFaction;
+        //    parms.raidArrivalMode = arrivalMode;
+        //    parms.points = warObject.RimWarPoints;
+        //    parms.target = playerSettlement.Map;
+        //    parms.raidStrategy = RaidStrategyOrRandom(RaidStrategyDefOf.ImmediateAttack);
+        //    IncidentWorker_QuestPeaceTalks iw_peaceTalkQuest = new IncidentWorker_QuestPeaceTalks();
+        //    iw_peaceTalkQuest.TryExecute(parms);
+        //}
 
         public static float AdjustedRaidPoints(float points, PawnsArrivalModeDef raidArrivalMode, RaidStrategyDef raidStrategy, Faction faction, PawnGroupKindDef groupKind)
         {
@@ -600,16 +600,27 @@ namespace RimWar.Planet
             if (parms.raidStrategy == null)
             {
                 Map map = (Map)parms.target;
-                if (!(from d in DefDatabase<RaidStrategyDef>.AllDefs
-                      where d.Worker.CanUseWith(parms, groupKind) && (parms.raidArrivalMode != null || (d.arriveModes != null && d.arriveModes.Any((PawnsArrivalModeDef x) => x.Worker.CanUseWith(parms))))
-                      select d).TryRandomElementByWeight((RaidStrategyDef d) => d.Worker.SelectionWeight(map, parms.points), out parms.raidStrategy))
+                DefDatabase<RaidStrategyDef>.AllDefs.Where(delegate (RaidStrategyDef d)
                 {
-                    //Log.Error("No raid stategy for " + parms.faction + " with points " + parms.points + ", groupKind=" + groupKind + "\nparms=" + parms);
-                    parms.raidStrategy = RaidStrategyOrRandom(RaidStrategyDefOf.ImmediateAttack);
-                    if (!Prefs.DevMode)
+                    if (d.Worker.CanUseWith(parms, groupKind))
                     {
-                        parms.raidStrategy = RaidStrategyDefOf.ImmediateAttack;
+                        if (parms.raidArrivalMode == null)
+                        {
+                            if (d.arriveModes != null)
+                            {
+                                return d.arriveModes.Any((PawnsArrivalModeDef x) => x.Worker.CanUseWith(parms));
+                            }
+                            return false;
+                        }
+                        return true;
                     }
+                    return false;
+                }).TryRandomElementByWeight((RaidStrategyDef d) => d.Worker.SelectionWeight(map, parms.points), out RaidStrategyDef result);
+                parms.raidStrategy = result;
+                if (parms.raidStrategy == null)
+                {
+                    Log.Error("No raid stategy found, defaulting to ImmediateAttack. Faction=" + parms.faction.def.defName + ", points=" + parms.points + ", groupKind=" + groupKind + ", parms=" + parms);
+                    parms.raidStrategy = RaidStrategyDefOf.ImmediateAttack;
                 }
             }
             return parms;
