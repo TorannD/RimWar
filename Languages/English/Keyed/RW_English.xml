@@ -32,7 +32,9 @@
 
 <!-- ============ Settings =============-->
 <RW_randomizeFactionBehavior>Random Faction behavior</RW_randomizeFactionBehavior>
+<RW_randomizeFactionBehaviorInfo>Core game factions have a pre-defined behavior - eg Outlander Civil will always have a Cautious behavior, Rough Tribes will always be warmonger's etc. Enabling this setting randomizes all faction behavior regardless of what's defined in the RimWarDef.xml file.</RW_randomizeFactionBehaviorInfo>
 <RW_storytellerBasedDifficulty>RimWar difficulty uses game difficulty</RW_storytellerBasedDifficulty>
+<RW_storytellerBasedDifficultyInfo>This option associates bonus points for RimWar actions with the game difficulty. Higher difficulty increases rate of growth, raid sizes, etc. Disabling this allows you to make Rim War actions more or less severe than other storyteller incidents.</RW_storytellerBasedDifficultyInfo>
 <RW_maxFactionSettlements>Max Faction Settlements</RW_maxFactionSettlements>
 <RW_rimwarDifficulty>Difficulty</RW_rimwarDifficulty>
 <RW_eventFrequency>Global Event Frequency</RW_eventFrequency>
@@ -44,9 +46,46 @@
 <RW_warobjectActionFrequency>Mobile Object Action Frequency (seconds):</RW_warobjectActionFrequency>
 <RW_maxScanObjects>Max Objects Scanned per Event</RW_maxScanObjects>
 <RW_forceRandomObject>Replace Scans with Random Selection</RW_forceRandomObject>
+<RW_forceRandomObjectInfo>When this option is disabled, settlements will only take action within a certain radius. When this option is enabled, actions taken may be against any other object on the map. Performance may increase when random selection is enabled since no additional distance filtering occurs, but it may result in caravans or war parties traveling across the entire map. This option is only recommended if factions are clustered or separated by large distances (usually as a result of modded faction control).</RW_forceRandomObjectInfo>
 <RW_maxFactionObjects>Max Faction Objects</RW_maxFactionObjects>
 <RW_objectMovementMultiplier>Mobile Object Move Speed</RW_objectMovementMultiplier>
 <RW_rwdUpdateFrequency>RimWar Data Update Frequency (game hrs):</RW_rwdUpdateFrequency>
+<RW_alertRange>Player Alert radius:</RW_alertRange>
+<RW_alertRangeInfo>Shows an alert whenever a Rim War related entity is within range of player settlements. Setting the radius to 0 will disable this alert.</RW_alertRangeInfo>
+
+<!-- ============ Game Start Settings =============-->
+<RW_playerVSworld>Player vs All</RW_playerVSworld>
+<RW_playerVSworldInfo>(Hard) Choosing this starting option will reduce relations with all other factions and any faction with -80 or lower will immediately go to war with the player.</RW_playerVSworldInfo>
+
+<!-- ============ Diplomacy Actions =============-->
+<RW_DeclareWarWarning>Declaring war on a faction has the following affects:
+ - opposing faction will be set to max hostility and cannot be reduced while at war
+ - opposing faction will be more likely to act aggressively towards your faction
+ - any allied factions will act more aggressively towards this faction
+ 
+War may be ended with a declaration of peace, however, this option will only become available if the NPC faction is willing to engage in diplomacy.</RW_DeclareWarWarning>
+<RW_DeclarePeaceInfo>Peace becomes available when faction standing is -75 or higher. 
+Current standing: {0}</RW_DeclarePeaceInfo>
+<RW_DeclarePeaceWarning>Declaring peace will end the war with this faction.
+ - enemy armies marching on your or allied settlements will return to base
+ - allied factions will end aggressive actions towards this faction</RW_DeclarePeaceWarning>
+ <RW_DeclareAllianceInfo>A formal alliance may be made with a faction when the faction is an ally, and the faction may not be hostile to any other allied faction.
+ 
+ This option is currently unavailable due to the following reasons:
+{0}</RW_DeclareAllianceInfo>
+ <RW_DeclareAllianceWarning>Declaring a formal alliance with a faction has the following affects:
+  - sets relations to maximum between you and any other allied faction
+  - allied factions will send more and larger trade caravans, unless...
+  - allied factions will focus their resources on the destruction of factions you are at war with
+ 
+ A formal alliance will be ended by any hostile action that reduces relations with this faction below Ally</RW_DeclareAllianceWarning>
+ <RW_Reason_NotAlly>Not an ally</RW_Reason_NotAlly>
+ <RW_Reason_HostileTo>Hostile to {0}</RW_Reason_HostileTo>
+ <RW_Reason_AlreadyAllied>Already allied</RW_Reason_AlreadyAllied>
+ 
+<!-- ============ Alerts =============-->
+<RW_NearbyWarObjects>Nearby activity</RW_NearbyWarObjects>
+<RW_NearbyWarObjectsDesc>Faction activity has been observed near your settlement: {0}</RW_NearbyWarObjectsDesc>
 
 <!-- ============ Actions =============-->
 <RW_Attacking>attacking</RW_Attacking>
@@ -67,6 +106,9 @@
 <RW_LetterTradeEventText>{0} with a trade power of {1} {2} with {3} a trade power of {4}.</RW_LetterTradeEventText>
 <RW_LetterSettlementEvent>Settlement Established</RW_LetterSettlementEvent>
 <RW_LetterSettlementEventText>{0} has established a new settlement with {1} points.</RW_LetterSettlementEventText>
+<RW_LetterApproachingThreatEvent>Hostile force spotted</RW_LetterApproachingThreatEvent>
+<RW_LetterApproachingThreatEventText>A hostile {0} with {1} combat power is marching towards {2}.
+{3}.</RW_LetterApproachingThreatEventText>
 
 <RW_LetterPlayerSettlementBattle>Assault on Player Colony</RW_LetterPlayerSettlementBattle>
 <RW_CaravanAmbush>{0} ambushed</RW_CaravanAmbush>
@@ -91,5 +133,15 @@ News has spread far and wide of your victory over the vile {0} that has brought 
 Your victory is no small feat; the grit and dedication demonstrated during your Rim War will forever be remembered in the annals of history.
 
 (RimWar statistics coming soon!)</RW_VictoryAchieved>
+
+<RW_DiplomacyLetter>Diplomacy action: {0}</RW_DiplomacyLetter>
+<RW_DiplomacyLabel_War>War</RW_DiplomacyLabel_War>
+<RW_DiplomacyLabel_Peace>Peace</RW_DiplomacyLabel_Peace>
+<RW_DiplomacyLabel_Alliance>Alliance</RW_DiplomacyLabel_Alliance>
+<RW_DiplomacyLabel_EndAlliance>Broken Alliance</RW_DiplomacyLabel_EndAlliance>
+<RW_DeclareWar>{0} has declared war on {1} and will not rest until victorious.</RW_DeclareWar>
+<RW_DeclarePeace>{0} has ended their long standing war with {1} established a peace treaty.</RW_DeclarePeace>
+<RW_DeclareAlliance>{0} has forged an alliance with {1}.</RW_DeclareAlliance>
+<RW_DeclareAllianceEnd>{0} has ended their alliance with {1}.</RW_DeclareAllianceEnd>
 
 </LanguageData>

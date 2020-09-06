@@ -24,6 +24,26 @@ namespace RimWar.Planet
             Scribe_Values.Look<int>(ref this.ticksPerMove, "ticksPerMove", 2000, false);
         }
 
+        public override void Notify_Player()
+        {
+            base.Notify_Player();
+            if (!playerNotified && Rand.Chance(.35f) && this.DestinationTarget != null)
+            {
+                if (this.DestinationTarget.Faction == Faction.OfPlayer && this.Faction.HostileTo(Faction.OfPlayer) && Find.WorldGrid.TraversalDistanceBetween(this.Tile, this.DestinationTarget.Tile) <= 7)
+                {
+                    playerNotified = true;
+                    StringBuilder stringBuilder = new StringBuilder();
+                    float num6 = (float)Utility.ArrivalTimeEstimator.EstimatedTicksToArrive(base.Tile, pather.Destination, this) / 60000f;
+                    if (stringBuilder.Length != 0)
+                    {
+                        stringBuilder.AppendLine();
+                    }
+                    stringBuilder.Append("RW_EstimatedTimeToDestination".Translate(num6.ToString("0.#")));
+                    Find.LetterStack.ReceiveLetter("RW_LetterApproachingThreatEvent".Translate(), "RW_LetterApproachingThreatEventText".Translate(this.Name, this.RimWarPoints, this.DestinationTarget.Label, stringBuilder), RimWarDefOf.RimWar_WarningEvent);
+                }
+            }
+        }
+
         public override void Tick()
         {
             base.Tick();
@@ -31,7 +51,8 @@ namespace RimWar.Planet
             {
                 //scan for nearby engagements
                 this.searchTick = Rand.Range(1500, 2000);
-                ScanForNearbyEnemy(scanRange); //WorldUtility.GetRimWarDataForFaction(this.Faction).GetEngagementRange()                
+                ScanForNearbyEnemy(scanRange); //WorldUtility.GetRimWarDataForFaction(this.Faction).GetEngagementRange()     
+                Notify_Player();
                 if (this.DestinationTarget != null && this.DestinationTarget.Tile != pather.Destination)
                 {
                     PathToTarget(this.DestinationTarget);
@@ -83,7 +104,7 @@ namespace RimWar.Planet
                         {
                             Caravan playerCaravan = wo as Caravan;
                             //Log.Message("evaluating player caravan with " + playerCaravan.PlayerWealthForStoryteller + " wealth");
-                            if (playerCaravan.PlayerWealthForStoryteller <= this.RimWarPoints)
+                            if (playerCaravan.PlayerWealthForStoryteller <= (int)(this.RimWarPoints *1.5f))
                             {
                                 //Log.Message(this.Label + " engaging nearby warband " + wo.Label);
                                 this.DestinationTarget = wo;
@@ -207,7 +228,7 @@ namespace RimWar.Planet
             {
                 if(wo.Faction != null && wo.Faction.HostileTo(this.Faction))
                 {
-                    if(wo is WarObject)
+                    if(wo is WarObject && wo.Faction != Faction.OfPlayer)
                     {
                         IncidentUtility.ResolveRimWarBattle(this, wo as WarObject);
                         base.ImmediateAction(wo);

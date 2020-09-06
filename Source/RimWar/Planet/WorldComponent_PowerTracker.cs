@@ -24,11 +24,14 @@ namespace RimWar.Planet
         private int targetRangeDivider = 100;
         private int totalTowns = 10;
         public Faction victoryFaction = null;
+        private bool victoryDeclared = false;
+        public bool playerVSworld = false;
         private List<WarObject> caravanTargets = new List<WarObject>();
         private List<Caravan> caravansWithTargets = new List<Caravan>();
         public override void ExposeData()
         {
             base.ExposeData();
+            Scribe_Values.Look<bool>(ref this.victoryDeclared, "victoryDeclared", false, false);
             Scribe_Values.Look<int>(ref this.objectsCreated, "objectsCreated", 0, false);
             Scribe_Values.Look<int>(ref this.creationAttempts, "creationAttewmpts", 0, false);
             Scribe_Values.Look<int>(ref this.settlementSearches, "settlementSearches", 0, false);
@@ -153,7 +156,10 @@ namespace RimWar.Planet
             if (currentTick % settingsRef.rwdUpdateFrequency == 0)
             {
                 UpdateFactions();
-                CheckVictoryConditions();
+                if (!victoryDeclared)
+                {
+                    CheckVictoryConditions();
+                }
             }
             if(currentTick % 60000 == 0)
             {
@@ -186,6 +192,10 @@ namespace RimWar.Planet
                                 }
                             }
                             RimWarAction newAction = rwd.GetWeightedSettlementAction();
+                            if(rwd.IsAtWar && !(newAction == RimWarAction.LaunchedWarband || newAction == RimWarAction.ScoutingParty || newAction == RimWarAction.Warband))
+                            {
+                                newAction = rwd.GetWeightedSettlementAction();
+                            }
                             //Log.Message("attempting new action of " + newAction.ToString());
                             //newAction = RimWarAction.LaunchedWarband;
                             if (newAction != RimWarAction.None)
@@ -428,6 +438,22 @@ namespace RimWar.Planet
                         {
                             AddRimWarFaction(allFactionsVisible[i]);
                         }
+                        if (playerVSworld && allFactionsVisible[i] != Faction.OfPlayer)
+                        {
+                            allFactionsVisible[i].TryAffectGoodwillWith(Faction.OfPlayer, -80, true, true, "Rim War", null);
+                            for(int j = 0; j <5; j++)
+                            {
+                                Faction otherFaction = allFactionsVisible.RandomElement();
+                                if(otherFaction != allFactionsVisible[i] && otherFaction != Faction.OfPlayer)
+                                {
+                                    allFactionsVisible[i].TryAffectGoodwillWith(otherFaction, 50, true, true, "Rim War", null);
+                                }
+                            }
+                            if(allFactionsVisible[i].PlayerGoodwill <= -80)
+                            {
+                                RimWarFactionUtility.DeclareWarOn(allFactionsVisible[i], Faction.OfPlayer);
+                            }
+                        }
                     }
                 }
                 this.factionsLoaded = true;
@@ -436,7 +462,7 @@ namespace RimWar.Planet
             {
                 GetFactionForVictoryChallenge();
             }
-            this.AllRimWarSettlements = WorldUtility.GetRimWarSettlements(RimWarData);
+            this.AllRimWarSettlements = WorldUtility.GetRimWarSettlements(RimWarData);            
         }
 
         public void CheckVictoryConditions()
@@ -750,6 +776,15 @@ namespace RimWar.Planet
                 {
                     tmpSettlements = rwdTown.NearbyHostileSettlements;
                 }
+                if (rwd.IsAtWar)
+                {
+                    Settlement warSettlement = WorldUtility.GetClosestRimWarSettlementOfFaction(rwd.WarFactions.RandomElement(), rwdTown.Tile, Mathf.Min(Mathf.RoundToInt((rwdTown.RimWarPoints * 1.5f) / (settingsRef.settlementScanRangeDivider)), (int)settingsRef.maxSettelementScanRange));
+                    if (warSettlement != null)
+                    {
+                        tmpSettlements.Add(warSettlement);
+                    }
+                    targetRange = Mathf.RoundToInt(targetRange * 1.5f);
+                }
                 if (tmpSettlements != null && tmpSettlements.Count > 0)
                 {
                     Settlement targetTown = tmpSettlements.RandomElement();
@@ -765,12 +800,23 @@ namespace RimWar.Planet
                         {
                             pts = Mathf.RoundToInt(pts * 1.25f);
                         }
-                        if (rwdTown.RimWarPoints * .75f >= pts)
+
+                        if (rwd.IsAtWarWith(targetTown.Faction))
+                        {
+                            pts = Mathf.RoundToInt(pts * 1.2f);
+                            if (rwdTown.RimWarPoints * .85f >= pts)
+                            {
+                                WorldUtility.CreateWarband(pts, rwd, rwdTown, rwdTown.Tile, targetTown.Tile, WorldObjectDefOf.Settlement);
+                                rwdTown.RimWarPoints = rwdTown.RimWarPoints - pts;
+                            }
+                        }
+                        else if (rwdTown.RimWarPoints * .75f >= pts)
                         {
                             //Log.Message("sending warband from " + rwdTown.RimWorld_Settlement.Name);
                             WorldUtility.CreateWarband(pts, rwd, rwdTown, rwdTown.Tile, targetTown.Tile, WorldObjectDefOf.Settlement);
                             rwdTown.RimWarPoints = rwdTown.RimWarPoints - pts;
                         }
+
                     }
                 }
             }
@@ -806,6 +852,15 @@ namespace RimWar.Planet
                     {
                         tmpSettlements = rwdTown.NearbyHostileSettlements;
                     }
+                    if(rwd.IsAtWar)
+                    {
+                        Settlement warSettlement = WorldUtility.GetClosestRimWarSettlementOfFaction(rwd.WarFactions.RandomElement(), rwdTown.Tile, Mathf.Min(Mathf.RoundToInt((rwdTown.RimWarPoints * 1.5f) / (settingsRef.settlementScanRangeDivider)), (int)settingsRef.maxSettelementScanRange));
+                        if(warSettlement != null)
+                        {
+                            tmpSettlements.Add(warSettlement);
+                        }
+                        targetRange = Mathf.RoundToInt(targetRange * 1.5f);
+                    }
                     if (tmpSettlements != null && tmpSettlements.Count > 0)
                     {
                         Settlement targetTown = tmpSettlements.RandomElement();
@@ -821,7 +876,17 @@ namespace RimWar.Planet
                             {
                                 pts = Mathf.RoundToInt(pts * 1.25f);
                             }
-                            if (rwdTown.RimWarPoints * .6f >= pts)
+
+                            if(rwd.IsAtWarWith(targetTown.Faction))
+                            {
+                                pts = Mathf.RoundToInt(pts * 1.2f);
+                                if(rwdTown.RimWarPoints * .8f >= pts)
+                                {
+                                    WorldUtility.CreateLaunchedWarband(pts, rwd, rwdTown, rwdTown.Tile, targetTown.Tile, WorldObjectDefOf.Settlement);
+                                    rwdTown.RimWarPoints = rwdTown.RimWarPoints - pts;
+                                }
+                            }
+                            else if (rwdTown.RimWarPoints * .6f >= pts)
                             {
                                 //Log.Message("launching warband from " + rwdTown.RimWorld_Settlement.Name);
                                 WorldUtility.CreateLaunchedWarband(pts, rwd, rwdTown, rwdTown.Tile, targetTown.Tile, WorldObjectDefOf.Settlement);
@@ -878,7 +943,7 @@ namespace RimWar.Planet
                                 //Log.Message("caravan is " + Find.WorldGrid.TraversalDistanceBetween(wo.Tile, rwdTown.Tile) + " tiles away, with a town range of " + targetRange + " visibility reduced to a range of " + Mathf.RoundToInt(targetRange * playerCaravan.Visibility));
                                 if ((playerCaravan.PlayerWealthForStoryteller / 200) <= (rwdTown.RimWarPoints * .5f) && (Find.WorldGrid.TraversalDistanceBetween(wo.Tile, rwdTown.Tile) <= Mathf.RoundToInt(targetRange * playerCaravan.Visibility)))
                                 {
-                                    int pts = WorldUtility.CalculateScoutMissionPoints(rwd, Mathf.RoundToInt(playerCaravan.PlayerWealthForStoryteller / 200));
+                                    int pts = WorldUtility.CalculateScoutMissionPoints(rwd, Mathf.RoundToInt(playerCaravan.PlayerWealthForStoryteller / 200));                                    
                                     WorldUtility.CreateScout(pts, rwd, rwdTown, rwdTown.Tile, wo.Tile, WorldObjectDefOf.Caravan);
                                     rwdTown.RimWarPoints = rwdTown.RimWarPoints - pts;
                                     break;
@@ -890,6 +955,10 @@ namespace RimWar.Planet
                                 if (warObject.RimWarPoints <= (rwdTown.RimWarPoints * .5f))
                                 {
                                     int pts = WorldUtility.CalculateScoutMissionPoints(rwd, warObject.RimWarPoints);
+                                    if(rwd.IsAtWarWith(warObject.Faction))
+                                    {
+                                        pts = Mathf.RoundToInt(pts * 1.2f);
+                                    }
                                     WorldUtility.CreateScout(pts, rwd, rwdTown, rwdTown.Tile, wo.Tile, RimWarDefOf.RW_WarObject);
                                     rwdTown.RimWarPoints = rwdTown.RimWarPoints - pts;
                                     break;
@@ -901,6 +970,10 @@ namespace RimWar.Planet
                                 if(settlement != null && settlement.RimWarPoints <= (rwdTown.RimWarPoints * .5f))
                                 {
                                     int pts = WorldUtility.CalculateScoutMissionPoints(rwd, settlement.RimWarPoints);
+                                    if (rwd.IsAtWarWith(settlement.Faction))
+                                    {
+                                        pts = Mathf.RoundToInt(pts * 1.2f);
+                                    }
                                     WorldUtility.CreateScout(pts, rwd, rwdTown, rwdTown.Tile, wo.Tile, WorldObjectDefOf.Settlement);
                                     rwdTown.RimWarPoints = rwdTown.RimWarPoints - pts;
                                     break;

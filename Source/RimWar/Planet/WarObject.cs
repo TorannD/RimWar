@@ -34,6 +34,7 @@ namespace RimWar.Planet
 
         public int nextMoveTickIncrement = 0;
         public bool canReachDestination = true;
+        public bool playerNotified = false;
 
         private int nextMoveTick;
         public virtual int NextMoveTick
@@ -56,6 +57,7 @@ namespace RimWar.Planet
             Scribe_Values.Look(ref uniqueId, "uniqueId", 0);
             Scribe_Values.Look(ref nameInt, "name");
             Scribe_Values.Look<bool>(ref this.movesAtNight, "movesAtNight", false, false);
+            Scribe_Values.Look<bool>(ref this.playerNotified, "playerNotified", false, false);
             Scribe_Values.Look<int>(ref this.warPointsInt, "warPointsInt", -1, false);
             Scribe_Values.Look<int>(ref this.parentSettlementTile, "parentSettlementTile", -1, false);
             Scribe_Values.Look<int>(ref this.destinationTile, "destinationTile", -1, false);
@@ -124,12 +126,13 @@ namespace RimWar.Planet
         public virtual int RimWarPoints
         {
             get
-            {               
+            {
+                this.warPointsInt = Mathf.Clamp(warPointsInt, 50, 100000);
                 return this.warPointsInt;
             }
             set
             {
-                this.warPointsInt = value;
+                this.warPointsInt = Mathf.Max(0, value);
             }
         } 
 
@@ -307,6 +310,11 @@ namespace RimWar.Planet
         {
             tweener.ResetTweenedPosToRoot();
             pather.Notify_Teleported_Int();
+        }
+
+        public virtual void Notify_Player()
+        {
+
         }
 
         public virtual void ImmediateAction(WorldObject wo)

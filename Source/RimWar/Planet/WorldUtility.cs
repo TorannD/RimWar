@@ -86,6 +86,25 @@ namespace RimWar.Planet
             }
         }
 
+        public static void CreateRimWarSettlementWithPoints(RimWarData rwd, WorldObject wo, int points, bool displayLetter = false)
+        {
+            RimWar.Planet.Settlement rimwarSettlement = new Settlement(rwd.RimWarFaction);
+            rimwarSettlement.RimWarPoints = points;
+            rwd.FactionSettlements.Add(rimwarSettlement);
+            rimwarSettlement.Tile = wo.Tile;
+            //Log.Message("settlement: " + wo.Label + " contributes " + rimwarSettlement.RimWarPoints + " points");
+
+            if (Find.TickManager.TicksGame > 20 && displayLetter)
+            {
+                RW_Letter let = RW_LetterMaker.Make_RWLetter(RimWarDefOf.RimWar_SettlementEvent);
+                let.label = "RW_LetterSettlementEvent".Translate();
+                let.text = "RW_LetterSettlementEventText".Translate(rwd.RimWarFaction, rimwarSettlement.RimWarPoints);
+                let.lookTargets = wo;
+                let.relatedFaction = rwd.RimWarFaction;
+                RW_LetterMaker.Archive_RWLetter(let);
+            }
+        }
+
         public static void CreateSettlement(WarObject warObject, RimWarData rwd, int tile, Faction faction)
         {
             //Log.Message("creating settlement");
@@ -93,6 +112,20 @@ namespace RimWar.Planet
             if(warObject != null)
             {
                 CreateRimWarSettlement(rwd, worldSettlement);
+            }
+        }
+
+        public static void ConvertSettlement(RimWorld.Planet.Settlement worlds, RimWar.Planet.Settlement rimwarSettlement, RimWarData rwdFrom, RimWarData rwdTo, int points)
+        {
+            int tile = worlds.Tile;
+            if(worlds!= null && rwdFrom != null && rwdTo != null)
+            {                
+                Find.WorldObjects.Remove(worlds);
+                rwdFrom.FactionSettlements.Remove(rimwarSettlement);
+                Find.World.WorldUpdate();
+                RimWorld.Planet.Settlement worldSettlement = SettleUtility.AddNewHome(tile, rwdTo.RimWarFaction);
+                CreateRimWarSettlementWithPoints(rwdTo, worldSettlement, points, false);
+                Find.World.WorldUpdate();
             }
         }
 
@@ -553,7 +586,7 @@ namespace RimWar.Planet
             {
                 pointsNeeded = Mathf.RoundToInt(Rand.Range(1f, 1.5f) * pointsNeeded);
             }
-            return Mathf.Clamp(pointsNeeded, 50, 1000000);
+            return Mathf.Clamp(pointsNeeded, 50, 2000000);
         }
 
         public static int CalculateTraderPoints(Settlement targetTown)

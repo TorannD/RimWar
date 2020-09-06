@@ -7,6 +7,7 @@ using Verse;
 using HugsLib;
 using HugsLib.Settings;
 using HugsLib.Utils;
+using UnityEngine;
 
 namespace RimWar
 {
@@ -16,6 +17,8 @@ namespace RimWar
 
         public ConsolidatePoints(int pts, int dly)
         {
+            Mathf.Clamp(pts, 0, pts);
+            Mathf.Clamp(dly, 0, dly);
             points = pts;
             delay = dly;
         }

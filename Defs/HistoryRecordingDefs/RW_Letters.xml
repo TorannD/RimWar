@@ -44,5 +44,14 @@
     <flashInterval>16</flashInterval>
     <arriveSound>LetterArrive_Good</arriveSound>
   </RimWar.History.RW_LetterDef>
+  
+  <RimWar.History.RW_LetterDef>
+    <defName>RimWar_WarningEvent</defName>
+    <color>(255, 153, 52)</color>
+    <flashColor>(255, 178, 102)</flashColor>
+    <flashInterval>20</flashInterval>
+    <bounce>true</bounce>
+    <arriveSound>LetterArrive_BadUrgentSmall</arriveSound>
+  </RimWar.History.RW_LetterDef>
 
 </Defs>

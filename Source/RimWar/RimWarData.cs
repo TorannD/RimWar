@@ -49,6 +49,8 @@ namespace RimWar
             Scribe_References.Look<Faction>(ref this.rimwarFaction, "rimwarFaction");
             Scribe_Collections.Look<Warband>(ref this.factionWarbands, "factionWarbands", LookMode.Reference, new object[0]);
             Scribe_Collections.Look<RimWar.Planet.Settlement>(ref this.factionSettlements, "factionSettlements", LookMode.Deep, new object[0]);
+            Scribe_Collections.Look<Faction>(ref this.warFactions, "warFactions", LookMode.Reference, new object[0]);
+            Scribe_Collections.Look<Faction>(ref this.allianceFactions, "allianceFactions", LookMode.Reference, new object[0]);
             //Scribe_Collections.Look<Warband>(ref this.factionWarbands, "factionWarbands", LookMode.Reference, new object[0]);
             //Scribe_Collections.Look<RimWar.Planet.Settlement>(ref this.factionSettlements, "factionSettlements", LookMode.Reference, new object[0]);
         }
@@ -104,6 +106,82 @@ namespace RimWar
         }
 
         public Faction RimWarFaction => rimwarFaction;
+
+        private List<Faction> warFactions;
+        public List<Faction> WarFactions
+        {
+            get
+            {
+                bool flag = warFactions == null;
+                if(flag)
+                {
+                    warFactions = new List<Faction>();
+                    warFactions.Clear();
+                }
+                return warFactions;
+            }
+            set
+            {
+                bool flag = warFactions == null;
+                if (flag)
+                {
+                    warFactions = new List<Faction>();
+                    warFactions.Clear();
+                }
+                warFactions = value;
+            }
+        }
+
+        private List<Faction> allianceFactions;
+        public List<Faction> AllianceFactions
+        {
+            get
+            {
+                bool flag = allianceFactions == null;
+                if (flag)
+                {
+                    allianceFactions = new List<Faction>();
+                    allianceFactions.Clear();
+                }
+                return allianceFactions;
+            }
+            set
+            {
+                bool flag = allianceFactions == null;
+                if (flag)
+                {
+                    allianceFactions = new List<Faction>();
+                    allianceFactions.Clear();
+                }
+                allianceFactions = value;
+            }
+        }
+
+        public bool IsAlliedWith(Faction faction)
+        {
+            if(AllianceFactions.Contains(faction))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public bool IsAtWarWith(Faction faction)
+        {
+            if (WarFactions.Contains(faction))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public bool IsAtWar
+        {
+            get
+            {
+                return WarFactions.Count > 0;
+            }
+        }
 
         public bool CanLaunch
         {

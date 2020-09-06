@@ -5,12 +5,14 @@ using UnityEngine;
 using Verse;
 using Verse.Profile;
 using Verse.Sound;
+using RimWar.Planet;
 
 namespace RimWar.Options
 {
     public class Page_CreateRimWarWorldParams : Page
     {
         private bool initialized;
+        private bool playervsworld = false;
 
         private string seedString;
 
@@ -137,6 +139,10 @@ namespace RimWar.Options
             Widgets.Label(new Rect(0f, num, 200f, 30f), "PlanetPopulation".Translate());
             Rect rect6 = new Rect(200f, num, 200f, 30f);
             population = (OverallPopulation)Mathf.RoundToInt(Widgets.HorizontalSlider(rect6, (float)population, 0f, (float)(OverallPopulationUtility.EnumValuesCount - 1), true, "PlanetPopulation_Normal".Translate(), "PlanetPopulation_Low".Translate(), "PlanetPopulation_High".Translate(), 1f));
+            num += 40f;
+            Rect rect7 = new Rect(0f, num, 400f, 30f);
+            Widgets.CheckboxLabeled(rect7, "RW_playerVSworld".Translate(), ref playervsworld, false);
+            TooltipHandler.TipRegion(rect7, "RW_playerVSworldInfo".Translate());
             GUI.EndGroup();
             DoBottomButtons(rect, "WorldGenerate".Translate(), "Reset".Translate(), Reset);
         }
@@ -159,6 +165,7 @@ namespace RimWar.Options
                     }
                     MemoryUtility.UnloadUnusedUnityAssets();
                     Find.World.renderer.RegenerateAllLayersNow();
+                    WorldUtility.Get_WCPT().playerVSworld = playervsworld;
                     Close();
                 });
             }, "GeneratingWorld", true, null);

@@ -24,6 +24,8 @@ namespace RimWar.Options
         public int woEventFrequency = Settings.Instance.woEventFrequency;
         public int rwdUpdateFrequency = Settings.Instance.rwdUpdateFrequency;
         public bool forceRandomObject = Settings.Instance.forceRandomObject;
+
+        public int alertRange = Settings.Instance.alertRange;
         
     }
 }

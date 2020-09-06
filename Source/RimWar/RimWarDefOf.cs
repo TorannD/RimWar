@@ -27,6 +27,7 @@ namespace RimWar
         public static RW_LetterDef RimWar_TradeEvent;
         public static RW_LetterDef RimWar_SettlementEvent;
         public static RW_LetterDef RimWar_FriendlyEvent;
+        public static RW_LetterDef RimWar_WarningEvent;
 
     }
 }

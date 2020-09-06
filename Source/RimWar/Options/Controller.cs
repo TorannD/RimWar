@@ -37,9 +37,11 @@ namespace RimWar.Options
             SettingsRef settingsRef = new SettingsRef();
             Rect rowRect = UIHelper.GetRowRect(rect1, rowHeight, num);
             Widgets.CheckboxLabeled(rowRect, "RW_randomizeFactionBehavior".Translate(), ref Settings.Instance.randomizeFactionBehavior, false);
+            TooltipHandler.TipRegion(rowRect, "RW_randomizeFactionBehaviorInfo".Translate());
             num++;
             Rect rowRect1 = UIHelper.GetRowRect(rowRect, rowHeight, num);
             Widgets.CheckboxLabeled(rowRect1, "RW_storytellerBasedDifficulty".Translate(), ref Settings.Instance.storytellerBasedDifficulty, false);
+            TooltipHandler.TipRegion(rowRect1, "RW_storytellerBasedDifficultyInfo".Translate());
             Rect rowRect1ShiftRight = UIHelper.GetRowRect(rowRect1, rowHeight, num);
             rowRect1ShiftRight.x += rowRect1.width + 56f;
             if (!Settings.Instance.storytellerBasedDifficulty)
@@ -48,7 +50,9 @@ namespace RimWar.Options
             }
             num++;
             Rect rowRect11 = UIHelper.GetRowRect(rowRect1, rowHeight, num);
-            Widgets.CheckboxLabeled(rowRect11, "RW_createDiplomats".Translate(), ref Settings.Instance.createDiplomats, false);
+            Widgets.CheckboxLabeled(rowRect11, "RW_forceRandomObject".Translate(), ref Settings.Instance.forceRandomObject, false);
+            TooltipHandler.TipRegion(rowRect11, "RW_forceRandomObjectInfo".Translate());
+            //Widgets.CheckboxLabeled(rowRect11, "RW_createDiplomats".Translate(), ref Settings.Instance.createDiplomats, false);
             num++;
             num++;
             Rect rowRect2 = UIHelper.GetRowRect(rowRect1, rowHeight, num);
@@ -64,7 +68,7 @@ namespace RimWar.Options
             Rect rowRect5 = UIHelper.GetRowRect(rowRect4, rowHeight, num);
             Settings.Instance.objectMovementMultiplier = Widgets.HorizontalSlider(rowRect5, Settings.Instance.objectMovementMultiplier, .2f, 5f, false, "RW_objectMovementMultiplier".Translate() + " " + Settings.Instance.objectMovementMultiplier, "Slow", "Fast", .1f);
             num++;
-            num++;
+            //num++;
             Rect rowRect6 = UIHelper.GetRowRect(rowRect5, rowHeight, num);
             Settings.Instance.averageEventFrequency = Mathf.RoundToInt(Widgets.HorizontalSlider(rowRect6, Settings.Instance.averageEventFrequency, 10, 1000, false, "RW_eventFrequency".Translate() + " " + Settings.Instance.averageEventFrequency, "Fast", "Slow", 1f));
             num++;
@@ -75,14 +79,15 @@ namespace RimWar.Options
             Settings.Instance.settlementScanDelay = Mathf.RoundToInt(Widgets.HorizontalSlider(rowRect8, Settings.Instance.settlementScanDelay, 5000, 480000, false, "RW_settlementScanFrequency".Translate() + " " + Mathf.RoundToInt(Settings.Instance.settlementScanDelay/2500f), "2", "192", 10f));
             num++;
             Rect rowRect9 = UIHelper.GetRowRect(rowRect8, rowHeight, num);
-            Settings.Instance.woEventFrequency = Mathf.RoundToInt(Widgets.HorizontalSlider(rowRect9, Settings.Instance.woEventFrequency, 10, 1000, false, "RW_warobjectActionFrequency".Translate() + " " + (float)(Settings.Instance.woEventFrequency/60f), "Slow", "Fast", .1f));
+            Settings.Instance.woEventFrequency = Mathf.RoundToInt(Widgets.HorizontalSlider(rowRect9, Settings.Instance.woEventFrequency, 10, 1000, false, "RW_warobjectActionFrequency".Translate() + " " + ((float)(Settings.Instance.woEventFrequency/60f)).ToString("#.0"), "Fast", "Slow", .1f));
             num++;
             Rect rowRect91 = UIHelper.GetRowRect(rowRect9, rowHeight, num);
             Settings.Instance.rwdUpdateFrequency = Mathf.RoundToInt(Widgets.HorizontalSlider(rowRect91, Settings.Instance.rwdUpdateFrequency, 2500, 60000, false, "RW_rwdUpdateFrequency".Translate() + " " + Mathf.RoundToInt(Settings.Instance.rwdUpdateFrequency/2500), "1", "24", 1f));
             num++;
             Rect rowRect92 = UIHelper.GetRowRect(rowRect91, rowHeight, num);
-            rowRect92.width = canvas.width * .4f;
-            Widgets.CheckboxLabeled(rowRect92, "RW_forceRandomObject".Translate(), ref Settings.Instance.forceRandomObject, false);
+            Settings.Instance.alertRange = Mathf.RoundToInt(Widgets.HorizontalSlider(rowRect92, Settings.Instance.alertRange, 0, 20, false, "RW_alertRange".Translate() + " " + Mathf.RoundToInt(Settings.Instance.alertRange), "0", "20", 1f));
+            TooltipHandler.TipRegion(rowRect92, "RW_alertRangeInfo".Translate());
+            //Widgets.CheckboxLabeled(rowRect92, "RW_forceRandomObject".Translate(), ref Settings.Instance.forceRandomObject, false);
             num++;
             num++;
             Rect rowRect20 = UIHelper.GetRowRect(rowRect92, rowHeight, num);
@@ -95,6 +100,7 @@ namespace RimWar.Options
                 Settings.Instance.storytellerBasedDifficulty = true;
                 Settings.Instance.rimwarDifficulty = 1f;
                 Settings.Instance.createDiplomats = false;
+                Settings.Instance.alertRange = 6;
 
                 Settings.Instance.maxFactionSettlements = 30;
                 Settings.Instance.settlementScanRangeDivider = 100;
@@ -122,6 +128,7 @@ namespace RimWar.Options
                 Settings.Instance.maxFactionSettlements = 20;
                 Settings.Instance.settlementScanRangeDivider = 200;
                 Settings.Instance.objectMovementMultiplier = 2f;
+                Settings.Instance.alertRange = 4;
 
                 Settings.Instance.averageEventFrequency = 480;
                 Settings.Instance.settlementEventDelay = 300000;
@@ -141,6 +148,7 @@ namespace RimWar.Options
                 //Settings.Instance.storytellerBasedDifficulty = true;
                 //Settings.Instance.rimwarDifficulty = 1f;
                 Settings.Instance.createDiplomats = false;
+                Settings.Instance.alertRange = 10;
 
                 Settings.Instance.maxFactionSettlements = 60;
                 Settings.Instance.settlementScanRangeDivider = 100;

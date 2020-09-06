@@ -104,24 +104,24 @@ namespace RimWar.Harmony
                 }, null), new HarmonyMethod(patchType, "CallForAid_Replacement_Patch", null), null, null);
         }
 
-        public static IEnumerable<CodeInstruction> RimWar_WorldParams_CoverageTranspiler(IEnumerable<CodeInstruction> instructions)
-        {
+        //public static IEnumerable<CodeInstruction> RimWar_WorldParams_CoverageTranspiler(IEnumerable<CodeInstruction> instructions)
+        //{
 
-            foreach (CodeInstruction instruction in instructions)
-            {
-                var strOperand = instruction.ToString();
-                if (strOperand.Contains("ldsfld") && !strOperand.Contains("Tick_Tiny"))
-                {
-                    Log.Message("operand string is " + strOperand);
-                    yield return instruction;
-                    yield return new CodeInstruction(opcode: OpCodes.Call, operand: AccessTools.Method(type: patchType, name: nameof(RimWar_PlanetCoverage)));
-                }
-                else
-                {
-                    yield return instruction;
-                }
-            }
-        }
+        //    foreach (CodeInstruction instruction in instructions)
+        //    {
+        //        var strOperand = instruction.ToString();
+        //        if (strOperand.Contains("ldsfld") && !strOperand.Contains("Tick_Tiny"))
+        //        {
+        //            Log.Message("operand string is " + strOperand);
+        //            yield return instruction;
+        //            yield return new CodeInstruction(opcode: OpCodes.Call, operand: AccessTools.Method(type: patchType, name: nameof(RimWar_PlanetCoverage)));
+        //        }
+        //        else
+        //        {
+        //            yield return instruction;
+        //        }
+        //    }
+        //}
 
         [HarmonyPatch(typeof(Scenario), "GetFirstConfigPage", null)]
         public class RimWarConfigs_Scenario_Patch
@@ -155,66 +155,66 @@ namespace RimWar.Harmony
             }
         }
 
-        private static void RimWar_PlanetCoverage()
-        {
-            float planetCoverage = (float)AccessTools.Field(typeof(Page_CreateWorldParams), "planetCoverage").GetValue(null);
-            List<FloatMenuOption> list = new List<FloatMenuOption>();
-            float[] array = Prefs.DevMode ? RimWar_PlanetCoveragesDev() : RimWar_PlanetCoveragesDev();
-            foreach (float coverage in array)
-            {
-                string text = coverage.ToStringPercent();
-                if (coverage <= 0.1f)
-                {
-                    text += " (dev)";
-                }
-                FloatMenuOption item = new FloatMenuOption(text, delegate
-                {
-                    if (planetCoverage != coverage)
-                    {
-                        planetCoverage = coverage;
-                        if (planetCoverage == 1f)
-                        {
-                            Messages.Message("MessageMaxPlanetCoveragePerformanceWarning".Translate(), MessageTypeDefOf.CautionInput, historical: false);
-                        }
-                    }
-                });
-                list.Add(item);
-            }
-            Find.WindowStack.Add(new FloatMenu(list));
-        }
+        //private static void RimWar_PlanetCoverage()
+        //{
+        //    float planetCoverage = (float)AccessTools.Field(typeof(Page_CreateWorldParams), "planetCoverage").GetValue(null);
+        //    List<FloatMenuOption> list = new List<FloatMenuOption>();
+        //    float[] array = Prefs.DevMode ? RimWar_PlanetCoveragesDev() : RimWar_PlanetCoveragesDev();
+        //    foreach (float coverage in array)
+        //    {
+        //        string text = coverage.ToStringPercent();
+        //        if (coverage <= 0.1f)
+        //        {
+        //            text += " (dev)";
+        //        }
+        //        FloatMenuOption item = new FloatMenuOption(text, delegate
+        //        {
+        //            if (planetCoverage != coverage)
+        //            {
+        //                planetCoverage = coverage;
+        //                if (planetCoverage == 1f)
+        //                {
+        //                    Messages.Message("MessageMaxPlanetCoveragePerformanceWarning".Translate(), MessageTypeDefOf.CautionInput, historical: false);
+        //                }
+        //            }
+        //        });
+        //        list.Add(item);
+        //    }
+        //    Find.WindowStack.Add(new FloatMenu(list));
+        //}
 
-        private static float[] RimWar_PlanetCoverages()
-        {
-            float[] pCoverages = new float[7]
-            {
-                0.07f,
-                0.1f,
-                0.15f,
-                0.2f,
-                0.3f,
-                0.5f,
-                1f
-            };
-            float[] array = pCoverages;
-            return array;
-        }
+        //private static float[] RimWar_PlanetCoverages()
+        //{
+        //    float[] pCoverages = new float[7]
+        //    {
+        //        0.07f,
+        //        0.1f,
+        //        0.15f,
+        //        0.2f,
+        //        0.3f,
+        //        0.5f,
+        //        1f
+        //    };
+        //    float[] array = pCoverages;
+        //    return array;
+        //}
 
-        private static float[] RimWar_PlanetCoveragesDev()
-        {
-            float[] pCoverages = new float[8]
-            {
-                0.07f,
-                0.1f,
-                0.15f,
-                0.2f,
-                0.3f,
-                0.5f,
-                1f,
-                0.05f
-            };
-            float[] array = pCoverages;
-            return array;
-        }
+        //private static float[] RimWar_PlanetCoveragesDev()
+        //{
+        //    float[] pCoverages = new float[8]
+        //    {
+        //        0.07f,
+        //        0.1f,
+        //        0.15f,
+        //        0.2f,
+        //        0.3f,
+        //        0.5f,
+        //        1f,
+        //        0.05f
+        //    };
+        //    float[] array = pCoverages;
+        //    return array;
+        //}
 
         public static void Pather_StartPath_WarObjects(Caravan_PathFollower __instance, int destTile, CaravanArrivalAction arrivalAction, ref bool __result, bool repathImmediately = false, bool resetPauseStatus = true)
         {
@@ -222,14 +222,14 @@ namespace RimWar.Harmony
             {
                 if (arrivalAction is RimWar.Planet.CaravanArrivalAction_AttackWarObject)
                 {
-                    Log.Message("assigning war object action: attack");
+                    //Log.Message("assigning war object action: attack");
                     Caravan caravan = Traverse.Create(root: __instance).Field(name: "caravan").GetValue<Caravan>();
                     CaravanArrivalAction_AttackWarObject woAction = arrivalAction as CaravanArrivalAction_AttackWarObject;
                     RimWar.Planet.WorldUtility.Get_WCPT().AssignCaravanTargets(caravan, woAction.wo);
                 }
                 else if(arrivalAction is RimWar.Planet.CaravanArrivalAction_EngageWarObject)
                 {
-                    Log.Message("assigning war object action: engage");
+                    //Log.Message("assigning war object action: engage");
                     Caravan caravan = Traverse.Create(root: __instance).Field(name: "caravan").GetValue<Caravan>();
                     CaravanArrivalAction_EngageWarObject woAction = arrivalAction as CaravanArrivalAction_EngageWarObject;
                     RimWar.Planet.WorldUtility.Get_WCPT().AssignCaravanTargets(caravan, woAction.wo);
@@ -297,7 +297,10 @@ namespace RimWar.Harmony
         {
             if((__instance.IsPlayer || other.IsPlayer))
             {
-                goodwillChange = Mathf.RoundToInt(goodwillChange / 5);
+                if (reason == null || (reason != null && reason != "Rim War"))
+                {
+                    goodwillChange = Mathf.RoundToInt(goodwillChange / 5);
+                }
             }
             return true;
         }
@@ -444,8 +447,12 @@ namespace RimWar.Harmony
         {
             public static bool Prefix(IncidentWorker_Ambush_EnemyFaction __instance, IncidentParms parms, ref bool __result)
             {
-                __result = false;
-                return false;
+                if (__instance != null && __instance.def.defName != "VisitorGroup" && __instance.def.defName != "VisitorGroupMax" && !__instance.def.defName.Contains("Cult") && parms.quest == null && !parms.forced && !__instance.def.workerClass.ToString().StartsWith("Rumor_Code"))
+                {
+                    __result = false;
+                    return false;
+                }
+                return true;
             }
         }
 
@@ -454,8 +461,12 @@ namespace RimWar.Harmony
         {
             public static bool Prefix(IncidentWorker_CaravanDemand __instance, IncidentParms parms, ref bool __result)
             {
-                __result = false;
-                return false;
+                if (__instance != null && __instance.def.defName != "VisitorGroup" && __instance.def.defName != "VisitorGroupMax" && !__instance.def.defName.Contains("Cult") && parms.quest == null && !parms.forced && !__instance.def.workerClass.ToString().StartsWith("Rumor_Code"))
+                {
+                    __result = false;
+                    return false;
+                }
+                return true;
             }
         }
 
@@ -464,8 +475,12 @@ namespace RimWar.Harmony
         {
             public static bool Prefix(IncidentWorker_CaravanMeeting __instance, IncidentParms parms, ref bool __result)
             {
-                __result = false;
-                return false;
+                if (__instance != null && __instance.def.defName != "VisitorGroup" && __instance.def.defName != "VisitorGroupMax" && !__instance.def.defName.Contains("Cult") && parms.quest == null && !parms.forced && !__instance.def.workerClass.ToString().StartsWith("Rumor_Code"))
+                {
+                    __result = false;
+                    return false;
+                }
+                return true;
             }
         }
 
@@ -484,13 +499,26 @@ namespace RimWar.Harmony
         {
             public static bool Prefix(IncidentWorker_PawnsArrive __instance, IncidentParms parms, ref bool __result)
             {
-                if(__instance.def == IncidentDefOf.RaidEnemy || __instance.def == IncidentDefOf.RaidFriendly || __instance.def == IncidentDefOf.TraderCaravanArrival)
+                if (__instance != null && __instance.def.defName != "VisitorGroup" && __instance.def.defName != "VisitorGroupMax" && !__instance.def.defName.Contains("Cult") && parms.quest == null && !parms.forced && !__instance.def.workerClass.ToString().StartsWith("Rumor_Code"))
                 {
-                    __result = false;
-                    return false;
+                    if (__instance.def == IncidentDefOf.RaidEnemy || __instance.def == IncidentDefOf.RaidFriendly || __instance.def == IncidentDefOf.TraderCaravanArrival)
+                    {
+                        __result = false;
+                        return false;
+                    }
                 }
                 return true;
             }
         }
+
+        //[HarmonyPatch(typeof(IncidentWorker), "CanFireNow", null)]
+        //public class CanFireNow_Monitor
+        //{
+        //    public static bool Prefix(IncidentWorker __instance, IncidentParms parms, ref bool __result)
+        //    {                
+        //        Log.Message("incident of " + __instance.def.defName + " with type " + __instance.GetType().ToString() + " attempting to fire with points " + parms.points + " against " + parms.target.ToString());
+        //        return true;
+        //    }
+        //}
     }
 }

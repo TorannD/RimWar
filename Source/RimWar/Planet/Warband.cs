@@ -107,6 +107,26 @@ namespace RimWar.Planet
             return stringBuilder.ToString();
         }
 
+        public override void Notify_Player()
+        {
+            base.Notify_Player();
+            if(!playerNotified && Rand.Chance(.4f) && this.DestinationTarget != null)
+            {
+                if(this.DestinationTarget.Faction == Faction.OfPlayer && this.Faction.HostileTo(Faction.OfPlayer) && Find.WorldGrid.TraversalDistanceBetween(this.Tile, this.DestinationTarget.Tile) <= 9)
+                {
+                    playerNotified = true;
+                    StringBuilder stringBuilder = new StringBuilder();
+                    float num6 = (float)Utility.ArrivalTimeEstimator.EstimatedTicksToArrive(base.Tile, this.DestinationTarget.Tile, this) / 60000f;
+                    if (stringBuilder.Length != 0)
+                    {
+                        stringBuilder.AppendLine();
+                    }
+                    stringBuilder.Append("RW_EstimatedTimeToDestination".Translate(num6.ToString("0.#")));
+                    Find.LetterStack.ReceiveLetter("RW_LetterApproachingThreatEvent".Translate(), "RW_LetterApproachingThreatEventText".Translate(this.Name, this.RimWarPoints, this.DestinationTarget.Label, stringBuilder), RimWarDefOf.RimWar_WarningEvent);
+                }
+            }
+        }
+
         public override void Tick()
         {
             base.Tick();
@@ -115,6 +135,7 @@ namespace RimWar.Planet
                 //scan for nearby engagements
                 this.searchTick = Rand.Range(2000, 3000);
                 ScanForNearbyEnemy(1); //WorldUtility.GetRimWarDataForFaction(this.Faction).GetEngagementRange()
+                Notify_Player();
                 if (this.DestinationTarget != null && this.DestinationTarget.Tile != pather.Destination)
                 {
                     this.launched = false;
@@ -300,6 +321,7 @@ namespace RimWar.Planet
                 }
                 else
                 {
+                    this.ParentSettlement.RimWarPoints += this.RimWarPoints;
                     List<Map> maps = Find.Maps;
                     for (int i =0; i < maps.Count; i++)
                     {

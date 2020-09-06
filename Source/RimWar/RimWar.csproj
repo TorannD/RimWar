@@ -151,6 +151,8 @@
     <Compile Include="Planet\WorldComponent_PowerTracker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility\ArrivalTimeEstimator.cs" />
+    <Compile Include="Utility\Alert_NearbyRimWarObject.cs" />
+    <Compile Include="Utility\ColorUtility.cs" />
     <Compile Include="Utility\WorldReachability.cs" />
     <Compile Include="Utility\RW_Find.cs" />
     <Compile Include="Utility\TweenerUtility.cs" />

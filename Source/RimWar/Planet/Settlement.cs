@@ -81,11 +81,12 @@ namespace RimWar.Planet
                         return 0;
                     }
                 }
+                this.rimwarPointsInt = Mathf.Clamp(this.rimwarPointsInt, 100, 100000);
                 return this.rimwarPointsInt;
             }
             set
             {
-                this.rimwarPointsInt = value;
+                this.rimwarPointsInt = Mathf.Max(0, value);
             }
         }
 
@@ -101,7 +102,11 @@ namespace RimWar.Planet
                 if(this.settlementsInRange.Count == 0 && this.nextSettlementScan <= Find.TickManager.TicksGame)
                 {
                     Options.SettingsRef settingsRef = new Options.SettingsRef();
-                    this.settlementsInRange = WorldUtility.GetRimWarSettlementsInRange(this.Tile, Mathf.Min(Mathf.RoundToInt(this.RimWarPoints / (settingsRef.settlementScanRangeDivider)), (int)settingsRef.maxSettelementScanRange), WorldUtility.GetRimWarData(), WorldUtility.GetRimWarDataForFaction(this.faction));
+                    List<Settlement> scanSettlements = WorldUtility.GetRimWarSettlementsInRange(this.Tile, Mathf.Min(Mathf.RoundToInt(this.RimWarPoints / (settingsRef.settlementScanRangeDivider)), (int)settingsRef.maxSettelementScanRange), WorldUtility.GetRimWarData(), WorldUtility.GetRimWarDataForFaction(this.faction));
+                    if (scanSettlements != null && scanSettlements.Count > 0)
+                    {
+                        this.settlementsInRange = scanSettlements;
+                    }
                     this.nextSettlementScan = Find.TickManager.TicksGame + settingsRef.settlementScanDelay;
                 }
                 return this.settlementsInRange;
@@ -115,16 +120,16 @@ namespace RimWar.Planet
         public List<Settlement> NearbyHostileSettlements
         {
             get
-            {                
+            {
                 List<Settlement> tmpSettlements = new List<Settlement>();
                 tmpSettlements.Clear();
-                if (OtherSettlementsInRange != null && settlementsInRange.Count > 0)
+                if (OtherSettlementsInRange != null && OtherSettlementsInRange.Count > 0)
                 {
-                    for (int i = 0; i < settlementsInRange.Count; i++)
+                    for (int i = 0; i < OtherSettlementsInRange.Count; i++)
                     {
-                        if (settlementsInRange[i].Faction.HostileTo(this.Faction))
+                        if (OtherSettlementsInRange[i].Faction != null && OtherSettlementsInRange[i].Faction.HostileTo(this.Faction))
                         {
-                            tmpSettlements.Add(settlementsInRange[i]);
+                            tmpSettlements.Add(OtherSettlementsInRange[i]);
                         }
                     }
                 }
