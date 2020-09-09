@@ -82,6 +82,10 @@ namespace RimWar.Planet
         {
             get
             {
+                if(this.parentSettlement == null)
+                {
+                    FindParentSettlement();
+                }
                 WorldObject wo = Find.World.worldObjects.WorldObjectAt(this.parentSettlement.Tile, WorldObjectDefOf.Settlement);
                 if (wo != null && wo.Faction == this.Faction)
                 {
@@ -211,6 +215,28 @@ namespace RimWar.Planet
                 stringBuilder.AppendLine();
             }
             return stringBuilder.ToString();
+        }
+
+        public void FindParentSettlement()
+        {
+            List<Settlement> rwdTownList = WorldUtility.GetFriendlyRimWarSettlementsInRange(this.Tile, 30, this.Faction, WorldUtility.GetRimWarData(), WorldUtility.GetRimWarDataForFaction(this.Faction));
+            if (rwdTownList != null && rwdTownList.Count <= 0)
+            {
+                rwdTownList = WorldUtility.GetFriendlyRimWarSettlementsInRange(this.Tile, 100, this.Faction, WorldUtility.GetRimWarData(), WorldUtility.GetRimWarDataForFaction(this.Faction));
+            }
+
+            if (rwdTownList != null && rwdTownList.Count > 0)
+            {
+                this.ParentSettlement = WorldUtility.GetFriendlyRimWarSettlementsInRange(this.Tile, 100, this.Faction, WorldUtility.GetRimWarData(), WorldUtility.GetRimWarDataForFaction(this.Faction)).RandomElement();
+            }
+            else
+            {
+                //warband is lost, no nearby parent settlement
+                if (Find.WorldObjects.Contains(this))
+                {
+                    Find.WorldObjects.Remove(this);
+                }
+            }
         }
     }
 }

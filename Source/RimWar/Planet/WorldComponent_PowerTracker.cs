@@ -488,6 +488,7 @@ namespace RimWar.Planet
             }
             if (rivalBases.Count <= 0)
             {
+                this.victoryDeclared = true;
                 AnnounceVictory();
             }
         }

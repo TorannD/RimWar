@@ -277,7 +277,15 @@ namespace RimWar.Planet
                             Settlement settlement = WorldUtility.GetRimWarSettlementAtTile(this.Tile);
                             if (settlement != null)
                             {
-                                IncidentUtility.ResolveWarObjectAttackOnSettlement(this, this.ParentSettlement, settlement, WorldUtility.GetRimWarDataForFaction(this.Faction));
+                                if (settlement.Faction == Faction.OfPlayer)
+                                {
+                                    RimWorld.Planet.Settlement playerSettlement = Find.World.worldObjects.SettlementAt(this.Tile);
+                                    IncidentUtility.DoRaidWithPoints(this.RimWarPoints, playerSettlement, WorldUtility.GetRimWarDataForFaction(this.Faction), IncidentUtility.PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.EdgeWalkIn));
+                                }
+                                else
+                                {
+                                    IncidentUtility.ResolveWarObjectAttackOnSettlement(this, this.ParentSettlement, settlement, WorldUtility.GetRimWarDataForFaction(this.Faction));
+                                }
                             }
                             else if (wo is WarObject)
                             {
