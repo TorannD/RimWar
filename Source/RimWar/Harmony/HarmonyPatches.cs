@@ -123,37 +123,37 @@ namespace RimWar.Harmony
         //    }
         //}
 
-        [HarmonyPatch(typeof(Scenario), "GetFirstConfigPage", null)]
-        public class RimWarConfigs_Scenario_Patch
-        {
-            public static bool Prefix(Scenario __instance, ref Page __result)
-            {
-                List<ScenPart> parts = Traverse.Create(__instance).Field(name: "parts").GetValue<List<ScenPart>>();
-                List<Page> list = new List<Page>();
-                list.Add(new Page_SelectStoryteller());
-                list.Add(new RimWar.Options.Page_CreateRimWarWorldParams());
-                list.Add(new Page_SelectStartingSite());
-                foreach (Page item in parts.SelectMany((ScenPart p) => p.GetConfigPages()))
-                {
-                    list.Add(item);
-                }
-                Page page = PageUtility.StitchedPages(list);
-                if (page != null)
-                {
-                    Page page2 = page;
-                    while (page2.next != null)
-                    {
-                        page2 = page2.next;
-                    }
-                    page2.nextAct = delegate
-                    {
-                        PageUtility.InitGameStart();
-                    };
-                }
-                __result = page;
-                return false;
-            }
-        }
+        //[HarmonyPatch(typeof(Scenario), "GetFirstConfigPage", null)]
+        //public class RimWarConfigs_Scenario_Patch
+        //{
+        //    public static bool Prefix(Scenario __instance, ref Page __result)
+        //    {
+        //        List<ScenPart> parts = Traverse.Create(__instance).Field(name: "parts").GetValue<List<ScenPart>>();
+        //        List<Page> list = new List<Page>();
+        //        list.Add(new Page_SelectStoryteller());
+        //        list.Add(new RimWar.Options.Page_CreateRimWarWorldParams());
+        //        list.Add(new Page_SelectStartingSite());
+        //        foreach (Page item in parts.SelectMany((ScenPart p) => p.GetConfigPages()))
+        //        {
+        //            list.Add(item);
+        //        }
+        //        Page page = PageUtility.StitchedPages(list);
+        //        if (page != null)
+        //        {
+        //            Page page2 = page;
+        //            while (page2.next != null)
+        //            {
+        //                page2 = page2.next;
+        //            }
+        //            page2.nextAct = delegate
+        //            {
+        //                PageUtility.InitGameStart();
+        //            };
+        //        }
+        //        __result = page;
+        //        return false;
+        //    }
+        //}
 
         //private static void RimWar_PlanetCoverage()
         //{
@@ -215,6 +215,32 @@ namespace RimWar.Harmony
         //    float[] array = pCoverages;
         //    return array;
         //}
+
+        [HarmonyPatch(typeof(Page_CreateWorldParams), "DoWindowContents")]
+        public static class Patch_Page_CreateWorldParams_DoWindowContents
+        {
+            private static void Postfix(Page_CreateWorldParams __instance, Rect rect)
+            {
+                float y = rect.y + rect.height - 120f;
+                Text.Font = GameFont.Small;
+                string label = "RW_RimWar".Translate();
+                if (Widgets.ButtonText(new Rect(0f, y, 150f, 32f), label))
+                {
+                    OpenSettingsWindow(__instance);
+                }
+            }
+
+            public static void OpenSettingsWindow(Page_CreateWorldParams __instance)
+            {
+                Find.WindowStack.TryRemove(typeof(EditWindow_Log));
+                if (!Find.WindowStack.TryRemove(typeof(Options.RimWarSettingsWindow)))
+                {
+                    Options.RimWarSettingsWindow rwsw = new Options.RimWarSettingsWindow();
+                    rwsw.page_ref = __instance;
+                    Find.WindowStack.Add(rwsw);
+                }
+            }
+        }
 
         public static void Pather_StartPath_WarObjects(Caravan_PathFollower __instance, int destTile, CaravanArrivalAction arrivalAction, ref bool __result, bool repathImmediately = false, bool resetPauseStatus = true)
         {

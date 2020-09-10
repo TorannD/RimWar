@@ -36,6 +36,10 @@ namespace RimWar.Options
         public int maxScanObjects = 100; //potentially an option to limit the iterations a search function performs before returning the result
         public int maxFactionObjects = 100; //potentially an option to limit the total number of objects a faction has - debug statistics show this is never reach for normal games
 
+        //unsaved
+        public bool playerVS = false;
+        public float planetCoverageCustom = .12f;
+
         public override void ExposeData()
         {
             Scribe_Values.Look<bool>(ref this.randomizeFactionBehavior, "randomizeFactionBehavior", false, false);

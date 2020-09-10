@@ -25,7 +25,6 @@ namespace RimWar.Planet
         private int totalTowns = 10;
         public Faction victoryFaction = null;
         private bool victoryDeclared = false;
-        public bool playerVSworld = false;
         private List<WarObject> caravanTargets = new List<WarObject>();
         private List<Caravan> caravansWithTargets = new List<Caravan>();
         public override void ExposeData()
@@ -438,7 +437,8 @@ namespace RimWar.Planet
                         {
                             AddRimWarFaction(allFactionsVisible[i]);
                         }
-                        if (playerVSworld && allFactionsVisible[i] != Faction.OfPlayer)
+                        Options.SettingsRef settingsRef = new Options.SettingsRef();
+                        if (settingsRef.playerVS && allFactionsVisible[i] != Faction.OfPlayer)
                         {
                             allFactionsVisible[i].TryAffectGoodwillWith(Faction.OfPlayer, -80, true, true, "Rim War", null);
                             for(int j = 0; j <5; j++)

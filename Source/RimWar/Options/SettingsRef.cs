@@ -27,6 +27,9 @@ namespace RimWar.Options
 
         public int alertRange = Settings.Instance.alertRange;
         public int letterNotificationRange = Settings.Instance.letterNotificationRange;
+
+        public bool playerVS = Settings.Instance.playerVS;
+        public float planetCoverageCustom = Settings.Instance.planetCoverageCustom;
         
     }
 }
