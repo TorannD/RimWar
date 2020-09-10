@@ -110,9 +110,10 @@ namespace RimWar.Planet
         public override void Notify_Player()
         {
             base.Notify_Player();
-            if(!playerNotified && Rand.Chance(.4f) && this.DestinationTarget != null)
+            if(!playerNotified && this.DestinationTarget != null)
             {
-                if(this.DestinationTarget.Faction == Faction.OfPlayer && this.Faction.HostileTo(Faction.OfPlayer) && Find.WorldGrid.TraversalDistanceBetween(this.Tile, this.DestinationTarget.Tile) <= 9)
+                Options.SettingsRef settingsRef = new Options.SettingsRef();
+                if (this.DestinationTarget.Faction == Faction.OfPlayer && this.Faction.HostileTo(Faction.OfPlayer) && Find.WorldGrid.TraversalDistanceBetween(this.Tile, this.DestinationTarget.Tile) <= settingsRef.letterNotificationRange && Rand.Chance(.4f))
                 {
                     playerNotified = true;
                     StringBuilder stringBuilder = new StringBuilder();

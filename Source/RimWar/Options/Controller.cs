@@ -87,6 +87,10 @@ namespace RimWar.Options
             Rect rowRect92 = UIHelper.GetRowRect(rowRect91, rowHeight, num);
             Settings.Instance.alertRange = Mathf.RoundToInt(Widgets.HorizontalSlider(rowRect92, Settings.Instance.alertRange, 0, 20, false, "RW_alertRange".Translate() + " " + Mathf.RoundToInt(Settings.Instance.alertRange), "0", "20", 1f));
             TooltipHandler.TipRegion(rowRect92, "RW_alertRangeInfo".Translate());
+            num++;
+            Rect rowRect93 = UIHelper.GetRowRect(rowRect92, rowHeight, num);
+            Settings.Instance.letterNotificationRange = Mathf.RoundToInt(Widgets.HorizontalSlider(rowRect93, Settings.Instance.letterNotificationRange, 0, 10, false, "RW_letterNotificationRange".Translate() + " " + Mathf.RoundToInt(Settings.Instance.letterNotificationRange), "0", "10", 1f));
+            TooltipHandler.TipRegion(rowRect93, "RW_letterNotificationRangeInfo".Translate());
             //Widgets.CheckboxLabeled(rowRect92, "RW_forceRandomObject".Translate(), ref Settings.Instance.forceRandomObject, false);
             num++;
             num++;

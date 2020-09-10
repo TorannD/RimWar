@@ -52,6 +52,8 @@
 <RW_rwdUpdateFrequency>RimWar Data Update Frequency (game hrs):</RW_rwdUpdateFrequency>
 <RW_alertRange>Player Alert radius:</RW_alertRange>
 <RW_alertRangeInfo>Shows an alert whenever a Rim War related entity is within range of player settlements. Setting the radius to 0 will disable this alert.</RW_alertRangeInfo>
+<RW_letterNotificationRange>Letter notification range:</RW_letterNotificationRange>
+<RW_letterNotificationRangeInfo>Generate a warning letter whenever a hostile force is approaching and targeting the players settlement. Setting the radius to 0 will disable letter notifications.</RW_letterNotificationRangeInfo>
 
 <!-- ============ Game Start Settings =============-->
 <RW_playerVSworld>Player vs All</RW_playerVSworld>

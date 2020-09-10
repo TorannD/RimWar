@@ -27,9 +27,10 @@ namespace RimWar.Planet
         public override void Notify_Player()
         {
             base.Notify_Player();
-            if (!playerNotified && Rand.Chance(.35f) && this.DestinationTarget != null)
+            if (!playerNotified && this.DestinationTarget != null)
             {
-                if (this.DestinationTarget.Faction == Faction.OfPlayer && this.Faction.HostileTo(Faction.OfPlayer) && Find.WorldGrid.TraversalDistanceBetween(this.Tile, this.DestinationTarget.Tile) <= 7)
+                Options.SettingsRef settingsRef = new Options.SettingsRef();
+                if (this.DestinationTarget.Faction == Faction.OfPlayer && this.Faction.HostileTo(Faction.OfPlayer) && Find.WorldGrid.TraversalDistanceBetween(this.Tile, this.DestinationTarget.Tile) <= settingsRef.letterNotificationRange && Rand.Chance(.35f))
                 {
                     playerNotified = true;
                     StringBuilder stringBuilder = new StringBuilder();
@@ -64,18 +65,24 @@ namespace RimWar.Planet
                         EngageNearbyEnemy();
                     }
                 }
-
+            }
+            if(Find.TickManager.TicksGame % (this.searchTick-10) == 0)
+            {
+                this.ValidateParentSettlement();
             }
             if (true) //Find.TickManager.TicksGame % 60 == 0)
             {
-                if (this.ParentSettlement == null)
-                {
-                    FindParentSettlement();                    
-                }
                 //target is gone; return home
                 if (this.DestinationTarget == null && this.ParentSettlement != null)
                 {
-                    this.DestinationTarget = Find.World.worldObjects.WorldObjectAt(this.ParentSettlement.Tile, WorldObjectDefOf.Settlement);
+                    this.DestinationTarget = Find.World.worldObjects.WorldObjectAt(this.ParentSettlement.Tile, WorldObjectDefOf.Settlement);                    
+                    if (this.DestinationTarget == null)
+                    {
+                        this.ValidateParentSettlement();
+                        WorldUtility.Get_WCPT().UpdateFactionSettlements(WorldUtility.GetRimWarDataForFaction(this.Faction));
+                        FindParentSettlement();
+                        this.DestinationTarget = Find.World.worldObjects.WorldObjectAt(this.ParentSettlement.Tile, WorldObjectDefOf.Settlement);
+                    }
                     if (DestinationTarget != null && DestinationTarget.Tile != pather.Destination)
                     {
                         pather.StartPath(DestinationTarget.Tile, true, false);
@@ -86,6 +93,21 @@ namespace RimWar.Planet
                         pather.StopDead();
                     }
                 }                
+            }
+        }
+
+        public void ValidateParentSettlement()
+        {
+            if(this.ParentSettlement != null)
+            {
+                if(!Find.World.worldObjects.AnySettlementAt(this.ParentSettlement.Tile))
+                {
+                    if(WorldUtility.GetRimWarDataForFaction(this.Faction).FactionSettlements.Contains(this.ParentSettlement))
+                    {
+                        WorldUtility.GetRimWarDataForFaction(this.Faction).FactionSettlements.Remove(this.ParentSettlement);
+                    }
+                    this.ParentSettlement = null;
+                }
             }
         }
 

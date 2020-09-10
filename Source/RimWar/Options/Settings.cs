@@ -30,6 +30,7 @@ namespace RimWar.Options
 
         //alerts
         public int alertRange = 6;
+        public int letterNotificationRange = 7;
 
         //unused
         public int maxScanObjects = 100; //potentially an option to limit the iterations a search function performs before returning the result
@@ -54,6 +55,7 @@ namespace RimWar.Options
             Scribe_Values.Look<float>(ref this.objectMovementMultiplier, "objectMovementMultiplier", 1f, false);
             Scribe_Values.Look<int>(ref this.rwdUpdateFrequency, "rwdUpdateFrequency", 2500, false);
             Scribe_Values.Look<int>(ref this.alertRange, "alertRange", 6, false);
+            Scribe_Values.Look<int>(ref this.letterNotificationRange, "letterNotificationRange", 7, false);
         }
 
         public static Settings Instance;

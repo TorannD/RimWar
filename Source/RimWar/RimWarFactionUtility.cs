@@ -61,170 +61,174 @@ namespace RimWar
             Rect rect = new Rect(35f, rowY, 300f, 160f);
             StringBuilder stringBuilder = new StringBuilder();
             RimWarData rwd = WorldUtility.GetRimWarDataForFaction(faction);
-            bool canDeclareWar = !rwd.IsAtWarWith(Faction.OfPlayer);
-            bool canDeclareAlliance = faction.PlayerRelationKind == FactionRelationKind.Ally && !rwd.AllianceFactions.Contains(Faction.OfPlayer);
-            foreach (Faction item in Find.FactionManager.AllFactionsInViewOrder)
+            if (rwd != null && faction != null)
             {
-                if (item != faction && ((!item.IsPlayer && !item.def.hidden)) && faction.HostileTo(item))
+                bool canDeclareWar = !rwd.IsAtWarWith(Faction.OfPlayer);
+                bool canDeclareAlliance = faction.PlayerRelationKind == FactionRelationKind.Ally && !rwd.AllianceFactions.Contains(Faction.OfPlayer);
+                foreach (Faction item in Find.FactionManager.AllFactionsInViewOrder)
                 {
-                    stringBuilder.Append("HostileTo".Translate(item.Name));
-                    stringBuilder.AppendLine();
-                }
-                else if(item != faction && ((!item.IsPlayer && !item.def.hidden)) && faction.RelationKindWith(item) == FactionRelationKind.Ally)
-                {
-                    stringBuilder.Append("RW_AllyTo".Translate(item.Name));
-                    stringBuilder.AppendLine();
-                }
-                else if(item != faction && ((!item.IsPlayer && !item.def.hidden)) && faction.RelationKindWith(item) == FactionRelationKind.Neutral)
-                {
-                    stringBuilder.Append("RW_NeutralTo".Translate(item.Name));
-                    stringBuilder.AppendLine();
-                }
-            }
-            string text = stringBuilder.ToString();
-            float width = fillRect.width - rect.xMax;
-            float num = Text.CalcHeight(text, width);
-            float num2 = Mathf.Max(160f, num);
-            Rect position = new Rect(10f, rowY + 10f, 15f, 15f);
-            Rect rect2 = new Rect(0f, rowY, fillRect.width, num2);
-            if (Mouse.IsOver(rect2))
-            {
-                GUI.DrawTexture(rect2, TexUI.HighlightTex);
-            }
-            Text.Font = GameFont.Small;
-            Text.Anchor = TextAnchor.UpperLeft;            
-            //Widgets.DrawRectFast(position, faction.Color);
-            FactionUIUtility.DrawFactionIconWithTooltip(position, faction);
-            string label = faction.Name.CapitalizeFirst() + "\n" + faction.def.LabelCap + "\n" + ((faction.leader == null) ? string.Empty : (faction.def.leaderTitle.CapitalizeFirst() + ": "
-                + faction.leader.Name.ToStringFull))
-                + "\n" + "RW_FactionBehavior".Translate(rwd == null ? RimWarBehavior.Undefined.ToString() : rwd.behavior.ToString())
-                + "\n" + "RW_FactionPower".Translate(rwd == null ? 0 : rwd.TotalFactionPoints)
-                + "\n" + "RW_SettlementCount".Translate((rwd != null && rwd.FactionSettlements != null && rwd.FactionSettlements.Count > 0) ? rwd.FactionSettlements.Count : 0)
-                + "\n" + "RW_WarObjectCount".Translate((rwd != null && WorldUtility.GetWarObjectsInFaction(faction) != null) ? WorldUtility.GetWarObjectsInFaction(faction).Count : 0)
-                + ((faction != WorldUtility.Get_WCPT().victoryFaction) ? string.Empty : "\n" + (string)"RW_RivalFaction".Translate()); 
-            Widgets.Label(rect, label);
-            Rect rect3 = new Rect(rect.xMax, rowY, 40f, 80f);  //Rect rect3 = new Rect(rect.xMax, rowY, 60f, 80f);
-            Widgets.InfoCardButton(rect3.x, rect3.y, faction.def);
-            Rect rect4 = new Rect(rect3.xMax, rowY, 120f, 80f); //Rect rect4 = new Rect(rect3.xMax, rowY, 250f, 80f);
-            if (!faction.IsPlayer)
-            {
-                string str = faction.HasGoodwill ? (faction.PlayerGoodwill.ToStringWithSign() + "\n") : "";
-                str += faction.PlayerRelationKind.GetLabel();
-                if (faction.defeated)
-                {
-                    str = str + "\n(" + "DefeatedLower".Translate() + ")";
-                }
-                GUI.color = faction.PlayerRelationKind.GetColor();
-                Widgets.Label(rect4, str);
-                GUI.color = Color.white;
-                string str2 = "CurrentGoodwillTip".Translate();
-                if (faction.def.permanentEnemy)
-                {
-                    str2 = str2 + "\n\n" + "CurrentGoodwillTip_PermanentEnemy".Translate();
-                }
-                else
-                {
-                    str2 += "\n\n";
-                    switch (faction.PlayerRelationKind)
+                    if (item != faction && ((!item.IsPlayer && !item.def.hidden)) && faction.HostileTo(item))
                     {
-                        case FactionRelationKind.Ally:
-                            str2 += "CurrentGoodwillTip_Ally".Translate(0.ToString("F0"));                            
-                            break;
-                        case FactionRelationKind.Neutral:
-                            str2 += "CurrentGoodwillTip_Neutral".Translate((-75).ToString("F0"), 75.ToString("F0"));
-                            break;
-                        case FactionRelationKind.Hostile:
-                            str2 += "CurrentGoodwillTip_Hostile".Translate(0.ToString("F0"));                            
-                            break;
+                        stringBuilder.Append("HostileTo".Translate(item.Name));
+                        stringBuilder.AppendLine();
                     }
-                    if (faction.def.goodwillDailyGain > 0f || faction.def.goodwillDailyFall > 0f)
+                    else if (item != faction && ((!item.IsPlayer && !item.def.hidden)) && faction.RelationKindWith(item) == FactionRelationKind.Ally)
                     {
-                        float num3 = faction.def.goodwillDailyGain * 60f;
-                        float num4 = faction.def.goodwillDailyFall * 60f;
-                        str2 += "\n\n" + "CurrentGoodwillTip_NaturalGoodwill".Translate(faction.def.naturalColonyGoodwill.min.ToString("F0"), faction.def.naturalColonyGoodwill.max.ToString("F0"));
-                        if (faction.def.naturalColonyGoodwill.min > -100)
-                        {
-                            str2 += " " + "CurrentGoodwillTip_NaturalGoodwillRise".Translate(faction.def.naturalColonyGoodwill.min.ToString("F0"), num3.ToString("F0"));
-                        }
-                        if (faction.def.naturalColonyGoodwill.max < 100)
-                        {
-                            str2 += " " + "CurrentGoodwillTip_NaturalGoodwillFall".Translate(faction.def.naturalColonyGoodwill.max.ToString("F0"), num4.ToString("F0"));
-                        }
+                        stringBuilder.Append("RW_AllyTo".Translate(item.Name));
+                        stringBuilder.AppendLine();
+                    }
+                    else if (item != faction && ((!item.IsPlayer && !item.def.hidden)) && faction.RelationKindWith(item) == FactionRelationKind.Neutral)
+                    {
+                        stringBuilder.Append("RW_NeutralTo".Translate(item.Name));
+                        stringBuilder.AppendLine();
                     }
                 }
-                TooltipHandler.TipRegion(rect4, str2);
-            }
-            Rect rect6 = new Rect(rect4.xMax, rowY + 10, 100f, 28f);
-            if (canDeclareWar)
-            {
-                bool declareWar = Widgets.ButtonText(rect6, "War", canDeclareWar, false, canDeclareWar);
-                if (declareWar)
+                string text = stringBuilder.ToString();
+                float width = fillRect.width - rect.xMax;
+                float num = Text.CalcHeight(text, width);
+                float num2 = Mathf.Max(160f, num);
+                Rect position = new Rect(10f, rowY + 10f, 15f, 15f);
+                Rect rect2 = new Rect(0f, rowY, fillRect.width, num2);
+                if (Mouse.IsOver(rect2))
                 {
-                    DeclareWarOn(Faction.OfPlayer, faction);
+                    GUI.DrawTexture(rect2, TexUI.HighlightTex);
                 }
-                TooltipHandler.TipRegion(rect6, "RW_DeclareWarWarning".Translate());
-            }
-            else
-            {
-                bool declarePeace = Widgets.ButtonText(rect6, "Peace", faction.GoodwillWith(Faction.OfPlayer) >= -75, false, true);
-                if (declarePeace)
+                Text.Font = GameFont.Small;
+                Text.Anchor = TextAnchor.UpperLeft;
+                //Widgets.DrawRectFast(position, faction.Color);
+                FactionUIUtility.DrawFactionIconWithTooltip(position, faction);
+                string label = faction.Name.CapitalizeFirst() + "\n" + faction.def.LabelCap + "\n" + ((faction.leader == null) ? string.Empty : (faction.def.leaderTitle.CapitalizeFirst() + ": "
+                    + faction.leader.Name.ToStringFull))
+                    + "\n" + "RW_FactionBehavior".Translate(rwd == null ? RimWarBehavior.Undefined.ToString() : rwd.behavior.ToString())
+                    + "\n" + "RW_FactionPower".Translate(rwd == null ? 0 : rwd.TotalFactionPoints)
+                    + "\n" + "RW_SettlementCount".Translate((rwd != null && rwd.FactionSettlements != null && rwd.FactionSettlements.Count > 0) ? rwd.FactionSettlements.Count : 0)
+                    + "\n" + "RW_WarObjectCount".Translate((rwd != null && WorldUtility.GetWarObjectsInFaction(faction) != null) ? WorldUtility.GetWarObjectsInFaction(faction).Count : 0)
+                    + ((faction != WorldUtility.Get_WCPT().victoryFaction) ? string.Empty : "\n" + (string)"RW_RivalFaction".Translate());
+                Widgets.Label(rect, label);
+                Rect rect3 = new Rect(rect.xMax, rowY, 40f, 80f);  //Rect rect3 = new Rect(rect.xMax, rowY, 60f, 80f);
+                Widgets.InfoCardButton(rect3.x, rect3.y, faction.def);
+                Rect rect4 = new Rect(rect3.xMax, rowY, 120f, 80f); //Rect rect4 = new Rect(rect3.xMax, rowY, 250f, 80f);
+                if (!faction.IsPlayer)
                 {
-                    DeclarePeaceWith(Faction.OfPlayer, faction);
-                }
-                if(faction.GoodwillWith(Faction.OfPlayer) < -75)
-                {
-                    TooltipHandler.TipRegion(rect6, "RW_DeclarePeaceInfo".Translate(faction.GoodwillWith(Faction.OfPlayer)));
-                }
-                else
-                {
-                    TooltipHandler.TipRegion(rect6, "RW_DeclarePeaceWarning".Translate());
-                }                
-            }
-
-            Rect rect7 = new Rect(rect4.xMax, rowY + 10 + rect6.height, 100f, 28f);
-            if (!rwd.IsAtWarWith(Faction.OfPlayer))
-            {
-                bool declareAlly = Widgets.ButtonText(rect7, "Alliance", canDeclareAlliance, false, true);
-                if (declareAlly)
-                {
-                    DeclareAllianceWith(Faction.OfPlayer, faction);
-                }
-                if (canDeclareAlliance)
-                {
-                    TooltipHandler.TipRegion(rect7, "RW_DeclareAllianceWarning".Translate());
-                }
-                else
-                {
-                    StringBuilder strAlly = new StringBuilder();
-                    if (!rwd.IsAlliedWith(Faction.OfPlayer))
+                    string str = faction.HasGoodwill ? (faction.PlayerGoodwill.ToStringWithSign() + "\n") : "";
+                    str += faction.PlayerRelationKind.GetLabel();
+                    if (faction.defeated)
                     {
-                        if (faction.PlayerRelationKind != FactionRelationKind.Ally)
-                        {
-                            strAlly.Append("RW_Reason_NotAlly".Translate() + "\n");
-                        }
-                        List<RimWarData> rwdList = WorldUtility.GetRimWarData();
-                        string alliedFactions = "";
-                        for (int i = 0; i < rwdList.Count; i++)
-                        {
-                            if (rwdList[i].AllianceFactions.Contains(Faction.OfPlayer) && faction.HostileTo(rwdList[i].RimWarFaction))
-                            {
-                                alliedFactions += rwdList[i].RimWarFaction.Name + "\n";
-                            }
-                        }
-                        strAlly.Append(alliedFactions);
+                        str = str + "\n(" + "DefeatedLower".Translate() + ")";
+                    }
+                    GUI.color = faction.PlayerRelationKind.GetColor();
+                    Widgets.Label(rect4, str);
+                    GUI.color = Color.white;
+                    string str2 = "CurrentGoodwillTip".Translate();
+                    if (faction.def.permanentEnemy)
+                    {
+                        str2 = str2 + "\n\n" + "CurrentGoodwillTip_PermanentEnemy".Translate();
                     }
                     else
                     {
-                        strAlly.Append("RW_Reason_AlreadyAllied".Translate());
+                        str2 += "\n\n";
+                        switch (faction.PlayerRelationKind)
+                        {
+                            case FactionRelationKind.Ally:
+                                str2 += "CurrentGoodwillTip_Ally".Translate(0.ToString("F0"));
+                                break;
+                            case FactionRelationKind.Neutral:
+                                str2 += "CurrentGoodwillTip_Neutral".Translate((-75).ToString("F0"), 75.ToString("F0"));
+                                break;
+                            case FactionRelationKind.Hostile:
+                                str2 += "CurrentGoodwillTip_Hostile".Translate(0.ToString("F0"));
+                                break;
+                        }
+                        if (faction.def.goodwillDailyGain > 0f || faction.def.goodwillDailyFall > 0f)
+                        {
+                            float num3 = faction.def.goodwillDailyGain * 60f;
+                            float num4 = faction.def.goodwillDailyFall * 60f;
+                            str2 += "\n\n" + "CurrentGoodwillTip_NaturalGoodwill".Translate(faction.def.naturalColonyGoodwill.min.ToString("F0"), faction.def.naturalColonyGoodwill.max.ToString("F0"));
+                            if (faction.def.naturalColonyGoodwill.min > -100)
+                            {
+                                str2 += " " + "CurrentGoodwillTip_NaturalGoodwillRise".Translate(faction.def.naturalColonyGoodwill.min.ToString("F0"), num3.ToString("F0"));
+                            }
+                            if (faction.def.naturalColonyGoodwill.max < 100)
+                            {
+                                str2 += " " + "CurrentGoodwillTip_NaturalGoodwillFall".Translate(faction.def.naturalColonyGoodwill.max.ToString("F0"), num4.ToString("F0"));
+                            }
+                        }
                     }
-                    TooltipHandler.TipRegion(rect7, "RW_DeclareAllianceInfo".Translate(strAlly));
+                    TooltipHandler.TipRegion(rect4, str2);
                 }
-            }
-            Rect rect5 = new Rect(rect6.xMax + 20, rowY, width, num);
-            Widgets.Label(rect5, text);
-            Text.Anchor = TextAnchor.UpperLeft;
+                Rect rect6 = new Rect(rect4.xMax, rowY + 10, 100f, 28f);
+                if (canDeclareWar)
+                {
+                    bool declareWar = Widgets.ButtonText(rect6, "War", canDeclareWar, false, canDeclareWar);
+                    if (declareWar)
+                    {
+                        DeclareWarOn(Faction.OfPlayer, faction);
+                    }
+                    TooltipHandler.TipRegion(rect6, "RW_DeclareWarWarning".Translate());
+                }
+                else
+                {
+                    bool declarePeace = Widgets.ButtonText(rect6, "Peace", faction.GoodwillWith(Faction.OfPlayer) >= -75, false, true);
+                    if (declarePeace)
+                    {
+                        DeclarePeaceWith(Faction.OfPlayer, faction);
+                    }
+                    if (faction.GoodwillWith(Faction.OfPlayer) < -75)
+                    {
+                        TooltipHandler.TipRegion(rect6, "RW_DeclarePeaceInfo".Translate(faction.GoodwillWith(Faction.OfPlayer)));
+                    }
+                    else
+                    {
+                        TooltipHandler.TipRegion(rect6, "RW_DeclarePeaceWarning".Translate());
+                    }
+                }
 
-            return num2;
+                Rect rect7 = new Rect(rect4.xMax, rowY + 10 + rect6.height, 100f, 28f);
+                if (!rwd.IsAtWarWith(Faction.OfPlayer))
+                {
+                    bool declareAlly = Widgets.ButtonText(rect7, "Alliance", canDeclareAlliance, false, true);
+                    if (declareAlly)
+                    {
+                        DeclareAllianceWith(Faction.OfPlayer, faction);
+                    }
+                    if (canDeclareAlliance)
+                    {
+                        TooltipHandler.TipRegion(rect7, "RW_DeclareAllianceWarning".Translate());
+                    }
+                    else
+                    {
+                        StringBuilder strAlly = new StringBuilder();
+                        if (!rwd.IsAlliedWith(Faction.OfPlayer))
+                        {
+                            if (faction.PlayerRelationKind != FactionRelationKind.Ally)
+                            {
+                                strAlly.Append("RW_Reason_NotAlly".Translate() + "\n");
+                            }
+                            List<RimWarData> rwdList = WorldUtility.GetRimWarData();
+                            string alliedFactions = "";
+                            for (int i = 0; i < rwdList.Count; i++)
+                            {
+                                if (rwdList[i].AllianceFactions.Contains(Faction.OfPlayer) && faction.HostileTo(rwdList[i].RimWarFaction))
+                                {
+                                    alliedFactions += rwdList[i].RimWarFaction.Name + "\n";
+                                }
+                            }
+                            strAlly.Append(alliedFactions);
+                        }
+                        else
+                        {
+                            strAlly.Append("RW_Reason_AlreadyAllied".Translate());
+                        }
+                        TooltipHandler.TipRegion(rect7, "RW_DeclareAllianceInfo".Translate(strAlly));
+                    }
+                }
+                Rect rect5 = new Rect(rect6.xMax + 20, rowY, width, num);
+                Widgets.Label(rect5, text);
+                Text.Anchor = TextAnchor.UpperLeft;
+
+                return num2;
+            }
+            return 0f;
         }
 
         public static void DeclareWarOn(Faction declaringFaction, Faction withFaction)

@@ -702,7 +702,7 @@ namespace RimWar.Planet
             }
         }
 
-        private void UpdateFactionSettlements(RimWarData rwd)
+        public void UpdateFactionSettlements(RimWarData rwd)
         {
             
             this.WorldObjects = world.worldObjects.AllWorldObjects.ToList();
@@ -737,8 +737,8 @@ namespace RimWar.Planet
                     bool hasWorldObject = false;
                     for (int j =0; j < worldObjects.Count; j++)
                     {
-                        WorldObject wo = worldObjects[j];                        
-                        if(wo.Tile == rwdTown.Tile && wo.Faction == wo.Faction && Find.World.worldObjects.AnySettlementAt(wo.Tile))
+                        WorldObject wo = worldObjects[j];
+                        if(wo.Tile == rwdTown.Tile && wo.Faction == rwdTown.Faction && Find.World.worldObjects.AnySettlementAt(wo.Tile))
                         {
                             hasWorldObject = true;
                             break;

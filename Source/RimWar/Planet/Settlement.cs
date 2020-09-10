@@ -123,11 +123,11 @@ namespace RimWar.Planet
             {
                 List<Settlement> tmpSettlements = new List<Settlement>();
                 tmpSettlements.Clear();
-                if (OtherSettlementsInRange != null && OtherSettlementsInRange.Count > 0)
+                if (OtherSettlementsInRange != null && settlementsInRange.Count > 0)
                 {
                     for (int i = 0; i < OtherSettlementsInRange.Count; i++)
                     {
-                        if (OtherSettlementsInRange[i].Faction != null && OtherSettlementsInRange[i].Faction.HostileTo(this.Faction))
+                        if (OtherSettlementsInRange[i] != null && OtherSettlementsInRange[i].Faction != null && OtherSettlementsInRange[i].Faction.HostileTo(this.Faction))
                         {
                             tmpSettlements.Add(OtherSettlementsInRange[i]);
                         }
@@ -147,7 +147,7 @@ namespace RimWar.Planet
                 {
                     for (int i = 0; i < settlementsInRange.Count; i++)
                     {
-                        if (!settlementsInRange[i].Faction.HostileTo(this.Faction))
+                        if (settlementsInRange[i] != null && !settlementsInRange[i].Faction.HostileTo(this.Faction))
                         {
                             tmpSettlements.Add(settlementsInRange[i]);
                         }

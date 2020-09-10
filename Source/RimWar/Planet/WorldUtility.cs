@@ -685,31 +685,7 @@ namespace RimWar.Planet
             Options.SettingsRef settingsRef = new Options.SettingsRef();
             if(settingsRef.storytellerBasedDifficulty)
             {
-                int stDif = Find.Storyteller.difficulty.difficulty;
-                if(stDif == 0)
-                {
-                    return .25f;
-                }
-                else if(stDif <= 1)
-                {
-                    return .75f;
-                }
-                else if(stDif <= 2)
-                {
-                    return 1f;
-                }
-                else if(stDif <= 3)
-                {
-                    return 1.2f;
-                }
-                else if(stDif <= 4)
-                {
-                    return 1.35f;
-                }
-                else if(stDif <= 5)
-                {
-                    return 1.5f;
-                }                
+                return Mathf.Clamp(Find.Storyteller.difficulty.threatScale, .25f, 1.5f);                
             }
             return settingsRef.rimwarDifficulty;
         }
@@ -982,8 +958,7 @@ namespace RimWar.Planet
                             //int ticksToArrive = Utility.ArrivalTimeEstimator.EstimatedTicksToArrive(from, to, 1);
                             int tileDistance = Find.WorldGrid.TraversalDistanceBetween(from, to, false, range);
                             if (tileDistance != 0 && tileDistance <= range)
-                            {
-                                
+                            {                                
                                 tmpSettlements.Add(settlement);
                             }
                         }
@@ -1012,6 +987,35 @@ namespace RimWar.Planet
                     else
                     {
                         closestSettlement = settlementsInRange[i];
+                    }
+                }
+            }
+            return closestSettlement;
+        }
+
+        public static Settlement GetClosestRimWarSettlementInRWDTo(RimWarData rwd, int tile, int maxEvalRange = 100)
+        {
+            WorldUtility.Get_WCPT().UpdateFactionSettlements(rwd);
+            List<Settlement> settlements = rwd.FactionSettlements;
+            Settlement closestSettlement = null;
+            int distance = 0;
+            if(settlements != null && settlements.Count > 0)
+            {
+                for(int i = 0; i < settlements.Count; i++)
+                {
+                    if(closestSettlement == null)
+                    {                        
+                        closestSettlement = settlements[i];
+                        distance = Find.WorldGrid.TraversalDistanceBetween(tile, closestSettlement.Tile, false, 500);
+                    }
+                    else
+                    {
+                        int dist = Find.WorldGrid.TraversalDistanceBetween(tile, settlements[i].Tile, false, maxEvalRange);
+                        if (dist < distance)
+                        {
+                            closestSettlement = settlements[i];
+                            distance = dist;
+                        }
                     }
                 }
             }

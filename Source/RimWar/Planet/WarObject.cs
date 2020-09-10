@@ -384,18 +384,21 @@ namespace RimWar.Planet
 
         public void FindParentSettlement()
         {
-            List<Settlement> rwdTownList = WorldUtility.GetFriendlyRimWarSettlementsInRange(this.Tile, 30, this.Faction, WorldUtility.GetRimWarData(), WorldUtility.GetRimWarDataForFaction(this.Faction));
-            if(rwdTownList != null && rwdTownList.Count <= 0)
-            {
-                rwdTownList = WorldUtility.GetFriendlyRimWarSettlementsInRange(this.Tile, 100, this.Faction, WorldUtility.GetRimWarData(), WorldUtility.GetRimWarDataForFaction(this.Faction));
-            }
+            ParentSettlement = WorldUtility.GetClosestRimWarSettlementInRWDTo(WorldUtility.GetRimWarDataForFaction(this.Faction), this.Tile);
+            //List<Settlement> rwdTownList = WorldUtility.GetFriendlyRimWarSettlementsInRange(this.Tile, 30, this.Faction, WorldUtility.GetRimWarData(), WorldUtility.GetRimWarDataForFaction(this.Faction));
+            //if(rwdTownList != null && rwdTownList.Count <= 0)
+            //{
+            //    Log.Message("initial check did not find nearby settlement");
+            //    rwdTownList = WorldUtility.GetFriendlyRimWarSettlementsInRange(this.Tile, 100, this.Faction, WorldUtility.GetRimWarData(), WorldUtility.GetRimWarDataForFaction(this.Faction));
+            //}
 
-            if(rwdTownList != null && rwdTownList.Count > 0)
-            { 
-                this.ParentSettlement = WorldUtility.GetFriendlyRimWarSettlementsInRange(this.Tile, 100, this.Faction, WorldUtility.GetRimWarData(), WorldUtility.GetRimWarDataForFaction(this.Faction)).RandomElement();
-                PathToTarget(Find.World.worldObjects.WorldObjectAt(this.ParentSettlement.Tile, WorldObjectDefOf.Settlement));                
-            }
-            else
+            //if(rwdTownList != null && rwdTownList.Count > 0)
+            //{
+            //    this.ParentSettlement = rwdTownList.RandomElement(); //WorldUtility.GetFriendlyRimWarSettlementsInRange(this.Tile, 100, this.Faction, WorldUtility.GetRimWarData(), WorldUtility.GetRimWarDataForFaction(this.Faction)).RandomElement();
+            //    Log.Message("found parent at " + this.ParentSettlement.Tile + " current tile is " + this.Tile);
+            //    PathToTarget(Find.World.worldObjects.WorldObjectAt(this.ParentSettlement.Tile, WorldObjectDefOf.Settlement));                
+            //}
+            if(this.parentSettlement == null)
             {
                 //warband is lost, no nearby parent settlement
                 if (Find.WorldObjects.Contains(this))

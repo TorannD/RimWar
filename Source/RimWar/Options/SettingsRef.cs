@@ -26,6 +26,7 @@ namespace RimWar.Options
         public bool forceRandomObject = Settings.Instance.forceRandomObject;
 
         public int alertRange = Settings.Instance.alertRange;
+        public int letterNotificationRange = Settings.Instance.letterNotificationRange;
         
     }
 }
