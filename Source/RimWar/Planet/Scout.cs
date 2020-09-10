@@ -94,22 +94,7 @@ namespace RimWar.Planet
                     }
                 }                
             }
-        }
-
-        public void ValidateParentSettlement()
-        {
-            if(this.ParentSettlement != null)
-            {
-                if(!Find.World.worldObjects.AnySettlementAt(this.ParentSettlement.Tile))
-                {
-                    if(WorldUtility.GetRimWarDataForFaction(this.Faction).FactionSettlements.Contains(this.ParentSettlement))
-                    {
-                        WorldUtility.GetRimWarDataForFaction(this.Faction).FactionSettlements.Remove(this.ParentSettlement);
-                    }
-                    this.ParentSettlement = null;
-                }
-            }
-        }
+        }        
 
         public void ScanForNearbyEnemy(int range)
         {

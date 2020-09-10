@@ -134,6 +134,10 @@ namespace RimWar.Planet
                 //    }
                 //}
             }
+            if (Find.TickManager.TicksGame % (this.searchTick - 10) == 0)
+            {
+                this.ValidateParentSettlement();
+            }
             if (true) //Find.TickManager.TicksGame % 60 == 0)
             {
                 if (this.ParentSettlement == null)
@@ -144,6 +148,13 @@ namespace RimWar.Planet
                 if (this.DestinationTile <= 0)
                 {
                     this.DestinationTarget = Find.World.worldObjects.WorldObjectAt(this.ParentSettlement.Tile, WorldObjectDefOf.Settlement);
+                    if (this.DestinationTarget == null)
+                    {
+                        this.ValidateParentSettlement();
+                        WorldUtility.Get_WCPT().UpdateFactionSettlements(WorldUtility.GetRimWarDataForFaction(this.Faction));
+                        FindParentSettlement();
+                        this.DestinationTarget = Find.World.worldObjects.WorldObjectAt(this.ParentSettlement.Tile, WorldObjectDefOf.Settlement);
+                    }
                     if (DestinationTarget != null && DestinationTarget.Tile != pather.Destination)
                     {
                         PathToTarget(DestinationTarget);
