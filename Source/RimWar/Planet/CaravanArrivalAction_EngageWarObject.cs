@@ -60,7 +60,7 @@ namespace RimWar.Planet
             if(wo is Trader)
             {
                 Trader trader = wo as Trader;
-                if(trader.TradedWith.Contains(caravan))
+                if(!trader.tradedWithPlayer) //trader.TradedWith.Contains(caravan))
                 {
                     return FloatMenuAcceptanceReport.WithFailMessage("Already Traded");
                 }

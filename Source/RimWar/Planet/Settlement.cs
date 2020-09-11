@@ -18,8 +18,7 @@ namespace RimWar.Planet
         private int rimwarPointsInt = 0;
         public int nextEventTick = 0;
         public int nextSettlementScan = 0;
-        private int uniqueID = -1;
-        private List<RimWar.Planet.Settlement> settlementsInRange;
+        private int uniqueID = -1;        
         List<ConsolidatePoints> consolidatePoints;
 
         public void ExposeData()
@@ -90,6 +89,7 @@ namespace RimWar.Planet
             }
         }
 
+        private List<RimWar.Planet.Settlement> settlementsInRange;
         public List<Settlement> OtherSettlementsInRange
         {
             get

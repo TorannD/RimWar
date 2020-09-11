@@ -245,7 +245,17 @@ namespace RimWar.Planet
                                 }
                                 else
                                 {
-                                    Log.Warning("attempted to generate undefined RimWar settlement action");
+                                    if (rwd.FactionSettlements.Count >= settingsRef.maxFactionSettlements)
+                                    {
+                                        if(Rand.Chance(.3f))
+                                        {
+                                            AttemptTradeMission(rwd, rwdTown);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Log.Warning("attempted to generate undefined RimWar settlement action");
+                                    }
                                 }
                                 rwdTown.nextEventTick = currentTick + settingsRef.settlementEventDelay; //one day (60000) default
                             }
@@ -703,8 +713,7 @@ namespace RimWar.Planet
         }
 
         public void UpdateFactionSettlements(RimWarData rwd)
-        {
-            
+        {            
             this.WorldObjects = world.worldObjects.AllWorldObjects.ToList();
             if (worldObjects != null && worldObjects.Count > 0)
             {
@@ -865,7 +874,7 @@ namespace RimWar.Planet
                     if (tmpSettlements != null && tmpSettlements.Count > 0)
                     {
                         Settlement targetTown = tmpSettlements.RandomElement();
-                        if (targetTown != null && Find.WorldGrid.TraversalDistanceBetween(rwdTown.Tile, targetTown.Tile) <= targetRange)
+                        if (targetTown != null && Find.WorldGrid.ApproxDistanceInTiles(rwdTown.Tile, targetTown.Tile) <= targetRange)
                         {
                             //Log.Message("" + rwdTown.RimWorld_Settlement.Name + " with " + rwdTown.RimWarPoints + " evaluating " + targetTown.RimWorld_Settlement.Name + " with " + targetTown.RimWarPoints);
                             int pts = WorldUtility.CalculateWarbandPointsForRaid(targetTown);
@@ -935,7 +944,7 @@ namespace RimWar.Planet
                     for (int i = 0; i < worldObjects.Count; i++)
                     {
                         WorldObject wo = worldObjects[i];
-                        if (wo.Faction != null && wo.Faction.HostileTo(rwd.RimWarFaction) && Find.WorldGrid.TraversalDistanceBetween(rwdTown.Tile, wo.Tile) <= targetRange)
+                        if (wo.Faction != null && wo.Faction.HostileTo(rwd.RimWarFaction) && Find.WorldGrid.ApproxDistanceInTiles(rwdTown.Tile, wo.Tile) <= targetRange)
                         {
                             if (wo is Caravan)
                             {
@@ -1001,7 +1010,7 @@ namespace RimWar.Planet
                     int targetRange = Mathf.Clamp(Mathf.RoundToInt(rwdTown.RimWarPoints / settingsRef.settlementScanRangeDivider), 11, Mathf.Max((int)settingsRef.maxSettelementScanRange, 12));
                     if (rwd.behavior == RimWarBehavior.Expansionist)
                     {
-                        targetRange = Mathf.RoundToInt(targetRange * 1.5f);
+                        targetRange = Mathf.RoundToInt(targetRange * 1.2f);
                     }
                     else if (rwd.behavior == RimWarBehavior.Warmonger)
                     {
@@ -1009,10 +1018,11 @@ namespace RimWar.Planet
                     }
                     List<int> tmpTiles = new List<int>();
                     tmpTiles.Clear();
-                    for (int i = 0; i < 2; i++)
+                    for (int i = 0; i < 5; i++)
                     {
                         int tile = -1;
-                        TileFinder.TryFindNewSiteTile(out tile, 10, targetRange, true, true, rwdTown.Tile);
+                        //TileFinder.TryFindNewSiteTile(out tile, 10, targetRange, true, true, rwdTown.Tile);
+                        TileFinder.TryFindPassableTileWithTraversalDistance(rwdTown.Tile, 10, targetRange, out tile);
                         if (tile != -1)
                         {
                             tmpTiles.Add(tile);

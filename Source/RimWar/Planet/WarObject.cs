@@ -423,6 +423,14 @@ namespace RimWar.Planet
             }
         }
 
+        public void ReAssignParentSettlement()
+        {
+            this.ValidateParentSettlement();
+            WorldUtility.Get_WCPT().UpdateFactionSettlements(WorldUtility.GetRimWarDataForFaction(this.Faction));
+            FindParentSettlement();
+            this.DestinationTarget = Find.World.worldObjects.WorldObjectAt(this.ParentSettlement.Tile, WorldObjectDefOf.Settlement);
+        }
+
         public void FindHostileSettlement()
         {
             this.DestinationTarget = Find.World.worldObjects.WorldObjectOfDefAt(WorldObjectDefOf.Settlement, WorldUtility.GetHostileRimWarSettlementsInRange(this.Tile, 25, this.Faction, WorldUtility.GetRimWarData(), WorldUtility.GetRimWarDataForFaction(this.Faction)).RandomElement().Tile);

@@ -14,8 +14,11 @@ namespace RimWar.Planet
         private int lastEventTick = 0;
         private int ticksPerMove = 2500;
         private int searchTick = 60;
-        private List<WorldObject> tradedWith;
+        public bool tradedWithSettlement = false;
+        public bool tradedWithTrader = false;
+        public bool tradedWithPlayer = false;
 
+        private List<WorldObject> tradedWith;
         public List <WorldObject> TradedWith
         {
             get
@@ -43,6 +46,9 @@ namespace RimWar.Planet
             base.ExposeData();
             Scribe_Values.Look<int>(ref this.lastEventTick, "lastEventTick", 0, false);
             Scribe_Values.Look<int>(ref this.ticksPerMove, "ticksPerMove", 2500, false);
+            Scribe_Values.Look<bool>(ref this.tradedWithSettlement, "tradedWithSettlement", false, false);
+            Scribe_Values.Look<bool>(ref this.tradedWithTrader, "tradedWithTrader", false, false);
+            Scribe_Values.Look<bool>(ref this.tradedWithPlayer, "tradedWithPlayer", false, false);
             //Scribe_Collections.Look<WorldObject>(ref this.tradedWith, "tradedWith", LookMode.Value);
         }        
 
@@ -141,6 +147,18 @@ namespace RimWar.Planet
                 {
                     PathToTarget(this.DestinationTarget);
                 }
+                if(this.RimWarPoints >= 100000)
+                {
+                    ReAssignParentSettlement();
+                    //Log.Message("trader " + this.Name + " has a destination of " + this.DestinationTarget.Label + " and parent of " + this.ParentSettlement.RimWorld_Settlement.Label);
+                    //Log.Message("faction of parent is " + this.ParentSettlement.Faction.Name + " faction of trader is " + this.Faction.Name);
+                    //bool contains = WorldUtility.GetRimWarDataForFaction(this.Faction).FactionSettlements.Contains(this.ParentSettlement);
+                    //Log.Message("rwd has a settlement here? " + contains);
+                    //if(contains)
+                    //{
+                    //    Log.Message(" the world faction for this tile is " + Find.World.worldObjects.SettlementAt(this.ParentSettlement.Tile).Faction.Name);
+                    //}
+                }
                 if(this.RimWarPoints <= 0 || this.RimWarPoints > 100000000)
                 {
                     this.ImmediateAction(null);
@@ -153,7 +171,7 @@ namespace RimWar.Planet
             if (true) //Find.TickManager.TicksGame % 60 == 0)
             {
                 if (this.ParentSettlement == null)
-                {
+                { 
                     FindParentSettlement();
                 }
                 //target is gone; return home
@@ -162,10 +180,7 @@ namespace RimWar.Planet
                     this.DestinationTarget = Find.World.worldObjects.WorldObjectAt(this.ParentSettlement.Tile, WorldObjectDefOf.Settlement);
                     if (this.DestinationTarget == null)
                     {
-                        this.ValidateParentSettlement();
-                        WorldUtility.Get_WCPT().UpdateFactionSettlements(WorldUtility.GetRimWarDataForFaction(this.Faction));
-                        FindParentSettlement();
-                        this.DestinationTarget = Find.World.worldObjects.WorldObjectAt(this.ParentSettlement.Tile, WorldObjectDefOf.Settlement);
+                        ReAssignParentSettlement();                        
                     }
                     if (DestinationTarget != null && DestinationTarget.Tile != pather.Destination)
                     {
@@ -222,15 +237,17 @@ namespace RimWar.Planet
                 }
                 else
                 {
-                    if (wo is Caravan && !TradedWith.Contains(wo))
+                    if (wo is Caravan && !tradedWithPlayer) //!TradedWith.Contains(wo))
                     {
                         //trade with player
+                        this.tradedWithPlayer = true;
                         IncidentUtility.DoCaravanTradeWithPoints(this, wo as Caravan, this.rimwarData, IncidentUtility.PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.EdgeWalkIn));
-                        this.TradedWith.Add(wo);
+                        //this.TradedWith.Add(wo);
                     }
-                    else if (wo is Trader && !TradedWith.Contains(wo))
+                    else if (wo is Trader && !tradedWithTrader) //!TradedWith.Contains(wo))
                     {
                         //trade with another AI faction
+                        this.tradedWithTrader = true;
                         IncidentUtility.ResolveRimWarTrade(this, wo as Trader);
                     }
                 }
@@ -251,11 +268,13 @@ namespace RimWar.Planet
                 }    
                 else if(wo.Faction != null && !wo.Faction.HostileTo(this.Faction))
                 {
-                    if (wo is Caravan && !TradedWith.Contains(wo))
+                    if (wo is Caravan && !tradedWithPlayer)//!TradedWith.Contains(wo))
                     {
                         //trade with player
+                        tradedWithPlayer = true;
                         IncidentUtility.DoCaravanTradeWithPoints(this, wo as Caravan, this.rimwarData, IncidentUtility.PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.EdgeWalkIn));
-                        this.TradedWith.Add(wo);
+                        //this.TradedWith.Add(wo);
+                        
                     }
                 }
             }
@@ -295,13 +314,19 @@ namespace RimWar.Planet
                         else
                         {
                             Settlement settlement = WorldUtility.GetRimWarSettlementAtTile(this.Tile);
-                            if(settlement != null)
+                            if(settlement != null && settlement.Faction != this.Faction && !tradedWithSettlement)
                             {
                                 IncidentUtility.ResolveSettlementTrade(this, settlement);
                             }
                             else
                             {
                                 this.DestinationTarget = Find.WorldObjects.WorldObjectAt(this.ParentSettlement.Tile, WorldObjectDefOf.Settlement);
+                                if(this.DestinationTarget.Tile == this.ParentSettlement.Tile)
+                                {
+                                    this.ParentSettlement = null;
+                                    ReAssignParentSettlement();
+
+                                }
                                 PathToTarget(this.DestinationTarget);
                             }
                         }

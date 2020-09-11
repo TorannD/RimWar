@@ -37,7 +37,7 @@ namespace RimWar.Planet
                         if(warObject is Trader)
                         {
                             Trader trader = warObject as Trader;
-                            if(!trader.TradedWith.Contains(wo))
+                            if(!trader.tradedWithTrader) //!trader.TradedWith.Contains(wo))
                             {
                                 //attempt to trade with player
                                 DoCaravanTradeWithPoints(warObject, wo as Caravan, warObject.rimwarData, PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.EdgeWalkIn));
@@ -402,8 +402,10 @@ namespace RimWar.Planet
                 endPointsAttacker = (attacker.RimWarPoints + (Rand.Range(-.1f, .1f) * defender.RimWarPoints)); //loser may lose or gain points
                 endPointsDefender = (defender.RimWarPoints + (Rand.Range(.1f, .2f) * attacker.RimWarPoints)); //winner always gains points      
             }
-            attacker.TradedWith.Add(defender);
-            defender.TradedWith.Add(attacker);
+            //attacker.TradedWith.Add(defender);            
+            //defender.TradedWith.Add(attacker);
+            attacker.tradedWithTrader = true;
+            defender.tradedWithTrader = true;
             attacker.RimWarPoints = Mathf.RoundToInt(Mathf.Clamp(endPointsAttacker, 0, attacker.RimWarPoints * 1.5f));
             defender.RimWarPoints = Mathf.RoundToInt(Mathf.Clamp(endPointsDefender, 0, defender.RimWarPoints * 1.5f));
             defender.Faction.TryAffectGoodwillWith(attacker.Faction, 10, false, false, null, null);
@@ -444,11 +446,12 @@ namespace RimWar.Planet
                 endPointsDefender = (defenderTown.RimWarPoints + Mathf.Clamp(Rand.Range(.15f, .3f) * attacker.RimWarPoints, 0, 1000));
             }
             defenderTown.RimWarPoints = Mathf.RoundToInt(endPointsDefender);
-            WorldUtility.CreateTrader(Mathf.RoundToInt(endPointsAttacker), attacker.rimwarData, attacker.ParentSettlement, defenderTown.Tile, attacker.ParentSettlement.Tile, WorldObjectDefOf.Settlement);
+            Trader newTrader = WorldUtility.CreateTrader(Mathf.RoundToInt(endPointsAttacker), attacker.rimwarData, attacker.ParentSettlement, defenderTown.Tile, attacker.ParentSettlement.Tile, WorldObjectDefOf.Settlement);
+            newTrader.tradedWithSettlement = true;
             defenderTown.Faction.TryAffectGoodwillWith(attacker.Faction, 5, false, false, null, null);
             attacker.Faction.TryAffectGoodwillWith(defenderTown.Faction, 5, false, false, null, null);
 
-            let.lookTargets = attacker;
+            let.lookTargets = newTrader;
             let.relatedFaction = attacker.Faction;
             RW_LetterMaker.Archive_RWLetter(let);
         }
