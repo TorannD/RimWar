@@ -57,7 +57,7 @@ namespace RimWar.Planet
         }
 
         public static void ResolveRimWarBattle(WarObject attacker, WarObject defender)
-        {
+        {            
             float combinedPoints = attacker.RimWarPoints + defender.RimWarPoints;
             float attackerRoll = Rand.Value;
             float defenderRoll = Rand.Value;
@@ -134,8 +134,8 @@ namespace RimWar.Planet
                 let.relatedFaction = defender.Faction;
             }
             RW_LetterMaker.Archive_RWLetter(let);
-            defender.Faction.TryAffectGoodwillWith(attacker.Faction, -10, false, false, null, null);
-            attacker.Faction.TryAffectGoodwillWith(defender.Faction, -10, false, false, null, null);
+            defender.Faction.TryAffectGoodwillWith(attacker.Faction, -2, false, false, null, null);
+            attacker.Faction.TryAffectGoodwillWith(defender.Faction, -2, false, false, null, null);
             defender.ImmediateAction(null); //force removal of the non-initiating warband
         }
 
@@ -204,8 +204,13 @@ namespace RimWar.Planet
                         if (endPointsDefender <= 1000)
                         {
                             let.text += "\nThe pathetic hamlet was burned to the ground.";
-                            Find.WorldObjects.Remove(Find.World.worldObjects.SettlementAt(defender.Tile));
+                            //Find.WorldObjects.Remove(Find.World.worldObjects.SettlementAt(defender.Tile));
+                            Find.World.worldObjects.SettlementAt(defender.Tile).Destroy();
                             WorldUtility.GetRimWarDataForFaction(defender.Faction).FactionSettlements.Remove(defender);
+                            if(WorldUtility.GetRimWarDataForFaction(defender.Faction).FactionSettlements.Count <=0)
+                            {
+                                WorldUtility.RemoveRWDFaction(WorldUtility.GetRimWarDataForFaction(defender.Faction));
+                            }
                         }
                         else
                         {
@@ -223,8 +228,13 @@ namespace RimWar.Planet
                             {
                                 let.text += "\nThe city was brutally destroyed.";
                                 endPointsAttacker += (Rand.Range(.4f, .7f) * endPointsDefender);
-                                Find.WorldObjects.Remove(Find.World.worldObjects.SettlementAt(defender.Tile));
+                                Find.World.worldObjects.SettlementAt(defender.Tile).Destroy();
+                                //Find.WorldObjects.Remove(Find.World.worldObjects.SettlementAt(defender.Tile));
                                 WorldUtility.GetRimWarDataForFaction(defender.Faction).FactionSettlements.Remove(defender);
+                                if (WorldUtility.GetRimWarDataForFaction(defender.Faction).FactionSettlements.Count <= 0)
+                                {
+                                    WorldUtility.RemoveRWDFaction(WorldUtility.GetRimWarDataForFaction(defender.Faction));
+                                }
                             }
                             else
                             {
@@ -270,8 +280,13 @@ namespace RimWar.Planet
                         if (endPointsDefender <= 1000)
                         {
                             let.text += "\nThe pathetic hamlet was burned to the ground.";
-                            Find.WorldObjects.Remove(Find.World.worldObjects.SettlementAt(defender.Tile));
+                            Find.World.worldObjects.SettlementAt(defender.Tile).Destroy();
+                            //Find.WorldObjects.Remove(Find.World.worldObjects.SettlementAt(defender.Tile));
                             WorldUtility.GetRimWarDataForFaction(defender.Faction).FactionSettlements.Remove(defender);
+                            if (WorldUtility.GetRimWarDataForFaction(defender.Faction).FactionSettlements.Count <= 0)
+                            {
+                                WorldUtility.RemoveRWDFaction(WorldUtility.GetRimWarDataForFaction(defender.Faction));
+                            }
                         }
                         else
                         {
@@ -316,8 +331,13 @@ namespace RimWar.Planet
                         if (endPointsDefender <= 1000)
                         {
                             let.text += "\nThe pathetic hamlet was burned to the ground.";
-                            Find.WorldObjects.Remove(Find.World.worldObjects.SettlementAt(defender.Tile));
+                            Find.World.worldObjects.SettlementAt(defender.Tile).Destroy();
+                            //Find.WorldObjects.Remove(Find.World.worldObjects.SettlementAt(defender.Tile));
                             WorldUtility.GetRimWarDataForFaction(defender.Faction).FactionSettlements.Remove(defender);
+                            if (WorldUtility.GetRimWarDataForFaction(defender.Faction).FactionSettlements.Count <= 0)
+                            {
+                                WorldUtility.RemoveRWDFaction(WorldUtility.GetRimWarDataForFaction(defender.Faction));
+                            }
                         }
                         else
                         {
@@ -369,8 +389,8 @@ namespace RimWar.Planet
                 defender.RimWarPoints = Mathf.RoundToInt(Mathf.Clamp(endPointsDefender, 100, defender.RimWarPoints + attacker.RimWarPoints));                
             }
             RW_LetterMaker.Archive_RWLetter(let);
-            defender.Faction.TryAffectGoodwillWith(attacker.Faction, -25, false, false, null, null);
-            attacker.Faction.TryAffectGoodwillWith(defender.Faction, -10, false, false, null, null);
+            defender.Faction.TryAffectGoodwillWith(attacker.Faction, -5, false, false, null, null);
+            attacker.Faction.TryAffectGoodwillWith(defender.Faction, -2, false, false, null, null);
         }
 
         public static void ResolveRimWarTrade(Trader attacker, Trader defender)
@@ -408,8 +428,8 @@ namespace RimWar.Planet
             defender.tradedWithTrader = true;
             attacker.RimWarPoints = Mathf.RoundToInt(Mathf.Clamp(endPointsAttacker, 0, attacker.RimWarPoints * 1.5f));
             defender.RimWarPoints = Mathf.RoundToInt(Mathf.Clamp(endPointsDefender, 0, defender.RimWarPoints * 1.5f));
-            defender.Faction.TryAffectGoodwillWith(attacker.Faction, 10, false, false, null, null);
-            attacker.Faction.TryAffectGoodwillWith(defender.Faction, 10, false, false, null, null);
+            defender.Faction.TryAffectGoodwillWith(attacker.Faction, 2, false, false, null, null);
+            attacker.Faction.TryAffectGoodwillWith(defender.Faction, 2, false, false, null, null);
 
             let.lookTargets = attacker;
             let.relatedFaction = attacker.Faction;
@@ -448,8 +468,8 @@ namespace RimWar.Planet
             defenderTown.RimWarPoints = Mathf.RoundToInt(endPointsDefender);
             Trader newTrader = WorldUtility.CreateTrader(Mathf.RoundToInt(endPointsAttacker), attacker.rimwarData, attacker.ParentSettlement, defenderTown.Tile, attacker.ParentSettlement.Tile, WorldObjectDefOf.Settlement);
             newTrader.tradedWithSettlement = true;
-            defenderTown.Faction.TryAffectGoodwillWith(attacker.Faction, 5, false, false, null, null);
-            attacker.Faction.TryAffectGoodwillWith(defenderTown.Faction, 5, false, false, null, null);
+            defenderTown.Faction.TryAffectGoodwillWith(attacker.Faction, 1, false, false, null, null);
+            attacker.Faction.TryAffectGoodwillWith(defenderTown.Faction, 1, false, false, null, null);
 
             let.lookTargets = newTrader;
             let.relatedFaction = attacker.Faction;

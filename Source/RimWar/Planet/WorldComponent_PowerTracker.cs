@@ -25,8 +25,8 @@ namespace RimWar.Planet
         private int totalTowns = 10;
         public Faction victoryFaction = null;
         private bool victoryDeclared = false;
-        private List<WarObject> caravanTargets = new List<WarObject>();
-        private List<Caravan> caravansWithTargets = new List<Caravan>();
+        public List<CaravanTargetData> caravanTargetData = new List<CaravanTargetData>();
+
         public override void ExposeData()
         {
             base.ExposeData();
@@ -37,8 +37,6 @@ namespace RimWar.Planet
             Scribe_Values.Look<int>(ref this.globalActions, "globalActions", 0, false);
             Scribe_References.Look<Faction>(ref this.victoryFaction, "victoryFaction");
             Scribe_Collections.Look<RimWarData>(ref this.rimwarData, "rimwarData", LookMode.Deep);
-            Scribe_Collections.Look<WarObject>(ref this.caravanTargets, "caravanTargets", LookMode.Reference, new object[0]);
-            Scribe_Collections.Look<Caravan>(ref this.caravansWithTargets, "caravansWithTargets", LookMode.Reference, new object[0]);
             //Scribe_Collections.Look<WarObject>(ref this.allWarObjects, "allWarObjects", LookMode.Reference, new object[0]);
             Scribe_Collections.Look<Settlement>(ref this.allRimWarSettlements, "allRimWarSettlements", LookMode.Reference, new object[0]);
         }
@@ -272,50 +270,50 @@ namespace RimWar.Planet
 
         public void AdjustCaravanTargets()
         {
-            if (this.caravansWithTargets != null && this.caravansWithTargets.Count > 0 && this.caravanTargets != null && this.caravanTargets.Count > 0)
+            if (this.caravanTargetData != null && this.caravanTargetData.Count > 0)
             {
-                Caravan caravan = null;
-                CaravanArrivalAction newAction = null;
-                int newTile = -1;
-                for (int i = 0; i < this.caravansWithTargets.Count; i++)
+                for (int i = 0; i < this.caravanTargetData.Count; i++)
                 {
-                    if (Find.WorldObjects.Contains(this.caravanTargets[i]))
+                    CaravanTargetData ctd = caravanTargetData[i];
+                    if(ctd.IsValid())
                     {
-                        if (this.caravansWithTargets[i].pather.Destination != this.caravanTargets[i].Tile)
+                        if(ctd.CaravanTargetTile != 0 && ctd.CaravanDestination != ctd.CaravanTargetTile)
                         {
-                            newTile = this.caravanTargets[i].Tile;
-                            this.caravanTargets.Remove(this.caravanTargets[i]);
-                            caravan = caravansWithTargets[i];
-                            newAction = caravansWithTargets[i].pather.ArrivalAction;
-                            this.caravansWithTargets.Remove(this.caravansWithTargets[i]);
-                            break;
+                            ctd.caravan.pather.StartPath(ctd.CaravanTargetTile, ctd.caravan.pather.ArrivalAction, true);
                         }
                     }
                     else
                     {
-                        this.caravanTargets.Remove(this.caravanTargets[i]);
-                        this.caravansWithTargets.Remove(this.caravansWithTargets[i]);
+                        this.caravanTargetData.Remove(ctd);
                         break;
                     }
-                }
-                if(newTile != -1)
-                {
-                    caravan.pather.StartPath(newTile, newAction);
                 }
             }
         }
 
         public void AssignCaravanTargets(Caravan caravan, WarObject warObject)
         {
-            if(this.caravansWithTargets == null || this.caravanTargets == null)
+            if(this.caravanTargetData == null)
             {
-                this.caravansWithTargets = new List<Caravan>();
-                this.caravansWithTargets.Clear();
-                this.caravanTargets = new List<WarObject>();
-                this.caravanTargets.Clear();
+                this.caravanTargetData = new List<CaravanTargetData>();
+                this.caravanTargetData.Clear();
             }
-            this.caravansWithTargets.Add(caravan);
-            this.caravanTargets.Add(warObject);
+            bool existingCaravan = false;
+            for(int i = 0; i < this.caravanTargetData.Count; i++)
+            {
+                if(caravanTargetData[i].caravan == caravan)
+                {
+                    caravanTargetData[i].caravanTarget = warObject;
+                    existingCaravan = true;
+                }
+            }
+            if(!existingCaravan)
+            {
+                CaravanTargetData ctd = new CaravanTargetData();
+                ctd.caravan = caravan;
+                ctd.caravanTarget = warObject;
+                this.caravanTargetData.Add(ctd);
+            }            
         }
 
         public void DoGlobalRWDAction()
@@ -404,7 +402,7 @@ namespace RimWar.Planet
                 else if (newAction == RimWarAction.Settler)
                 {
                     //Log.Message("Allaince attempt by " + rwd.RimWarFaction.Name);
-                    int factionAdjustment = Rand.Range(0, 200);
+                    int factionAdjustment = Rand.Range(0, 20);
                     RimWarData rwdSecond = this.RimWarData.RandomElement();
                     if(rwdSecond.RimWarFaction != rwd.RimWarFaction && rwdSecond.RimWarFaction != Faction.OfPlayerSilentFail)
                     {
@@ -414,7 +412,7 @@ namespace RimWar.Planet
                 else if (newAction == RimWarAction.Warband)
                 {
                     //Log.Message("War declaration by " + rwd.RimWarFaction.Name);
-                    int factionAdjustment = Rand.Range(-200, 0);
+                    int factionAdjustment = Rand.Range(-20, 0);
                     RimWarData rwdSecond = this.RimWarData.RandomElement();
                     if (rwdSecond.RimWarFaction != rwd.RimWarFaction && rwdSecond.RimWarFaction != Faction.OfPlayerSilentFail)
                     {

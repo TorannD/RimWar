@@ -15,7 +15,7 @@ namespace RimWar.Utility
             //all reachability for a war object should be verified prior to creating it
             //this might cause bugs during return path or repathing
             //does "WorldReachability" work better?
-            return true;
+            //return true;
             int[] fields = new int[Verse.Find.WorldGrid.TilesCount];
             int nextFieldID = 1;
             int impassableFieldID = nextFieldID;

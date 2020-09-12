@@ -111,18 +111,35 @@ namespace RimWar.Planet
             }
         }
 
-        public static void ConvertSettlement(RimWorld.Planet.Settlement worlds, RimWar.Planet.Settlement rimwarSettlement, RimWarData rwdFrom, RimWarData rwdTo, int points)
+        public static void ConvertSettlement(RimWorld.Planet.Settlement worldSettlement, RimWar.Planet.Settlement rimwarSettlement, RimWarData rwdFrom, RimWarData rwdTo, int points)
         {
-            int tile = worlds.Tile;
-            if(worlds!= null && rwdFrom != null && rwdTo != null)
-            {                
-                Find.WorldObjects.Remove(worlds);
+            int tile = worldSettlement.Tile;
+            if(worldSettlement != null && rwdFrom != null && rwdTo != null)
+            {
+                worldSettlement.Destroy();
                 rwdFrom.FactionSettlements.Remove(rimwarSettlement);
                 Find.World.WorldUpdate();
-                RimWorld.Planet.Settlement worldSettlement = SettleUtility.AddNewHome(tile, rwdTo.RimWarFaction);
-                CreateRimWarSettlementWithPoints(rwdTo, worldSettlement, points, false);
+                RimWorld.Planet.Settlement newSettlement = SettleUtility.AddNewHome(tile, rwdTo.RimWarFaction);
+                CreateRimWarSettlementWithPoints(rwdTo, newSettlement, points, false);
                 Find.World.WorldUpdate();
+                if(rwdFrom.FactionSettlements.Count <= 0)
+                {
+                    RemoveRWDFaction(rwdFrom);
+                }
             }
+        }
+
+        public static void RemoveRWDFaction(RimWarData rwdFrom)
+        {
+            for (int i = 0; i < Find.WorldObjects.AllWorldObjects.Count; i++)
+            {
+                WorldObject wo = Find.WorldObjects.AllWorldObjects[i];
+                if (wo.Faction == rwdFrom.RimWarFaction)
+                {
+                    Find.WorldObjects.Remove(wo);
+                }
+            }
+            WorldUtility.GetRimWarData().Remove(rwdFrom);
         }
 
         public static void CreateWarObject(int points, Faction faction, int startingTile, int destinationTile, WorldObjectDef type)

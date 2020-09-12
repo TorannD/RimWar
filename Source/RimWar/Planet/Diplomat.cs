@@ -233,8 +233,8 @@ namespace RimWar.Planet
                             if (settlement != null)
                             {
                                 this.ParentSettlement.RimWarPoints += Mathf.RoundToInt(Rand.Range(.5f, .8f) * this.RimWarPoints);
-                                this.Faction.TryAffectGoodwillWith(settlement.Faction, 30, false, false, null, null);
-                                settlement.Faction.TryAffectGoodwillWith(this.Faction, 30, false, false, null, null);
+                                this.Faction.TryAffectGoodwillWith(settlement.Faction, 4, false, false, null, null);
+                                settlement.Faction.TryAffectGoodwillWith(this.Faction, 4, false, false, null, null);
                             }
                             else if (wo is WarObject)
                             {

@@ -283,6 +283,7 @@ namespace RimWar.Planet
                 tweener.TweenerTick();
                 if (this.DestinationReached)
                 {
+                    ValidateParentSettlement();
                     ArrivalAction();
                 }
                 Options.SettingsRef settingsRef = new Options.SettingsRef();
@@ -290,6 +291,7 @@ namespace RimWar.Planet
                 this.NextMoveTick = Find.TickManager.TicksGame + this.nextMoveTickIncrement;
                 if (!canReachDestination)
                 {
+                    ValidateParentSettlement();
                     if (this.ParentSettlement == null)
                     {
                         FindParentSettlement();
@@ -319,6 +321,7 @@ namespace RimWar.Planet
 
         public virtual void ImmediateAction(WorldObject wo)
         {
+            this.Destroy();
             if (Find.WorldObjects.Contains(this))
             {
                 Find.WorldObjects.Remove(this);
@@ -327,6 +330,7 @@ namespace RimWar.Planet
 
         public virtual void ArrivalAction()
         {
+            this.Destroy();
             if (Find.WorldObjects.Contains(this))
             {
                 Find.WorldObjects.Remove(this);
@@ -386,7 +390,8 @@ namespace RimWar.Planet
         {
             if (this.ParentSettlement != null)
             {
-                if (!Find.World.worldObjects.AnySettlementAt(this.ParentSettlement.Tile))
+                RimWorld.Planet.Settlement settlement = Find.World.worldObjects.SettlementAt(this.ParentSettlement.Tile);
+                if (settlement == null || settlement.Faction != this.Faction)
                 {
                     if (WorldUtility.GetRimWarDataForFaction(this.Faction).FactionSettlements.Contains(this.ParentSettlement))
                     {
@@ -416,6 +421,7 @@ namespace RimWar.Planet
             if(this.parentSettlement == null)
             {
                 //warband is lost, no nearby parent settlement
+                this.Destroy();
                 if (Find.WorldObjects.Contains(this))
                 {
                     Find.WorldObjects.Remove(this);
@@ -478,6 +484,20 @@ namespace RimWar.Planet
                 }
             }
             yield break;
+        }
+
+        public override IEnumerable<Gizmo> GetGizmos()
+        {
+            List<Gizmo> gizmoIE = base.GetGizmos().ToList();
+            Command_Action command_Action1 = new Command_Action();
+            command_Action1.defaultLabel = "Dev: Destroy";
+            command_Action1.defaultDesc = "Destroys the Rim War object.";
+            command_Action1.action = delegate
+            {
+                Destroy();
+            };
+            gizmoIE.Add(command_Action1);
+            return gizmoIE;
         }
     }
 }

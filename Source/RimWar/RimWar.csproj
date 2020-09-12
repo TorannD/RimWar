@@ -115,6 +115,7 @@
     <Compile Include="History\HistoryAutoRecorderWorker_RWSettlementCount.cs" />
     <Compile Include="Options\RimWarSettingsWindow.cs" />
     <Compile Include="Planet\WorldCache.cs" />
+    <Compile Include="Planet\CaravanTargetData.cs" />
     <Compile Include="RimWarFactionUtility.cs" />
     <Compile Include="History\RW_LetterMaker.cs" />
     <Compile Include="History\RW_LetterDef.cs" />

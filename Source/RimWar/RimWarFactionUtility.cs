@@ -169,7 +169,7 @@ namespace RimWar
                 else
                 {
                     bool declarePeace = Widgets.ButtonText(rect6, "Peace", faction.GoodwillWith(Faction.OfPlayer) >= -75, false, true);
-                    if (declarePeace)
+                    if (declarePeace && faction.GoodwillWith(Faction.OfPlayer) >= -75)
                     {
                         DeclarePeaceWith(Faction.OfPlayer, faction);
                     }
@@ -187,7 +187,7 @@ namespace RimWar
                 if (!rwd.IsAtWarWith(Faction.OfPlayer))
                 {
                     bool declareAlly = Widgets.ButtonText(rect7, "Alliance", canDeclareAlliance, false, true);
-                    if (declareAlly)
+                    if (declareAlly && canDeclareAlliance)
                     {
                         DeclareAllianceWith(Faction.OfPlayer, faction);
                     }

@@ -216,6 +216,43 @@ namespace RimWar.Harmony
         //    return array;
         //}
 
+        [HarmonyPatch(typeof(WorldObject), "Destroy")]
+        public static class SettlementDestroyed_Patch
+        {
+            private static void Postfix(WorldObject __instance)
+            {
+                if(__instance is RimWorld.Planet.Settlement)
+                {
+                    RimWarData rwd = WorldUtility.GetRimWarDataForFaction(__instance.Faction);
+                    for(int i = 0; i < rwd.FactionSettlements.Count; i++)
+                    {
+                        if(rwd.FactionSettlements[i].Tile == __instance.Tile)
+                        {
+                            rwd.FactionSettlements.Remove(rwd.FactionSettlements[i]);
+                            break;
+                        }
+                    }
+                    if(rwd.FactionSettlements.Count <= 0)
+                    {
+                        WorldUtility.RemoveRWDFaction(rwd);
+                    }
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(FactionManager), "Remove")]
+        public static class RemoveFaction_Patch
+        {
+            private static void Postfix(FactionManager __instance, Faction faction)
+            {
+                RimWarData rwd = WorldUtility.GetRimWarDataForFaction(faction);
+                if(rwd != null)
+                {
+                    WorldUtility.RemoveRWDFaction(rwd);
+                }
+            }
+        }
+
         [HarmonyPatch(typeof(Page_CreateWorldParams), "DoWindowContents")]
         public static class Patch_Page_CreateWorldParams_DoWindowContents
         {
@@ -259,6 +296,18 @@ namespace RimWar.Harmony
                     Caravan caravan = Traverse.Create(root: __instance).Field(name: "caravan").GetValue<Caravan>();
                     CaravanArrivalAction_EngageWarObject woAction = arrivalAction as CaravanArrivalAction_EngageWarObject;
                     RimWar.Planet.WorldUtility.Get_WCPT().AssignCaravanTargets(caravan, woAction.wo);
+                }
+                else
+                {
+                    Caravan caravan = Traverse.Create(root: __instance).Field(name: "caravan").GetValue<Caravan>();
+                    List<CaravanTargetData> ctdList = RimWar.Planet.WorldUtility.Get_WCPT().caravanTargetData;
+                    for (int i = 0; i < ctdList.Count; i++)
+                    {
+                        if(ctdList[i].caravan == caravan)
+                        {
+                            ctdList.Remove(ctdList[i]);
+                        }
+                    }
                 }
             }
         }
@@ -321,13 +370,13 @@ namespace RimWar.Harmony
 
         public static bool TryAffectGoodwillWith_Reduction_Prefix(Faction __instance, Faction other, ref int goodwillChange, bool canSendMessage = true, bool canSendHostilityLetter = true, string reason = null, GlobalTargetInfo? lookTarget = default(GlobalTargetInfo?))
         {
-            if((__instance.IsPlayer || other.IsPlayer))
-            {
-                if (reason == null || (reason != null && reason != "Rim War"))
-                {
-                    goodwillChange = Mathf.RoundToInt(goodwillChange / 5);
-                }
-            }
+            //if((__instance.IsPlayer || other.IsPlayer))
+            //{
+            //    if (reason == null || (reason != null && reason != "Rim War"))
+            //    {
+            //        goodwillChange = Mathf.RoundToInt(goodwillChange / 5);
+            //    }
+            //}
             return true;
         }
 
