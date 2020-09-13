@@ -242,8 +242,19 @@ namespace RimWar.Planet
                     }
                     else if(wo is Caravan)
                     {
-                        IncidentUtility.DoCaravanAttackWithPoints(this, wo as Caravan, this.rimwarData, IncidentUtility.PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.EdgeWalkIn));
+                        RimWorld.Planet.Settlement settlement = Find.WorldObjects.SettlementAt(wo.Tile);
+                        if (settlement != null && settlement.Faction == Faction.OfPlayer)
+                        {
+                            IncidentUtility.DoRaidWithPoints(this.RimWarPoints, settlement, this.rimwarData, PawnsArrivalModeDefOf.EdgeWalkIn);
+                            base.ImmediateAction(wo);
+                        }
+                        else
+                        {
+                            IncidentUtility.DoCaravanAttackWithPoints(this, wo as Caravan, this.rimwarData, IncidentUtility.PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.EdgeWalkIn));
+                            base.ImmediateAction(wo);
+                        }
                     }
+                    
                 }                
             }
             else
@@ -336,6 +347,10 @@ namespace RimWar.Planet
                     }
                     base.ArrivalAction();
                 }
+                ValidateParentSettlement();
+                FindParentSettlement();
+                this.DestinationTarget = ParentSettlement.RimWorld_Settlement;
+                PathToTarget(DestinationTarget);
             }
             //Log.Message("ending arrival actions");
             //this.DestinationTarget = null;

@@ -3,6 +3,7 @@ using RimWar.Planet;
 using System;
 using System.Text;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Verse;
 
@@ -353,6 +354,33 @@ namespace RimWar
                     {
                         rwd.AllianceFactions.Remove(declaringFaction);
                         Find.LetterStack.ReceiveLetter("RW_DiplomacyLetter".Translate("RW_DiplomacyLabel_EndAlliance".Translate()), "RW_DeclareAllianceEnd".Translate(rwd.RimWarFaction.Name, declaringFaction.Name), RimWarDefOf.RimWar_NeutralEvent);
+                    }
+                }
+            }
+        }
+
+        public static void RandomizeAllFactionRelations()
+        {
+            Log.Message("Rim War: randomizing faction relations.");
+            List<Faction> factions = Find.FactionManager.AllFactionsVisible.ToList();
+            for(int i = 0; i < factions.Count; i++)
+            {
+                Faction firstFaction = factions[i];
+                for(int j = 0; j< factions.Count; j++)
+                {
+                    Faction otherFaction = factions[j];
+                    if(firstFaction != otherFaction)
+                    {
+                        if(!(firstFaction == Faction.OfPlayer && !otherFaction.def.permanentEnemy) && !(firstFaction != Faction.OfPlayer && otherFaction.def.permanentEnemyToEveryoneExceptPlayer) && 
+                            !(firstFaction.def.permanentEnemy && otherFaction == Faction.OfPlayer) && !(firstFaction.def.permanentEnemyToEveryoneExceptPlayer && otherFaction != Faction.OfPlayer))
+                        {
+                            firstFaction.TryAffectGoodwillWith(otherFaction, -1 * firstFaction.GoodwillWith(otherFaction), true, true, "Rim War - Clear Relation");
+                            firstFaction.TryAffectGoodwillWith(otherFaction, Rand.Range(-100, 100), true, true, "Rim War - Randomize Relation");
+                            //firstFaction.TryAffectGoodwillWith(otherFaction, -1 * firstFaction.GoodwillWith(otherFaction), false, false, "Rim War - Clear Relation");
+                            //firstFaction.TryAffectGoodwillWith(otherFaction, Rand.Range(-100, 100), false, false, "Rim War - Randomize Relation");
+                            //Log.Message("" + firstFaction.Name + " has " + firstFaction.RelationKindWith(otherFaction).ToString() + " relations with " + otherFaction.Name);
+                            //Log.Message("" + otherFaction.Name + " has " + otherFaction.RelationKindWith(firstFaction).ToString() + " relations with " + firstFaction.Name);
+                        }
                     }
                 }
             }

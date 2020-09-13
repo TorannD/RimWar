@@ -488,16 +488,20 @@ namespace RimWar.Planet
 
         public override IEnumerable<Gizmo> GetGizmos()
         {
-            List<Gizmo> gizmoIE = base.GetGizmos().ToList();
-            Command_Action command_Action1 = new Command_Action();
-            command_Action1.defaultLabel = "Dev: Destroy";
-            command_Action1.defaultDesc = "Destroys the Rim War object.";
-            command_Action1.action = delegate
+            if (Prefs.DevMode)
             {
-                Destroy();
-            };
-            gizmoIE.Add(command_Action1);
-            return gizmoIE;
+                List<Gizmo> gizmoIE = base.GetGizmos().ToList();
+                Command_Action command_Action1 = new Command_Action();
+                command_Action1.defaultLabel = "Dev: Destroy";
+                command_Action1.defaultDesc = "Destroys the Rim War object.";
+                command_Action1.action = delegate
+                {
+                    Destroy();
+                };
+                gizmoIE.Add(command_Action1);
+                return gizmoIE;
+            }
+            return base.GetGizmos();
         }
     }
 }

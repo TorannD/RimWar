@@ -62,6 +62,7 @@ namespace RimWar
         public override void PreOpen()
         {
             base.PreOpen();
+            WorldUtility.ValidateFactions(true);
             tabs.Clear();
             tabs.Add(new TabRecord("RW_Relations".Translate(), delegate
             {

@@ -73,7 +73,7 @@ namespace RimWar.Options
             Settings.Instance.averageEventFrequency = Mathf.RoundToInt(Widgets.HorizontalSlider(rowRect6, Settings.Instance.averageEventFrequency, 10, 1000, false, "RW_eventFrequency".Translate() + " " + Settings.Instance.averageEventFrequency, "Fast", "Slow", 1f));
             num++;
             Rect rowRect7 = UIHelper.GetRowRect(rowRect6, rowHeight, num);
-            Settings.Instance.settlementEventDelay = Mathf.RoundToInt(Widgets.HorizontalSlider(rowRect7, Settings.Instance.settlementEventDelay, 2500, 480000, false, "RW_settlementEventFrequency".Translate() + " " + Mathf.RoundToInt(Settings.Instance.settlementEventDelay/2500f), "1", "192", 10f));
+            Settings.Instance.settlementEventDelay = Mathf.RoundToInt(Widgets.HorizontalSlider(rowRect7, Settings.Instance.settlementEventDelay, 2500, 240000, false, "RW_settlementEventFrequency".Translate() + " " + Mathf.RoundToInt(Settings.Instance.settlementEventDelay/2500f), "1", "96", 10f));
             num++;
             Rect rowRect8 = UIHelper.GetRowRect(rowRect7, rowHeight, num);
             Settings.Instance.settlementScanDelay = Mathf.RoundToInt(Widgets.HorizontalSlider(rowRect8, Settings.Instance.settlementScanDelay, 5000, 480000, false, "RW_settlementScanFrequency".Translate() + " " + Mathf.RoundToInt(Settings.Instance.settlementScanDelay/2500f), "2", "192", 10f));
@@ -106,7 +106,7 @@ namespace RimWar.Options
                 Settings.Instance.createDiplomats = false;
                 Settings.Instance.alertRange = 6;
 
-                Settings.Instance.maxFactionSettlements = 30;
+                Settings.Instance.maxFactionSettlements = 20;
                 Settings.Instance.settlementScanRangeDivider = 100;
                 Settings.Instance.objectMovementMultiplier = 1f;
 
@@ -129,17 +129,17 @@ namespace RimWar.Options
                 //Settings.Instance.rimwarDifficulty = 1f;
                 Settings.Instance.createDiplomats = false;
 
-                Settings.Instance.maxFactionSettlements = 20;
+                Settings.Instance.maxFactionSettlements = 15;
                 Settings.Instance.settlementScanRangeDivider = 200;
                 Settings.Instance.objectMovementMultiplier = 2f;
                 Settings.Instance.alertRange = 4;
 
                 Settings.Instance.averageEventFrequency = 480;
-                Settings.Instance.settlementEventDelay = 300000;
-                Settings.Instance.settlementScanDelay = 480000;
+                Settings.Instance.settlementEventDelay = 120000;
+                Settings.Instance.settlementScanDelay = 200000;
                 Settings.Instance.maxSettlementScanRange = 20;
                 Settings.Instance.woEventFrequency = 480;
-                Settings.Instance.rwdUpdateFrequency = 9600;
+                Settings.Instance.rwdUpdateFrequency = 5000;
                 Settings.Instance.forceRandomObject = false;
             }
 
@@ -152,7 +152,7 @@ namespace RimWar.Options
                 //Settings.Instance.storytellerBasedDifficulty = true;
                 //Settings.Instance.rimwarDifficulty = 1f;
                 Settings.Instance.createDiplomats = false;
-                Settings.Instance.alertRange = 10;
+                Settings.Instance.alertRange = 6;
 
                 Settings.Instance.maxFactionSettlements = 60;
                 Settings.Instance.settlementScanRangeDivider = 100;
@@ -161,10 +161,10 @@ namespace RimWar.Options
                 Settings.Instance.averageEventFrequency = 240;
                 Settings.Instance.settlementEventDelay = 240000;
                 Settings.Instance.settlementScanDelay = 480000;
-                Settings.Instance.maxSettlementScanRange = 18;
-                Settings.Instance.woEventFrequency = 800;
-                Settings.Instance.rwdUpdateFrequency = 15000;
-                Settings.Instance.forceRandomObject = true;
+                Settings.Instance.maxSettlementScanRange = 24;
+                Settings.Instance.woEventFrequency = 600;
+                Settings.Instance.rwdUpdateFrequency = 10000;
+                Settings.Instance.forceRandomObject = false;
             }
 
             Widgets.EndScrollView();

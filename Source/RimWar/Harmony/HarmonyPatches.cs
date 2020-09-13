@@ -216,6 +216,33 @@ namespace RimWar.Harmony
         //    return array;
         //}
 
+        [HarmonyPatch(typeof(Faction), "RelationWith")]
+        public static class FactionRelationCheck_Patch
+        {
+            private static bool Prefix(Faction __instance, Faction other, ref FactionRelation __result, bool allowNull = false)
+            {
+                if(other == __instance)
+                {
+                    return true;
+                }
+                List<FactionRelation> fr = Traverse.Create(root: __instance).Field(name: "relations").GetValue<List<FactionRelation>>();
+                for (int i = 0; i < fr.Count; i++)
+                {
+                    if(fr[i].other == other)
+                    {
+                        __result = fr[i];
+                        return false;
+                    }                    
+                }
+                if(!allowNull)
+                {
+                    WorldUtility.CreateFactionRelation(__instance, other);                    
+                    //Log.Message("forced faction relation between " + __instance.Name + " and " + other.Name);
+                }
+                return true;
+            }
+        }
+
         [HarmonyPatch(typeof(WorldObject), "Destroy")]
         public static class SettlementDestroyed_Patch
         {
@@ -258,7 +285,7 @@ namespace RimWar.Harmony
         {
             private static void Postfix(Page_CreateWorldParams __instance, Rect rect)
             {
-                float y = rect.y + rect.height - 120f;
+                float y = rect.y + rect.height - 118f;
                 Text.Font = GameFont.Small;
                 string label = "RW_RimWar".Translate();
                 if (Widgets.ButtonText(new Rect(0f, y, 150f, 32f), label))

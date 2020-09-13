@@ -13,9 +13,17 @@ namespace RimWar.History
         public override float PullRecord()
         {
             float num = 0f;
-            if (Find.TickManager.TicksGame > 50)
+            Options.SettingsRef settingsRef = new Options.SettingsRef();
+            Faction f = WorldUtility.Get_WCPT().victoryFaction;
+            if (settingsRef.useRimWarVictory && f != null && !f.defeated)
             {
-                num = WorldUtility.GetRimWarDataForFaction(WorldUtility.Get_WCPT().victoryFaction).TotalFactionPoints;
+                if (Find.TickManager.TicksGame > 50)
+                {
+                    if (WorldUtility.GetRimWarDataForFaction(f) != null)
+                    {
+                        num = WorldUtility.GetRimWarDataForFaction(WorldUtility.Get_WCPT().victoryFaction).TotalFactionPoints;
+                    }
+                }
             }
             return num;
         }

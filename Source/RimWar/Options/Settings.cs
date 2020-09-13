@@ -13,9 +13,10 @@ namespace RimWar.Options
         public bool storytellerBasedDifficulty = true;
         public float rimwarDifficulty = 1f;
         public bool createDiplomats = false;
+        public bool useRimWarVictory = true;
 
         //limit controls
-        public int maxFactionSettlements = 30;
+        public int maxFactionSettlements = 20;
         public float maxSettlementScanRange = 30f;
         public float settlementScanRangeDivider = 100f;        
         public float objectMovementMultiplier = 1f;
@@ -39,12 +40,14 @@ namespace RimWar.Options
         //unsaved
         public bool playerVS = false;
         public float planetCoverageCustom = .12f;
+        public bool randomizeFactionRelations = false;        
 
         public override void ExposeData()
         {
             Scribe_Values.Look<bool>(ref this.randomizeFactionBehavior, "randomizeFactionBehavior", false, false);
             Scribe_Values.Look<bool>(ref this.storytellerBasedDifficulty, "storytellerBasedDifficulty", true, false);
             Scribe_Values.Look<bool>(ref this.createDiplomats, "createDiplomats", false, false);
+            Scribe_Values.Look<bool>(ref this.useRimWarVictory, "useRimWarVictory", true, true);
             Scribe_Values.Look<float>(ref this.rimwarDifficulty, "rimwarDifficulty", 1f, false);
             Scribe_Values.Look<int>(ref this.maxFactionSettlements, "maxFactionSettlements", 20, false);
             Scribe_Values.Look<float>(ref this.maxSettlementScanRange, "maxSettlementScanRange", 30f, false);

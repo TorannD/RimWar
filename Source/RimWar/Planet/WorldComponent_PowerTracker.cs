@@ -25,11 +25,13 @@ namespace RimWar.Planet
         private int totalTowns = 10;
         public Faction victoryFaction = null;
         private bool victoryDeclared = false;
+        private bool rwdInitialized = false;
         public List<CaravanTargetData> caravanTargetData = new List<CaravanTargetData>();
 
         public override void ExposeData()
         {
             base.ExposeData();
+            Scribe_Values.Look<bool>(ref this.rwdInitialized, "rwdInitialized", false, false);
             Scribe_Values.Look<bool>(ref this.victoryDeclared, "victoryDeclared", false, false);
             Scribe_Values.Look<int>(ref this.objectsCreated, "objectsCreated", 0, false);
             Scribe_Values.Look<int>(ref this.creationAttempts, "creationAttewmpts", 0, false);
@@ -142,9 +144,10 @@ namespace RimWar.Planet
         {
             int currentTick = Find.TickManager.TicksGame;
             Options.SettingsRef settingsRef = new Options.SettingsRef();
-            if (currentTick == 10)
+            if (currentTick >= 10 && !rwdInitialized)
             {
                 Initialize();
+                rwdInitialized = true;
             }
             if(currentTick % 60 == 0)
             {
@@ -152,8 +155,9 @@ namespace RimWar.Planet
             }
             if (currentTick % settingsRef.rwdUpdateFrequency == 0)
             {
+                WorldUtility.ValidateFactions(true);
                 UpdateFactions();
-                if (!victoryDeclared)
+                if (settingsRef.useRimWarVictory && !victoryDeclared)
                 {
                     CheckVictoryConditions();
                 }
@@ -167,14 +171,23 @@ namespace RimWar.Planet
                 //Log.Message("checking events");
                 this.nextEvaluationTick = currentTick + Rand.Range((int)(settingsRef.averageEventFrequency * .5f) , (int)(settingsRef.averageEventFrequency * 1.5f));
                 //Log.Message("current tick: " + currentTick + " next evaluation at " + this.nextEvaluationTick);
+                //Log.Message("rwd list " + (this.RimWarData != null));
                 if (this.RimWarData != null && this.RimWarData.Count > 0)
                 {
+                    //Log.Message("rwd count " + this.RimWarData.Count);
                     RimWarData rwd = this.RimWarData.RandomElement();
                     if (rwd.FactionSettlements != null && rwd.FactionSettlements.Count > 0)
                     {
-                        Settlement rwdTown = rwd.FactionSettlements.RandomElement();                        
+                        //Log.Message("detecting " + rwd.FactionSettlements.Count + " for faction " + rwd.RimWarFaction.Name);
+                        Settlement rwdTown = rwd.FactionSettlements.RandomElement();
+                        //Log.Message("town selected " + rwdTown.RimWorld_Settlement.Label + " next tick event " + rwdTown.nextEventTick + " current tick " + currentTick);
+                        if(rwdTown.nextEventTick - currentTick > settingsRef.settlementEventDelay * 2)
+                        {
+                            rwdTown.nextEventTick = currentTick;
+                        }
                         if (rwd.behavior != RimWarBehavior.Player && rwdTown.nextEventTick <= currentTick && ((!CaravanNightRestUtility.RestingNowAt(rwdTown.Tile) && !rwd.movesAtNight) || (CaravanNightRestUtility.RestingNowAt(rwdTown.Tile) && rwd.movesAtNight)))
                         {
+                            
                             if(rwd.rwdNextUpdateTick < currentTick)
                             {
                                 rwd.rwdNextUpdateTick = currentTick + settingsRef.rwdUpdateFrequency;
@@ -406,7 +419,7 @@ namespace RimWar.Planet
                     RimWarData rwdSecond = this.RimWarData.RandomElement();
                     if(rwdSecond.RimWarFaction != rwd.RimWarFaction && rwdSecond.RimWarFaction != Faction.OfPlayerSilentFail)
                     {
-                        rwd.RimWarFaction.TryAffectGoodwillWith(rwdSecond.RimWarFaction, factionAdjustment, false, false, null, null);
+                        rwd.RimWarFaction.TryAffectGoodwillWith(rwdSecond.RimWarFaction, factionAdjustment, true, true, null, null);
                     }
                 }
                 else if (newAction == RimWarAction.Warband)
@@ -416,7 +429,7 @@ namespace RimWar.Planet
                     RimWarData rwdSecond = this.RimWarData.RandomElement();
                     if (rwdSecond.RimWarFaction != rwd.RimWarFaction && rwdSecond.RimWarFaction != Faction.OfPlayerSilentFail)
                     {
-                        rwd.RimWarFaction.TryAffectGoodwillWith(rwdSecond.RimWarFaction, factionAdjustment, false, false, null, null);
+                        rwd.RimWarFaction.TryAffectGoodwillWith(rwdSecond.RimWarFaction, factionAdjustment, true, true, null, null);
                     }
                 }
                 else
@@ -428,6 +441,7 @@ namespace RimWar.Planet
 
         public void Initialize()
         {
+            Options.SettingsRef settingsRef = new Options.SettingsRef();
             if (!factionsLoaded)
             {
                 List<Faction> rimwarFactions = new List<Faction>();
@@ -435,6 +449,10 @@ namespace RimWar.Planet
                 for (int i = 0; i < RimWarData.Count; i++)
                 {
                     rimwarFactions.Add(RimWarData[i].RimWarFaction);
+                }                
+                if (settingsRef.randomizeFactionBehavior)
+                {
+                    RimWarFactionUtility.RandomizeAllFactionRelations();
                 }
                 List<Faction> allFactionsVisible = world.factionManager.AllFactionsVisible.ToList();
                 if (allFactionsVisible != null && allFactionsVisible.Count > 0)
@@ -444,8 +462,7 @@ namespace RimWar.Planet
                         if (!rimwarFactions.Contains(allFactionsVisible[i]))
                         {
                             AddRimWarFaction(allFactionsVisible[i]);
-                        }
-                        Options.SettingsRef settingsRef = new Options.SettingsRef();
+                        }                        
                         if (settingsRef.playerVS && allFactionsVisible[i] != Faction.OfPlayer)
                         {
                             allFactionsVisible[i].TryAffectGoodwillWith(Faction.OfPlayer, -80, true, true, "Rim War", null);
@@ -466,7 +483,7 @@ namespace RimWar.Planet
                 }
                 this.factionsLoaded = true;
             }
-            if (this.victoryFaction == null)
+            if (settingsRef.useRimWarVictory && this.victoryFaction == null)
             {
                 GetFactionForVictoryChallenge();
             }
@@ -613,7 +630,7 @@ namespace RimWar.Planet
 
         private bool CheckForRimWarFaction(Faction faction)
         {
-            if (this.rimwarData != null)
+            if (this.RimWarData != null)
             {
                 for (int i = 0; i < this.RimWarData.Count; i++)
                 {
@@ -622,10 +639,6 @@ namespace RimWar.Planet
                         return true;
                     }
                 }
-            }
-            else
-            {
-                return false;
             }
             return false;
         }
@@ -671,7 +684,7 @@ namespace RimWar.Planet
             {
                 RandomizeFactionBehavior(rimwarObject);
             }
-
+            //Log.Message("generating faction behavior for " + rimwarObject.RimWarFaction);
             WorldUtility.CalculateFactionBehaviorWeights(rimwarObject);           
 
         }
@@ -697,11 +710,12 @@ namespace RimWar.Planet
         private void AssignFactionSettlements(RimWarData rimwarObject)
         {
             //Log.Message("assigning settlements to " + rimwarObject.RimWarFaction.Name);
-            this.WorldObjects = world.worldObjects.AllWorldObjects.ToList();
+            this.WorldObjects = Find.WorldObjects.AllWorldObjects.ToList();
             if (worldObjects != null && worldObjects.Count > 0)
             {
                 for (int i = 0; i < worldObjects.Count; i++)
-                {                    
+                {
+                    //Log.Message("faction for " + worldObjects[i] + " is " + rimwarObject);
                     if (worldObjects[i].Faction == rimwarObject.RimWarFaction)
                     {
                         WorldUtility.CreateRimWarSettlement(rimwarObject, worldObjects[i]);
@@ -711,24 +725,28 @@ namespace RimWar.Planet
         }
 
         public void UpdateFactionSettlements(RimWarData rwd)
-        {            
-            this.WorldObjects = world.worldObjects.AllWorldObjects.ToList();
-            if (worldObjects != null && worldObjects.Count > 0)
+        {
+            this.WorldObjects = Find.WorldObjects.AllWorldObjects.ToList();
+
+            if (worldObjects != null && worldObjects.Count > 0 && rwd != null && rwd.RimWarFaction != null)
             {
                 //look for settlements not assigned a RimWar Settlement
                 for (int i = 0; i < worldObjects.Count; i++)
                 {
-                    if (worldObjects[i].Faction == rwd.RimWarFaction && Find.World.worldObjects.AnySettlementAt(worldObjects[i].Tile))
+                    if (worldObjects[i].Faction == rwd.RimWarFaction && Find.WorldObjects.AnySettlementAt(worldObjects[i].Tile))
                     {
                         WorldObject wo = WorldObjects[i];
                         bool hasSettlement = false;
-                        for(int j = 0; j < rwd.FactionSettlements.Count; j++)
+                        if (rwd.FactionSettlements != null && rwd.FactionSettlements.Count > 0)
                         {
-                            Settlement rwdTown = rwd.FactionSettlements[j];
-                            if(rwdTown.Tile == wo.Tile)
+                            for (int j = 0; j < rwd.FactionSettlements.Count; j++)
                             {
-                                hasSettlement = true;
-                                break;
+                                Settlement rwdTown = rwd.FactionSettlements[j];
+                                if (rwdTown.Tile == wo.Tile)
+                                {
+                                    hasSettlement = true;
+                                    break;
+                                }
                             }
                         }
                         if(!hasSettlement)
@@ -745,7 +763,7 @@ namespace RimWar.Planet
                     for (int j =0; j < worldObjects.Count; j++)
                     {
                         WorldObject wo = worldObjects[j];
-                        if(wo.Tile == rwdTown.Tile && wo.Faction == rwdTown.Faction && Find.World.worldObjects.AnySettlementAt(wo.Tile))
+                        if(wo.Tile == rwdTown.Tile && wo.Faction == rwdTown.Faction && Find.WorldObjects.AnySettlementAt(wo.Tile))
                         {
                             hasWorldObject = true;
                             break;

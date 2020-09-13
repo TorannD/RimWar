@@ -7,6 +7,7 @@ using RimWorld.Planet;
 using RimWar.History;
 using Verse;
 using UnityEngine;
+using HarmonyLib;
 
 namespace RimWar.Planet
 {
@@ -24,10 +25,10 @@ namespace RimWar.Planet
                 List<WorldComponent> components = Find.World.components;
                 for (int i = 0; i < components.Count; i++)
                 {
-                    wcpt = components[i] as WorldComponent_PowerTracker;
-                    if (wcpt != null)
+                    WorldComponent_PowerTracker cp = components[i] as WorldComponent_PowerTracker;
+                    if (cp != null)
                     {
-                        return wcpt;
+                        wcpt = cp;
                     }
                 }
             }
@@ -49,7 +50,7 @@ namespace RimWar.Planet
                         }
                     }
                 }                
-            }
+            }            
             return null;
         }
 
@@ -65,39 +66,45 @@ namespace RimWar.Planet
 
         public static void CreateRimWarSettlement(RimWarData rwd, WorldObject wo)
         {
-            RimWar.Planet.Settlement rimwarSettlement = new Settlement(rwd.RimWarFaction);
-            rimwarSettlement.RimWarPoints = Mathf.RoundToInt(WorldUtility.CalculateSettlementPoints(wo, wo.Faction) * Rand.Range(.5f, 1.5f));
-            rwd.FactionSettlements.Add(rimwarSettlement);
-            rimwarSettlement.Tile = wo.Tile;
-            //Log.Message("settlement: " + wo.Label + " contributes " + rimwarSettlement.RimWarPoints + " points");
-
-            if (Find.TickManager.TicksGame > 20)
+            if (rwd != null && Find.FactionManager.AllFactions.Contains(rwd.RimWarFaction) && !rwd.RimWarFaction.defeated)
             {
-                RW_Letter let = RW_LetterMaker.Make_RWLetter(RimWarDefOf.RimWar_SettlementEvent);
-                let.label = "RW_LetterSettlementEvent".Translate();
-                let.text = "RW_LetterSettlementEventText".Translate(rwd.RimWarFaction, rimwarSettlement.RimWarPoints);
-                let.lookTargets = wo;
-                let.relatedFaction = rwd.RimWarFaction;
-                RW_LetterMaker.Archive_RWLetter(let);
+                RimWar.Planet.Settlement rimwarSettlement = new Settlement(rwd.RimWarFaction);
+                rimwarSettlement.RimWarPoints = Mathf.RoundToInt(WorldUtility.CalculateSettlementPoints(wo, wo.Faction) * Rand.Range(.5f, 1.5f));
+                rwd.FactionSettlements.Add(rimwarSettlement);
+                rimwarSettlement.Tile = wo.Tile;
+                //Log.Message("settlement: " + wo.Label + " contributes " + rimwarSettlement.RimWarPoints + " points");
+
+                if (Find.TickManager.TicksGame > 20)
+                {
+                    RW_Letter let = RW_LetterMaker.Make_RWLetter(RimWarDefOf.RimWar_SettlementEvent);
+                    let.label = "RW_LetterSettlementEvent".Translate();
+                    let.text = "RW_LetterSettlementEventText".Translate(rwd.RimWarFaction, rimwarSettlement.RimWarPoints);
+                    let.lookTargets = wo;
+                    let.relatedFaction = rwd.RimWarFaction;
+                    RW_LetterMaker.Archive_RWLetter(let);
+                }
             }
         }
 
         public static void CreateRimWarSettlementWithPoints(RimWarData rwd, WorldObject wo, int points, bool displayLetter = false)
         {
-            RimWar.Planet.Settlement rimwarSettlement = new Settlement(rwd.RimWarFaction);
-            rimwarSettlement.RimWarPoints = points;
-            rwd.FactionSettlements.Add(rimwarSettlement);
-            rimwarSettlement.Tile = wo.Tile;
-            //Log.Message("settlement: " + wo.Label + " contributes " + rimwarSettlement.RimWarPoints + " points");
-
-            if (Find.TickManager.TicksGame > 20 && displayLetter)
+            if (rwd != null && Find.FactionManager.AllFactions.Contains(rwd.RimWarFaction) && !rwd.RimWarFaction.defeated)
             {
-                RW_Letter let = RW_LetterMaker.Make_RWLetter(RimWarDefOf.RimWar_SettlementEvent);
-                let.label = "RW_LetterSettlementEvent".Translate();
-                let.text = "RW_LetterSettlementEventText".Translate(rwd.RimWarFaction, rimwarSettlement.RimWarPoints);
-                let.lookTargets = wo;
-                let.relatedFaction = rwd.RimWarFaction;
-                RW_LetterMaker.Archive_RWLetter(let);
+                RimWar.Planet.Settlement rimwarSettlement = new Settlement(rwd.RimWarFaction);
+                rimwarSettlement.RimWarPoints = points;
+                rwd.FactionSettlements.Add(rimwarSettlement);
+                rimwarSettlement.Tile = wo.Tile;
+                //Log.Message("settlement: " + wo.Label + " contributes " + rimwarSettlement.RimWarPoints + " points");
+
+                if (Find.TickManager.TicksGame > 20 && displayLetter)
+                {
+                    RW_Letter let = RW_LetterMaker.Make_RWLetter(RimWarDefOf.RimWar_SettlementEvent);
+                    let.label = "RW_LetterSettlementEvent".Translate();
+                    let.text = "RW_LetterSettlementEventText".Translate(rwd.RimWarFaction, rimwarSettlement.RimWarPoints);
+                    let.lookTargets = wo;
+                    let.relatedFaction = rwd.RimWarFaction;
+                    RW_LetterMaker.Archive_RWLetter(let);
+                }
             }
         }
 
@@ -1235,6 +1242,73 @@ namespace RimWar.Planet
                 }
             }
             return tmpWarObjects;
+        }
+
+        private static int factionCount = 0;
+        public static void ValidateFactions(bool forced = false)
+        {            
+            List<Faction> factions = Find.FactionManager.AllFactionsVisible.ToList();
+            if (factionCount != factions.Count || forced)
+            {
+                factionCount = factions.Count;
+                for (int i = 0; i < factions.Count; i++)
+                {
+                    List<FactionRelation> fr = Traverse.Create(root: factions[i]).Field(name: "relations").GetValue<List<FactionRelation>>();
+                    if (fr == null || fr.Count <= 0)
+                    {
+                        fr = new List<FactionRelation>();
+                        fr.Clear();
+                        for (int j = 0; j < factions.Count; j++)
+                        {
+                            CreateFactionRelation(factions[i], factions[j]);
+                        }
+                    }
+                    WorldUtility.Get_WCPT().AddRimWarFaction(factions[i]);                    
+                }
+
+                List<RimWarData> rwdList = WorldUtility.GetRimWarData();
+                bool hasRelation = false;
+                for (int k = 0; k < rwdList.Count; k++)
+                {
+                    for (int i = 0; i < factions.Count; i++)
+                    {
+                        List<FactionRelation> fr = Traverse.Create(root: factions[i]).Field(name: "relations").GetValue<List<FactionRelation>>();
+                        for (int j = 0; j < fr.Count; j++)
+                        {
+                            if (fr[j].other == rwdList[k].RimWarFaction)
+                            {
+                                hasRelation = true;
+                                break;
+                            }
+                        }
+                        if (!hasRelation)
+                        {
+                            CreateFactionRelation(factions[i], rwdList[k].RimWarFaction);
+                        }
+                    }
+                }
+            }
+        }
+
+        public static void CreateFactionRelation(Faction thisFaction, Faction otherFaction)
+        {
+            List<FactionRelation> fr = Traverse.Create(root: thisFaction).Field(name: "relations").GetValue<List<FactionRelation>>();
+            if (fr == null || fr.Count <= 0)
+            {
+                fr = new List<FactionRelation>();
+                fr.Clear();
+            }
+            if (thisFaction != otherFaction)
+            {
+                FactionRelation _fr = new FactionRelation();
+                _fr.other = otherFaction;
+                _fr.goodwill = Rand.Range(-100, 100);
+                _fr.kind = FactionRelationKind.Neutral;
+                bool sentLetter = false;
+                _fr.CheckKindThresholds(thisFaction, false, "", GlobalTargetInfo.Invalid, out sentLetter);
+                fr.Add(_fr);
+                Traverse.Create(root: thisFaction).Field(name: "relations").SetValue(fr);
+            }
         }
     }
 }

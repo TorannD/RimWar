@@ -238,6 +238,15 @@ namespace RimWar
                 }
                 return this.factionSettlements;
             }
+            set
+            {
+                bool flag = this.factionSettlements == null;
+                if (flag)
+                {
+                    this.factionSettlements = new List<RimWar.Planet.Settlement>();
+                }
+                this.factionSettlements = value;
+            }
         }
         
         public int PointsFromSettlements

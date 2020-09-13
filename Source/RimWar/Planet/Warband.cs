@@ -270,7 +270,7 @@ namespace RimWar.Planet
                                 //Raid Player Map
                                 if (this.launched)
                                 {
-                                    IncidentUtility.DoRaidWithPoints(this.RimWarPoints, playerSettlement, WorldUtility.GetRimWarDataForFaction(this.Faction), IncidentUtility.PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.EdgeDrop));
+                                    IncidentUtility.DoRaidWithPoints(this.RimWarPoints, playerSettlement, WorldUtility.GetRimWarDataForFaction(this.Faction), IncidentUtility.PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.RandomDrop));
                                 }
                                 else
                                 {
@@ -316,7 +316,7 @@ namespace RimWar.Planet
                                 {
                                     if (this.launched)
                                     {
-                                        IncidentUtility.DoRaidWithPoints(this.RimWarPoints, playerSettlement, WorldUtility.GetRimWarDataForFaction(this.Faction), IncidentUtility.PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.EdgeDrop));
+                                        IncidentUtility.DoRaidWithPoints(this.RimWarPoints, playerSettlement, WorldUtility.GetRimWarDataForFaction(this.Faction), IncidentUtility.PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.RandomDrop));
                                     }
                                     else
                                     {
@@ -378,7 +378,10 @@ namespace RimWar.Planet
                     }
                     base.ArrivalAction();
                 }
-                
+                ValidateParentSettlement();
+                FindParentSettlement();
+                this.DestinationTarget = ParentSettlement.RimWorld_Settlement;
+                PathToTarget(DestinationTarget);
             }
             //this.DestinationTarget = null;
             //Log.Message("ending arrival actions");

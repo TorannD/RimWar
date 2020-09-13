@@ -134,8 +134,8 @@ namespace RimWar.Planet
                 let.relatedFaction = defender.Faction;
             }
             RW_LetterMaker.Archive_RWLetter(let);
-            defender.Faction.TryAffectGoodwillWith(attacker.Faction, -2, false, false, null, null);
-            attacker.Faction.TryAffectGoodwillWith(defender.Faction, -2, false, false, null, null);
+            defender.Faction.TryAffectGoodwillWith(attacker.Faction, -2, true, true, null, null);
+            attacker.Faction.TryAffectGoodwillWith(defender.Faction, -2, true, true, null, null);
             defender.ImmediateAction(null); //force removal of the non-initiating warband
         }
 
@@ -389,8 +389,8 @@ namespace RimWar.Planet
                 defender.RimWarPoints = Mathf.RoundToInt(Mathf.Clamp(endPointsDefender, 100, defender.RimWarPoints + attacker.RimWarPoints));                
             }
             RW_LetterMaker.Archive_RWLetter(let);
-            defender.Faction.TryAffectGoodwillWith(attacker.Faction, -5, false, false, null, null);
-            attacker.Faction.TryAffectGoodwillWith(defender.Faction, -2, false, false, null, null);
+            defender.Faction.TryAffectGoodwillWith(attacker.Faction, -5, true, true, null, null);
+            attacker.Faction.TryAffectGoodwillWith(defender.Faction, -2, true, true, null, null);
         }
 
         public static void ResolveRimWarTrade(Trader attacker, Trader defender)
@@ -428,8 +428,8 @@ namespace RimWar.Planet
             defender.tradedWithTrader = true;
             attacker.RimWarPoints = Mathf.RoundToInt(Mathf.Clamp(endPointsAttacker, 0, attacker.RimWarPoints * 1.5f));
             defender.RimWarPoints = Mathf.RoundToInt(Mathf.Clamp(endPointsDefender, 0, defender.RimWarPoints * 1.5f));
-            defender.Faction.TryAffectGoodwillWith(attacker.Faction, 2, false, false, null, null);
-            attacker.Faction.TryAffectGoodwillWith(defender.Faction, 2, false, false, null, null);
+            defender.Faction.TryAffectGoodwillWith(attacker.Faction, 2, true, true, null, null);
+            attacker.Faction.TryAffectGoodwillWith(defender.Faction, 2, true, true, null, null);
 
             let.lookTargets = attacker;
             let.relatedFaction = attacker.Faction;
@@ -468,8 +468,8 @@ namespace RimWar.Planet
             defenderTown.RimWarPoints = Mathf.RoundToInt(endPointsDefender);
             Trader newTrader = WorldUtility.CreateTrader(Mathf.RoundToInt(endPointsAttacker), attacker.rimwarData, attacker.ParentSettlement, defenderTown.Tile, attacker.ParentSettlement.Tile, WorldObjectDefOf.Settlement);
             newTrader.tradedWithSettlement = true;
-            defenderTown.Faction.TryAffectGoodwillWith(attacker.Faction, 1, false, false, null, null);
-            attacker.Faction.TryAffectGoodwillWith(defenderTown.Faction, 1, false, false, null, null);
+            defenderTown.Faction.TryAffectGoodwillWith(attacker.Faction, 1, true, true, null, null);
+            attacker.Faction.TryAffectGoodwillWith(defenderTown.Faction, 1, true, true, null, null);
 
             let.lookTargets = newTrader;
             let.relatedFaction = attacker.Faction;
@@ -478,121 +478,174 @@ namespace RimWar.Planet
 
         public static void DoRaidWithPoints(int points, RimWorld.Planet.Settlement playerSettlement, RimWarData rwd, PawnsArrivalModeDef arrivalMode)
         {
-            IncidentParms parms = new IncidentParms();
-            PawnGroupKindDef combat = PawnGroupKindDefOf.Combat;
-            
-            parms.faction = rwd.RimWarFaction;
-            parms.generateFightersOnly = true;
-            parms.raidArrivalMode = arrivalMode;
-            parms.target = playerSettlement.Map;
-            parms.points = points;
-            parms = ResolveRaidStrategy(parms, combat);
-            parms.points = AdjustedRaidPoints((float)points, parms.raidArrivalMode, parms.raidStrategy, rwd.RimWarFaction, combat);
-            //Log.Message("adjusted points " + parms.points);
-            //PawnGroupMakerParms defaultPawnGroupMakerParms = IncidentParmsUtility.GetDefaultPawnGroupMakerParms(combat, parms);
-            //List<Pawn> list = PawnGroupMakerUtility.GeneratePawns(defaultPawnGroupMakerParms).ToList();
-            //if (list.Count == 0)
-            //{
-            //    Log.Error("Got no pawns spawning raid from parms " + parms);
-            //    //return false;
-            //}
-            //parms.raidArrivalMode.Worker.Arrive(list, parms);
-            IncidentWorker_RaidEnemy raid = new IncidentWorker_RaidEnemy();
-            raid.TryExecute(parms);
+            if (rwd != null && Find.FactionManager.AllFactions.Contains(rwd.RimWarFaction) && !rwd.RimWarFaction.defeated)
+            {
+                if (rwd.RimWarFaction.HostileTo(playerSettlement.Faction))
+                {
+                    IncidentParms parms = new IncidentParms();
+                    PawnGroupKindDef combat = PawnGroupKindDefOf.Combat;
 
-            RW_Letter let = RW_LetterMaker.Make_RWLetter(RimWarDefOf.RimWar_HostileEvent);
-            let.label = "RW_LetterPlayerSettlementBattle".Translate();
-            let.text = "RW_RaidedPlayer".Translate(rwd.RimWarFaction, playerSettlement.Label, points);
-            let.relatedFaction = rwd.RimWarFaction;
-            let.lookTargets = playerSettlement;
-            RW_LetterMaker.Archive_RWLetter(let);
+                    parms.faction = rwd.RimWarFaction;
+                    parms.generateFightersOnly = true;
+                    parms.raidArrivalMode = arrivalMode;
+                    parms.target = playerSettlement.Map;
+                    parms.points = points;
+                    parms = ResolveRaidStrategy(parms, combat);
+                    parms.points = AdjustedRaidPoints((float)points, parms.raidArrivalMode, parms.raidStrategy, rwd.RimWarFaction, combat);
+                    //Log.Message("adjusted points " + parms.points);
+                    //PawnGroupMakerParms defaultPawnGroupMakerParms = IncidentParmsUtility.GetDefaultPawnGroupMakerParms(combat, parms);
+                    //List<Pawn> list = PawnGroupMakerUtility.GeneratePawns(defaultPawnGroupMakerParms).ToList();
+                    //if (list.Count == 0)
+                    //{
+                    //    Log.Error("Got no pawns spawning raid from parms " + parms);
+                    //    //return false;
+                    //}
+                    //parms.raidArrivalMode.Worker.Arrive(list, parms);
+                    IncidentWorker_RaidEnemy raid = new IncidentWorker_RaidEnemy();
+                    try
+                    {
+                        raid.TryExecute(parms);
+
+                        RW_Letter let = RW_LetterMaker.Make_RWLetter(RimWarDefOf.RimWar_HostileEvent);
+                        let.label = "RW_LetterPlayerSettlementBattle".Translate();
+                        let.text = "RW_RaidedPlayer".Translate(rwd.RimWarFaction, playerSettlement.Label, points);
+                        let.relatedFaction = rwd.RimWarFaction;
+                        let.lookTargets = playerSettlement;
+                        RW_LetterMaker.Archive_RWLetter(let);
+                    }
+                    catch(NullReferenceException ex)
+                    {
+                        Log.Warning("attempted to execute raid but encountered a null reference - " + ex);
+                        if(rwd != null)
+                        {
+                            if(rwd.FactionSettlements != null && rwd.FactionSettlements.Count > 0)
+                            {
+                                ConsolidatePoints reconstitute = new ConsolidatePoints(points, 10 + Find.TickManager.TicksGame);
+                                rwd.FactionSettlements.RandomElement().SettlementPointGains.Add(reconstitute);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    DoReinforcementWithPoints(points, playerSettlement, rwd, arrivalMode);
+                }
+            }
         }
 
         public static void DoReinforcementWithPoints(int points, RimWorld.Planet.Settlement playerSettlement, RimWarData rwd, PawnsArrivalModeDef arrivalMode)
         {
-            IncidentParms parms = new IncidentParms();
-            PawnGroupKindDef combat = PawnGroupKindDefOf.Combat;
+            if (rwd != null && Find.FactionManager.AllFactions.Contains(rwd.RimWarFaction) && !rwd.RimWarFaction.defeated)
+            {
+                if (!rwd.RimWarFaction.HostileTo(playerSettlement.Faction))
+                {
+                    IncidentParms parms = new IncidentParms();
+                    PawnGroupKindDef combat = PawnGroupKindDefOf.Combat;
 
-            parms.faction = rwd.RimWarFaction;
-            parms.generateFightersOnly = true;
-            parms.raidArrivalMode = arrivalMode;
-            parms.target = playerSettlement.Map;
-            parms.points = points;
-            parms.raidStrategy = RaidStrategyOrRandom(RaidStrategyDefOf.ImmediateAttack);
-            parms.points = AdjustedRaidPoints((float)points, parms.raidArrivalMode, parms.raidStrategy, rwd.RimWarFaction, combat);
-            //Log.Message("adjusted points " + parms.points);
-            //PawnGroupMakerParms defaultPawnGroupMakerParms = IncidentParmsUtility.GetDefaultPawnGroupMakerParms(combat, parms);
-            //List<Pawn> list = PawnGroupMakerUtility.GeneratePawns(defaultPawnGroupMakerParms).ToList();
-            //if (list.Count == 0)
-            //{
-            //    Log.Error("Got no pawns spawning raid from parms " + parms);
-            //    //return false;
-            //}
-            //parms.raidArrivalMode.Worker.Arrive(list, parms);
-            IncidentWorker_RaidFriendly raid = new IncidentWorker_RaidFriendly();
-            raid.TryExecute(parms);
+                    parms.faction = rwd.RimWarFaction;
+                    parms.generateFightersOnly = true;
+                    parms.raidArrivalMode = arrivalMode;
+                    parms.target = playerSettlement.Map;
+                    parms.points = points;
+                    parms.raidStrategy = RaidStrategyDefOf.ImmediateAttackFriendly;// RaidStrategyOrRandom(RaidStrategyDefOf.ImmediateAttackFriendly);
+                    parms.points = AdjustedRaidPoints((float)points, parms.raidArrivalMode, parms.raidStrategy, rwd.RimWarFaction, combat);
+                    //Log.Message("adjusted points " + parms.points);
+                    //PawnGroupMakerParms defaultPawnGroupMakerParms = IncidentParmsUtility.GetDefaultPawnGroupMakerParms(combat, parms);
+                    //List<Pawn> list = PawnGroupMakerUtility.GeneratePawns(defaultPawnGroupMakerParms).ToList();
+                    //if (list.Count == 0)
+                    //{
+                    //    Log.Error("Got no pawns spawning raid from parms " + parms);
+                    //    //return false;
+                    //}
+                    //parms.raidArrivalMode.Worker.Arrive(list, parms);
+                    IncidentWorker_RaidFriendly raid = new IncidentWorker_RaidFriendly();
+                    try
+                    {
+                        raid.TryExecute(parms);
 
-            RW_Letter let = RW_LetterMaker.Make_RWLetter(RimWarDefOf.RimWar_FriendlyEvent);
-            let.label = "RW_LetterPlayerSettlementReinforcement".Translate();
-            let.text = "RW_ReinforcedPlayer".Translate(rwd.RimWarFaction, playerSettlement.Label, points);
-            let.relatedFaction = rwd.RimWarFaction;
-            let.lookTargets = playerSettlement;
-            RW_LetterMaker.Archive_RWLetter(let);
+                        RW_Letter let = RW_LetterMaker.Make_RWLetter(RimWarDefOf.RimWar_FriendlyEvent);
+                        let.label = "RW_LetterPlayerSettlementReinforcement".Translate();
+                        let.text = "RW_ReinforcedPlayer".Translate(rwd.RimWarFaction, playerSettlement.Label, points);
+                        let.relatedFaction = rwd.RimWarFaction;
+                        let.lookTargets = playerSettlement;
+                        RW_LetterMaker.Archive_RWLetter(let);
+                    }
+                    catch (NullReferenceException ex)
+                    {
+                        Log.Warning("attempted to execute raid but encountered a null reference - " + ex);
+                        if (rwd != null)
+                        {
+                            if (rwd.FactionSettlements != null && rwd.FactionSettlements.Count > 0)
+                            {
+                                ConsolidatePoints reconstitute = new ConsolidatePoints(points, 10 + Find.TickManager.TicksGame);
+                                rwd.FactionSettlements.RandomElement().SettlementPointGains.Add(reconstitute);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    DoRaidWithPoints(points, playerSettlement, rwd, arrivalMode);
+                }
+            }
         }
 
         public static void DoCaravanAttackWithPoints(WarObject warObject, Caravan playerCaravan, RimWarData rwd, PawnsArrivalModeDef arrivalMode)
         {
-            IncidentParms parms = new IncidentParms();
-            PawnGroupKindDef kindDef = PawnGroupKindDefOf.Combat;               
-            parms.faction = rwd.RimWarFaction;
-            parms.raidArrivalMode = arrivalMode;
-            parms.points = warObject.RimWarPoints;
-            parms.target = playerCaravan;
-            parms.raidStrategy = RaidStrategyOrRandom(RaidStrategyDefOf.ImmediateAttack);
-            if (warObject is Trader)
+            if (rwd != null && Find.FactionManager.AllFactions.Contains(rwd.RimWarFaction) && !rwd.RimWarFaction.defeated)
             {
-                kindDef = PawnGroupKindDefOf.Trader;
-                parms.generateFightersOnly = false;
-                Faction enemyFaction = rwd.RimWarFaction;
-                PawnGroupMakerParms defaultPawnGroupMakerParms = IncidentParmsUtility.GetDefaultPawnGroupMakerParms(kindDef, parms);
-                defaultPawnGroupMakerParms.generateFightersOnly = false;
-                defaultPawnGroupMakerParms.dontUseSingleUseRocketLaunchers = false;
-                List<Pawn> attackers = PawnGroupMakerUtility.GeneratePawns(defaultPawnGroupMakerParms).ToList();
-                if (attackers.Count == 0)
+                IncidentParms parms = new IncidentParms();
+                PawnGroupKindDef kindDef = PawnGroupKindDefOf.Combat;
+                parms.faction = rwd.RimWarFaction;
+                parms.raidArrivalMode = arrivalMode;
+                parms.points = warObject.RimWarPoints;
+                parms.target = playerCaravan;
+                parms.raidStrategy = RaidStrategyOrRandom(RaidStrategyDefOf.ImmediateAttack);
+                if (warObject is Trader)
                 {
-                    Log.Error("Caravan demand incident couldn't generate any enemies even though min points have been checked. faction=" + defaultPawnGroupMakerParms.faction + "(" + ((defaultPawnGroupMakerParms.faction == null) ? "null" : defaultPawnGroupMakerParms.faction.def.ToString()) + ") parms=" + parms);
+                    kindDef = PawnGroupKindDefOf.Trader;
+                    parms.generateFightersOnly = false;
+                    Faction enemyFaction = rwd.RimWarFaction;
+                    PawnGroupMakerParms defaultPawnGroupMakerParms = IncidentParmsUtility.GetDefaultPawnGroupMakerParms(kindDef, parms);
+                    defaultPawnGroupMakerParms.generateFightersOnly = false;
+                    defaultPawnGroupMakerParms.dontUseSingleUseRocketLaunchers = false;
+                    List<Pawn> attackers = PawnGroupMakerUtility.GeneratePawns(defaultPawnGroupMakerParms).ToList();
+                    if (attackers.Count == 0)
+                    {
+                        Log.Error("Caravan demand incident couldn't generate any enemies even though min points have been checked. faction=" + defaultPawnGroupMakerParms.faction + "(" + ((defaultPawnGroupMakerParms.faction == null) ? "null" : defaultPawnGroupMakerParms.faction.def.ToString()) + ") parms=" + parms);
+                    }
+                    else
+                    {
+                        Map map = CaravanIncidentUtility.SetupCaravanAttackMap(playerCaravan, attackers, sendLetterIfRelatedPawns: false);
+                        parms.target = map;
+                        parms = ResolveRaidStrategy(parms, kindDef);
+                        parms.points = AdjustedRaidPoints((float)warObject.RimWarPoints, parms.raidArrivalMode, parms.raidStrategy, rwd.RimWarFaction, kindDef);
+                        CameraJumper.TryJumpAndSelect(playerCaravan);
+                        //TaleRecorder.RecordTale(TaleDefOf.CaravanAmbushedByHumanlike, playerCaravan.RandomOwner());
+                        LongEventHandler.QueueLongEvent(delegate
+                        {
+                            LordJob_AssaultColony lordJob_AssaultColony = new LordJob_AssaultColony(enemyFaction, canKidnap: true, canTimeoutOrFlee: false);
+                            if (lordJob_AssaultColony != null)
+                            {
+                                LordMaker.MakeNewLord(enemyFaction, lordJob_AssaultColony, map, attackers);
+                            }
+                            Find.TickManager.Notify_GeneratedPotentiallyHostileMap();
+                            CameraJumper.TryJump(attackers[0]);
+                        }, "GeneratingMapForNewEncounter", false, null);
+                    }
                 }
                 else
                 {
-                    Map map = CaravanIncidentUtility.SetupCaravanAttackMap(playerCaravan, attackers, sendLetterIfRelatedPawns: false);
-                    parms.target = map;
-                    parms = ResolveRaidStrategy(parms, kindDef);
-                    parms.points = AdjustedRaidPoints((float)warObject.RimWarPoints, parms.raidArrivalMode, parms.raidStrategy, rwd.RimWarFaction, kindDef);
-                    CameraJumper.TryJumpAndSelect(playerCaravan);
-                    //TaleRecorder.RecordTale(TaleDefOf.CaravanAmbushedByHumanlike, playerCaravan.RandomOwner());
-                    LongEventHandler.QueueLongEvent(delegate
-                    {
-                        LordJob_AssaultColony lordJob_AssaultColony = new LordJob_AssaultColony(enemyFaction, canKidnap: true, canTimeoutOrFlee: false);
-                        if (lordJob_AssaultColony != null)
-                        {
-                            LordMaker.MakeNewLord(enemyFaction, lordJob_AssaultColony, map, attackers);
-                        }
-                        Find.TickManager.Notify_GeneratedPotentiallyHostileMap();
-                        CameraJumper.TryJump(attackers[0]);
-                    }, "GeneratingMapForNewEncounter", false, null);
+                    IncidentWorker_CaravanDemand iw_caravanDemand = new IncidentWorker_CaravanDemand();
+                    iw_caravanDemand.TryExecute(parms);
                 }
+                RW_Letter let = RW_LetterMaker.Make_RWLetter(RimWarDefOf.RimWar_HostileEvent);
+                let.label = "RW_CaravanAmbush".Translate(playerCaravan.Label);
+                let.text = "RW_CaravanAmbushedText".Translate(playerCaravan.Label, warObject.Label, warObject.RimWarPoints);
+                let.lookTargets = playerCaravan;
+                let.relatedFaction = warObject.Faction;
+                RW_LetterMaker.Archive_RWLetter(let);
             }
-            else
-            {
-                IncidentWorker_CaravanDemand iw_caravanDemand = new IncidentWorker_CaravanDemand();
-                iw_caravanDemand.TryExecute(parms);
-            }
-            RW_Letter let = RW_LetterMaker.Make_RWLetter(RimWarDefOf.RimWar_HostileEvent);
-            let.label = "RW_CaravanAmbush".Translate(playerCaravan.Label);
-            let.text = "RW_CaravanAmbushedText".Translate(playerCaravan.Label, warObject.Label, warObject.RimWarPoints);
-            let.lookTargets = playerCaravan;
-            let.relatedFaction = warObject.Faction;
-            RW_LetterMaker.Archive_RWLetter(let);
 
         }
 
@@ -618,21 +671,24 @@ namespace RimWar.Planet
 
         public static void DoSettlementTradeWithPoints(WarObject warObject, RimWorld.Planet.Settlement playerSettlement, RimWarData rwd, PawnsArrivalModeDef arrivalMode)
         {
-            IncidentParms parms = new IncidentParms();
-            PawnGroupKindDef kindDef = PawnGroupKindDefOf.Trader;
-            parms.faction = rwd.RimWarFaction;
-            parms.raidArrivalMode = arrivalMode;
-            parms.points = warObject.RimWarPoints;
-            parms.target = playerSettlement.Map;
-            IncidentWorker_TraderCaravanArrival iw_tca = new IncidentWorker_TraderCaravanArrival();
-            iw_tca.TryExecute(parms);
+            if (rwd != null && Find.FactionManager.AllFactions.Contains(rwd.RimWarFaction) && !rwd.RimWarFaction.defeated)
+            {
+                IncidentParms parms = new IncidentParms();
+                PawnGroupKindDef kindDef = PawnGroupKindDefOf.Trader;
+                parms.faction = rwd.RimWarFaction;
+                parms.raidArrivalMode = arrivalMode;
+                parms.points = warObject.RimWarPoints;
+                parms.target = playerSettlement.Map;
+                IncidentWorker_TraderCaravanArrival iw_tca = new IncidentWorker_TraderCaravanArrival();
+                iw_tca.TryExecute(parms);
 
-            RW_Letter let = RW_LetterMaker.Make_RWLetter(RimWarDefOf.RimWar_FriendlyEvent);
-            let.label = "RW_SettlementTrade".Translate(playerSettlement.Label);
-            let.text = "RW_SettlementTradeText".Translate(playerSettlement.Label, warObject.Label);
-            let.lookTargets = playerSettlement;
-            let.relatedFaction = warObject.Faction;
-            RW_LetterMaker.Archive_RWLetter(let);
+                RW_Letter let = RW_LetterMaker.Make_RWLetter(RimWarDefOf.RimWar_FriendlyEvent);
+                let.label = "RW_SettlementTrade".Translate(playerSettlement.Label);
+                let.text = "RW_SettlementTradeText".Translate(playerSettlement.Label, warObject.Label);
+                let.lookTargets = playerSettlement;
+                let.relatedFaction = warObject.Faction;
+                RW_LetterMaker.Archive_RWLetter(let);
+            }
         }
 
         public static void DoPeaceTalks_Caravan(WarObject warObject, Caravan playerCaravan, RimWarData rwd, PawnsArrivalModeDef arrivalMode)
@@ -711,7 +767,7 @@ namespace RimWar.Planet
                 {
                     Log.Error("No raid stategy found, defaulting to ImmediateAttack. Faction=" + parms.faction.def.defName + ", points=" + parms.points + ", groupKind=" + groupKind + ", parms=" + parms);
                     parms.raidStrategy = RaidStrategyDefOf.ImmediateAttack;
-                }
+                }                
             }
             return parms;
         }

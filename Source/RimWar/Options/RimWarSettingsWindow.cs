@@ -96,6 +96,14 @@ namespace RimWar.Options
             Rect rect7 = new Rect(0f, num, 400f, 30f);
             Widgets.CheckboxLabeled(rect7, "RW_playerVSworld".Translate(), ref Settings.Instance.playerVS, false);
             TooltipHandler.TipRegion(rect7, "RW_playerVSworldInfo".Translate());
+            num += 40f;
+            Rect rect8 = new Rect(0f, num, 400f, 30f);
+            Widgets.CheckboxLabeled(rect8, "RW_randomizeFactionRelations".Translate(), ref Settings.Instance.randomizeFactionBehavior, false);
+            TooltipHandler.TipRegion(rect8, "RW_randomizeFactionRelationsInfo".Translate());
+            num += 40f;
+            Rect rect9 = new Rect(0f, num, 400f, 30f);
+            Widgets.CheckboxLabeled(rect9, "RW_useRimWarVictory".Translate(), ref Settings.Instance.useRimWarVictory, false);
+            TooltipHandler.TipRegion(rect9, "RW_useRimWarVictoryInfo".Translate());
             GUI.EndGroup();
         }
     }

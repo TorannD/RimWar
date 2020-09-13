@@ -12,6 +12,7 @@ namespace RimWar.Options
         public bool storytellerBasedDifficulty = Settings.Instance.storytellerBasedDifficulty;
         public float rimwarDifficulty = Settings.Instance.rimwarDifficulty;
         public bool createDiplomats = Settings.Instance.createDiplomats;
+        public bool useRimWarVictory = Settings.Instance.useRimWarVictory;
 
         public int maxFactionSettlements = Settings.Instance.maxFactionSettlements;
         public float settlementScanRangeDivider = Settings.Instance.settlementScanRangeDivider;
@@ -30,6 +31,7 @@ namespace RimWar.Options
 
         public bool playerVS = Settings.Instance.playerVS;
         public float planetCoverageCustom = Settings.Instance.planetCoverageCustom;
+        public bool randomizeFactionRelations = Settings.Instance.randomizeFactionRelations; 
         
     }
 }
