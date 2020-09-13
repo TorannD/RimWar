@@ -52,9 +52,13 @@ namespace RimWar.Options
             Rect rowRect11 = UIHelper.GetRowRect(rowRect1, rowHeight, num);
             Widgets.CheckboxLabeled(rowRect11, "RW_forceRandomObject".Translate(), ref Settings.Instance.forceRandomObject, false);
             TooltipHandler.TipRegion(rowRect11, "RW_forceRandomObjectInfo".Translate());
+            num++;
+            Rect rowRect12 = UIHelper.GetRowRect(rowRect11, rowHeight, num);
+            Widgets.CheckboxLabeled(rowRect12, "RW_useRimWarVictory".Translate(), ref Settings.Instance.useRimWarVictory, false);
+            TooltipHandler.TipRegion(rowRect12, "RW_useRimWarVictoryInfo".Translate());
             //Widgets.CheckboxLabeled(rowRect11, "RW_createDiplomats".Translate(), ref Settings.Instance.createDiplomats, false);
             num++;
-            num++;
+            //num++;
             Rect rowRect2 = UIHelper.GetRowRect(rowRect1, rowHeight, num);
             rowRect2.width = canvas.width * .8f;
             Settings.Instance.maxFactionSettlements = Mathf.RoundToInt(Widgets.HorizontalSlider(rowRect2, Settings.Instance.maxFactionSettlements, 1, 100, false, "RW_maxFactionSettlements".Translate() + " " + Settings.Instance.maxFactionSettlements, "1", "100", 1f));
@@ -93,7 +97,7 @@ namespace RimWar.Options
             TooltipHandler.TipRegion(rowRect93, "RW_letterNotificationRangeInfo".Translate());
             //Widgets.CheckboxLabeled(rowRect92, "RW_forceRandomObject".Translate(), ref Settings.Instance.forceRandomObject, false);
             num++;
-            num++;
+            //num++;
             Rect rowRect20 = UIHelper.GetRowRect(rowRect92, rowHeight, num);
             rowRect20.width = 120f;
 

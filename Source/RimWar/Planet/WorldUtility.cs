@@ -1038,15 +1038,15 @@ namespace RimWar.Planet
         public static Settlement GetClosestRimWarSettlementInRWDTo(RimWarData rwd, int tile, int maxEvalRange = 100)
         {
             WorldUtility.Get_WCPT().UpdateFactionSettlements(rwd);
-            List<Settlement> settlements = rwd.FactionSettlements;
-            Settlement closestSettlement = null;
-            int distance = 0;
-            if(settlements != null && settlements.Count > 0)
+            if (rwd != null && rwd.FactionSettlements != null && rwd.FactionSettlements.Count > 0)
             {
-                for(int i = 0; i < settlements.Count; i++)
+                List<Settlement> settlements = rwd.FactionSettlements;
+                Settlement closestSettlement = null;
+                int distance = 0;
+                for (int i = 0; i < settlements.Count; i++)
                 {
-                    if(closestSettlement == null)
-                    {                        
+                    if (closestSettlement == null)
+                    {
                         closestSettlement = settlements[i];
                         distance = Find.WorldGrid.TraversalDistanceBetween(tile, closestSettlement.Tile, false, 500);
                     }
@@ -1059,9 +1059,10 @@ namespace RimWar.Planet
                             distance = dist;
                         }
                     }
-                }
+                }                
+                return closestSettlement;
             }
-            return closestSettlement;
+            return null;
         }
 
         public static List<Settlement> GetHostileRimWarSettlementsInRange(int from, int range, Faction faction, List<RimWarData> rwdList, RimWarData rwd)

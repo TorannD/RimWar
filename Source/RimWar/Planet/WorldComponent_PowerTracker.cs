@@ -26,12 +26,14 @@ namespace RimWar.Planet
         public Faction victoryFaction = null;
         private bool victoryDeclared = false;
         private bool rwdInitialized = false;
+        private bool rwdInitVictory = false;
         public List<CaravanTargetData> caravanTargetData = new List<CaravanTargetData>();
 
         public override void ExposeData()
         {
             base.ExposeData();
             Scribe_Values.Look<bool>(ref this.rwdInitialized, "rwdInitialized", false, false);
+            Scribe_Values.Look<bool>(ref this.rwdInitVictory, "rwdInitVictory", false, false);
             Scribe_Values.Look<bool>(ref this.victoryDeclared, "victoryDeclared", false, false);
             Scribe_Values.Look<int>(ref this.objectsCreated, "objectsCreated", 0, false);
             Scribe_Values.Look<int>(ref this.creationAttempts, "creationAttewmpts", 0, false);
@@ -157,7 +159,7 @@ namespace RimWar.Planet
             {
                 WorldUtility.ValidateFactions(true);
                 UpdateFactions();
-                if (settingsRef.useRimWarVictory && !victoryDeclared)
+                if (settingsRef.useRimWarVictory && !victoryDeclared && this.rwdInitVictory)
                 {
                     CheckVictoryConditions();
                 }
@@ -487,6 +489,7 @@ namespace RimWar.Planet
             {
                 GetFactionForVictoryChallenge();
             }
+            this.rwdInitVictory = settingsRef.useRimWarVictory;
             this.AllRimWarSettlements = WorldUtility.GetRimWarSettlements(RimWarData);            
         }
 
@@ -733,16 +736,16 @@ namespace RimWar.Planet
                 //look for settlements not assigned a RimWar Settlement
                 for (int i = 0; i < worldObjects.Count; i++)
                 {
-                    if (worldObjects[i].Faction == rwd.RimWarFaction && Find.WorldObjects.AnySettlementAt(worldObjects[i].Tile))
+                    RimWorld.Planet.Settlement wos = worldObjects[i] as RimWorld.Planet.Settlement;
+                    if (wos != null && wos.Faction == rwd.RimWarFaction)
                     {
-                        WorldObject wo = WorldObjects[i];
                         bool hasSettlement = false;
                         if (rwd.FactionSettlements != null && rwd.FactionSettlements.Count > 0)
                         {
                             for (int j = 0; j < rwd.FactionSettlements.Count; j++)
                             {
                                 Settlement rwdTown = rwd.FactionSettlements[j];
-                                if (rwdTown.Tile == wo.Tile)
+                                if (rwdTown.Tile == wos.Tile)
                                 {
                                     hasSettlement = true;
                                     break;
@@ -751,7 +754,7 @@ namespace RimWar.Planet
                         }
                         if(!hasSettlement)
                         {
-                            WorldUtility.CreateRimWarSettlement(rwd, wo);
+                            WorldUtility.CreateRimWarSettlement(rwd, wos);
                         }
                     }
                 }
@@ -762,8 +765,8 @@ namespace RimWar.Planet
                     bool hasWorldObject = false;
                     for (int j =0; j < worldObjects.Count; j++)
                     {
-                        WorldObject wo = worldObjects[j];
-                        if(wo.Tile == rwdTown.Tile && wo.Faction == rwdTown.Faction && Find.WorldObjects.AnySettlementAt(wo.Tile))
+                        RimWorld.Planet.Settlement wos = worldObjects[j] as RimWorld.Planet.Settlement;
+                        if(wos != null && wos.Tile == rwdTown.Tile && wos.Faction == rwdTown.Faction)
                         {
                             hasWorldObject = true;
                             break;

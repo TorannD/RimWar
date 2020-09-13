@@ -321,7 +321,10 @@ namespace RimWar.Planet
 
         public virtual void ImmediateAction(WorldObject wo)
         {
-            this.Destroy();
+            if (!this.Destroyed)
+            {
+                this.Destroy();
+            }
             if (Find.WorldObjects.Contains(this))
             {
                 Find.WorldObjects.Remove(this);
@@ -330,7 +333,10 @@ namespace RimWar.Planet
 
         public virtual void ArrivalAction()
         {
-            this.Destroy();
+            if (!this.Destroyed)
+            {
+                this.Destroy();
+            }
             if (Find.WorldObjects.Contains(this))
             {
                 Find.WorldObjects.Remove(this);
