@@ -143,10 +143,6 @@ namespace RimWar.Planet
                 //scan for nearby engagements
                 this.searchTick = Rand.Range(2000, 3000);
                 ScanNearby(1); //WorldUtility.GetRimWarDataForFaction(this.Faction).GetEngagementRange()
-                if (this.DestinationTarget != null && this.DestinationTarget.Tile != pather.Destination)
-                {
-                    PathToTarget(this.DestinationTarget);
-                }
                 if(this.RimWarPoints >= 100000)
                 {
                     ReAssignParentSettlement();
@@ -287,7 +283,7 @@ namespace RimWar.Planet
 
         public override void ArrivalAction()
         {
-            //Log.Message("beginning arrival actions");
+            //Log.Message("trader arrival action with destiantion " + this.DestinationTarget);
             WorldObject wo = this.DestinationTarget;
             if (wo != null)
             {

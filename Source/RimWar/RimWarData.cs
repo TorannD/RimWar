@@ -16,7 +16,7 @@ namespace RimWar
         public int lastEventTick = 0;
         public List<WorldObject> factionWorldObjects;
 
-        public RimWarBehavior behavior;
+        public RimWarBehavior behavior = RimWarBehavior.Undefined;
         public bool createsSettlements;
         public bool hatesPlayer;
         public bool movesAtNight;

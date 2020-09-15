@@ -10,8 +10,7 @@ using Verse;
 namespace RimWar.Planet
 {
     public class Warband : WarObject
-    {
-        public bool launched = false;
+    {        
         private int lastEventTick = 0;        
         private int ticksPerMove = 2300;
         private int searchTick = 60;               
@@ -137,11 +136,6 @@ namespace RimWar.Planet
                 this.searchTick = Rand.Range(2000, 3000);
                 ScanForNearbyEnemy(1); //WorldUtility.GetRimWarDataForFaction(this.Faction).GetEngagementRange()
                 Notify_Player();
-                if (this.DestinationTarget != null && this.DestinationTarget.Tile != pather.Destination)
-                {
-                    this.launched = false;
-                    PathToTarget(this.DestinationTarget);
-                }
                 if (DestinationTarget is WarObject || DestinationTarget is Caravan)
                 {
                     EngageNearbyEnemy();

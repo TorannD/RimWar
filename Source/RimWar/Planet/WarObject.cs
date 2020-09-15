@@ -23,6 +23,7 @@ namespace RimWar.Planet
         private Material cachedMat;
 
         private bool movesAtNight = false;
+        public bool launched = false;
         private bool cachedImmobilized;
         private int cachedImmobilizedForTicks = -99999;
         private const int ImmobilizedCacheDuration = 60;
@@ -35,6 +36,15 @@ namespace RimWar.Planet
         public int nextMoveTickIncrement = 0;
         public bool canReachDestination = true;
         public bool playerNotified = false;
+
+        private bool useDestinationTile = false;
+        public virtual bool UseDestinationTile
+        {
+            get
+            {
+                return useDestinationTile;
+            }                
+        }
 
         private int nextMoveTick;
         public virtual int NextMoveTick
@@ -103,6 +113,10 @@ namespace RimWar.Planet
         {
             get
             {
+                if (targetWorldObject != null && targetWorldObject.Destroyed)
+                {
+                    targetWorldObject = null;
+                }
                 return this.targetWorldObject;
             }
             set
@@ -289,6 +303,22 @@ namespace RimWar.Planet
                 Options.SettingsRef settingsRef = new Options.SettingsRef();
                 this.nextMoveTickIncrement = (int)Rand.Range(settingsRef.woEventFrequency * .9f, settingsRef.woEventFrequency * 1.1f);
                 this.NextMoveTick = Find.TickManager.TicksGame + this.nextMoveTickIncrement;
+                if (!UseDestinationTile)
+                {
+                    if (this.DestinationTarget != null)
+                    {
+                        if (DestinationTarget.Tile != pather.Destination)
+                        {
+                            this.launched = false;
+                            PathToTargetTile(DestinationTarget.Tile);
+                        }
+                    }
+                    else
+                    {
+                        canReachDestination = false;
+                        pather.StopDead();
+                    }
+                }
                 if (!canReachDestination)
                 {
                     ValidateParentSettlement();
@@ -296,8 +326,13 @@ namespace RimWar.Planet
                     {
                         FindParentSettlement();
                     }
+                    if(ParentSettlement != null && (!Utility.WorldReachability.CanReach(this.Tile, ParentSettlement.Tile) || Find.WorldGrid.ApproxDistanceInTiles(this.Tile, ParentSettlement.Tile) > 100))
+                    {
+                        this.Destroy();
+                    }
                     this.canReachDestination = true;
-                    PathToTarget(ParentSettlement.RimWorld_Settlement);
+                    this.DestinationTarget = ParentSettlement.RimWorld_Settlement;
+                    PathToTarget(this.DestinationTarget);
                 }
             }
         }

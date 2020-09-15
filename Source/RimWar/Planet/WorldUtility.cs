@@ -108,14 +108,42 @@ namespace RimWar.Planet
             }
         }
 
-        public static void CreateSettlement(WarObject warObject, RimWarData rwd, int tile, Faction faction)
+        public static void CreateSettlement(WarObject warObject, List<WorldObject> objectsHere, RimWarData rwd, int tile, Faction faction)
         {
-            //Log.Message("creating settlement");
-            RimWorld.Planet.Settlement worldSettlement = SettleUtility.AddNewHome(tile, faction);
-            if(warObject != null)
+            //Log.Message("creating settlement");     
+            if (ValidForSettlement(warObject, objectsHere, rwd, tile, faction))
             {
-                CreateRimWarSettlement(rwd, worldSettlement);
+                RimWorld.Planet.Settlement worldSettlement = SettleUtility.AddNewHome(tile, faction);
+                if (warObject != null)
+                {
+                    CreateRimWarSettlement(rwd, worldSettlement);
+                }
             }
+            else
+            {
+                Settler settler = warObject as Settler;
+                if(settler != null && settler.ParentSettlement != null && settler.ParentSettlement.Tile != tile)
+                {
+                    ConsolidatePoints reconstitute = new ConsolidatePoints(Mathf.RoundToInt(.6f * settler.RimWarPoints), Mathf.RoundToInt(Find.WorldGrid.TraversalDistanceBetween(settler.Tile, settler.ParentSettlement.Tile) * settler.TicksPerMove) + Find.TickManager.TicksGame);
+                    settler.ParentSettlement.SettlementPointGains.Add(reconstitute);
+                }
+            }
+        }
+
+        public static bool ValidForSettlement(WarObject warObject, List<WorldObject> objectsHere, RimWarData rwd, int tile, Faction faction)
+        {
+            if(warObject != null && !warObject.Destroyed && objectsHere != null && rwd != null && rwd.FactionSettlements != null && rwd.FactionSettlements.Count > 0 && faction != null && !faction.defeated)
+            {
+                for(int i = 0; i < objectsHere.Count; i++)
+                {                    
+                    if(objectsHere[i].Tile == tile && !(objectsHere[i] is WarObject))
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            return false;
         }
 
         public static void ConvertSettlement(RimWorld.Planet.Settlement worldSettlement, RimWar.Planet.Settlement rimwarSettlement, RimWarData rwdFrom, RimWarData rwdTo, int points)
@@ -290,32 +318,39 @@ namespace RimWar.Planet
         public static void CreateWarband(int power, RimWarData rwd, Settlement parentSettlement, int startingTile, int destinationTile, WorldObjectDef worldDef, bool launched = false)
         {
             //Log.Message("generating warband for " + rwd.RimWarFaction.Name + " from " + startingTile + " to " + destinationTile);
-            Options.SettingsRef settingsRef = new Options.SettingsRef();
-            Warband warband = new Warband();            
-            warband = MakeWarband(rwd.RimWarFaction, startingTile);
-            warband.ParentSettlement = parentSettlement;
-            warband.MovesAtNight = rwd.movesAtNight;
-            warband.RimWarPoints = power;
-            warband.launched = launched;
-            warband.TicksPerMove = (int)(warband.TicksPerMove / settingsRef.objectMovementMultiplier);
-            warband.DestinationTarget = Find.World.worldObjects.WorldObjectOfDefAt(worldDef, destinationTile);
-            if (rwd.behavior == RimWarBehavior.Warmonger)
+            try
             {
-                warband.TicksPerMove = (int)(warband.TicksPerMove * .9f);
+                Options.SettingsRef settingsRef = new Options.SettingsRef();
+                Warband warband = new Warband();
+                warband = MakeWarband(rwd.RimWarFaction, startingTile);
+                warband.ParentSettlement = parentSettlement;
+                warband.MovesAtNight = rwd.movesAtNight;
+                warband.RimWarPoints = power;
+                warband.launched = launched;
+                warband.TicksPerMove = (int)(warband.TicksPerMove / settingsRef.objectMovementMultiplier);
+                warband.DestinationTarget = Find.WorldObjects.WorldObjectOfDefAt(worldDef, destinationTile);                
+                if (rwd.behavior == RimWarBehavior.Warmonger)
+                {
+                    warband.TicksPerMove = (int)(warband.TicksPerMove * .9f);
+                }
+                if (rwd.behavior == RimWarBehavior.Merchant)
+                {
+                    warband.TicksPerMove = (int)(warband.TicksPerMove * 1.1f);
+                }
+                if (launched)
+                {
+                    warband.ArrivalAction();
+                }
+                else if (!warband.pather.Moving && warband.Tile != destinationTile)
+                {
+                    warband.pather.StartPath(destinationTile, true);
+                    warband.pather.nextTileCostLeft /= 2f;
+                    warband.tweener.ResetTweenedPosToRoot();
+                }
             }
-            if(rwd.behavior == RimWarBehavior.Merchant)
+            catch (NullReferenceException ex)
             {
-                warband.TicksPerMove = (int)(warband.TicksPerMove * 1.1f);
-            }
-            if (launched)
-            {
-                warband.ArrivalAction();
-            }
-            else if (!warband.pather.Moving && warband.Tile != destinationTile)
-            {
-                warband.pather.StartPath(destinationTile, true);
-                warband.pather.nextTileCostLeft /= 2f;
-                warband.tweener.ResetTweenedPosToRoot();                
+                Log.Message("failed to create warband\n rwd: " + rwd + " parent " + parentSettlement + " start " + startingTile + " end " + destinationTile + " def " + worldDef + "\n" + ex);
             }
             
             //Log.Message("end create warband");
@@ -341,15 +376,22 @@ namespace RimWar.Planet
         public static void CreateLaunchedWarband(int power, RimWarData rwd, Settlement parentSettlement, int startingTile, int destinationTile, WorldObjectDef worldDef)
         {
             //Log.Message("generating warband for " + rwd.RimWarFaction.Name + " from " + startingTile + " to " + destinationTile);
-            LaunchedWarband warband = new LaunchedWarband();
-            warband = MakeLaunchedWarband(rwd.RimWarFaction, startingTile);
-            warband.ParentSettlement = parentSettlement;
-            warband.RimWarPoints = power;
-
-            if (warband.Tile != destinationTile)
+            try
             {
-                warband.DestinationTarget = Find.World.worldObjects.WorldObjectOfDefAt(worldDef, destinationTile);
-                warband.destinationTile = destinationTile;
+                LaunchedWarband warband = new LaunchedWarband();
+                warband = MakeLaunchedWarband(rwd.RimWarFaction, startingTile);
+                warband.ParentSettlement = parentSettlement;
+                warband.RimWarPoints = power;
+
+                if (warband.Tile != destinationTile)
+                {
+                    warband.DestinationTarget = Find.World.worldObjects.WorldObjectOfDefAt(worldDef, destinationTile);
+                    warband.destinationTile = destinationTile;
+                }
+            }
+            catch (NullReferenceException ex)
+            {
+                Log.Message("failed to create warband\n rwd: " + rwd + " parent " + parentSettlement + " start " + startingTile + " end " + destinationTile + " def " + worldDef + "\n" + ex);
             }
             //Log.Message("end create warband");
         }
@@ -374,31 +416,38 @@ namespace RimWar.Planet
         public static void CreateScout(int power, RimWarData rwd, Settlement parentSettlement, int startingTile, int destinationTile, WorldObjectDef worldDef)
         {
             //Log.Message("generating scout for " + rwd.RimWarFaction.Name + " from " + startingTile + " to " + destinationTile);
-            Options.SettingsRef settingsRef = new Options.SettingsRef();
-            Scout scout = new Scout();
-            scout = MakeScout(rwd.RimWarFaction, startingTile);
-            scout.ParentSettlement = parentSettlement;
-            scout.MovesAtNight = rwd.movesAtNight;
-            scout.RimWarPoints = power;
-            scout.TicksPerMove = (int)(scout.TicksPerMove / settingsRef.objectMovementMultiplier);
-            if (rwd.behavior == RimWarBehavior.Expansionist)
-            {
-                scout.TicksPerMove = (int)(scout.TicksPerMove * .8f);
+            try
+            { 
+                Options.SettingsRef settingsRef = new Options.SettingsRef();
+                Scout scout = new Scout();
+                scout = MakeScout(rwd.RimWarFaction, startingTile);
+                scout.ParentSettlement = parentSettlement;
+                scout.MovesAtNight = rwd.movesAtNight;
+                scout.RimWarPoints = power;
+                scout.TicksPerMove = (int)(scout.TicksPerMove / settingsRef.objectMovementMultiplier);
+                if (rwd.behavior == RimWarBehavior.Expansionist)
+                {
+                    scout.TicksPerMove = (int)(scout.TicksPerMove * .8f);
+                }
+                else if (rwd.behavior == RimWarBehavior.Aggressive)
+                {
+                    scout.TicksPerMove = (int)(scout.TicksPerMove * .9f);
+                }
+                else if(rwd.behavior == RimWarBehavior.Warmonger)
+                {
+                    scout.TicksPerMove = (int)(scout.TicksPerMove * .9f);
+                }
+                if (!scout.pather.Moving && scout.Tile != destinationTile)
+                {
+                    scout.pather.StartPath(destinationTile, true);
+                    scout.pather.nextTileCostLeft /= 2f;
+                    scout.tweener.ResetTweenedPosToRoot();
+                    scout.DestinationTarget = Find.World.worldObjects.WorldObjectOfDefAt(worldDef, destinationTile);
+                }
             }
-            else if (rwd.behavior == RimWarBehavior.Aggressive)
+            catch (NullReferenceException ex)
             {
-                scout.TicksPerMove = (int)(scout.TicksPerMove * .9f);
-            }
-            else if(rwd.behavior == RimWarBehavior.Warmonger)
-            {
-                scout.TicksPerMove = (int)(scout.TicksPerMove * .9f);
-            }
-            if (!scout.pather.Moving && scout.Tile != destinationTile)
-            {
-                scout.pather.StartPath(destinationTile, true);
-                scout.pather.nextTileCostLeft /= 2f;
-                scout.tweener.ResetTweenedPosToRoot();
-                scout.DestinationTarget = Find.World.worldObjects.WorldObjectOfDefAt(worldDef, destinationTile);
+                Log.Message("failed to create warband\n rwd: " + rwd + " parent " + parentSettlement + " start " + startingTile + " end " + destinationTile + " def " + worldDef + "\n" + ex);
             }
             //Log.Message("end create scout");
         }
@@ -423,33 +472,41 @@ namespace RimWar.Planet
         public static Trader CreateTrader(int power, RimWarData rwd, Settlement parentSettlement, int startingTile, int destinationTile, WorldObjectDef worldDef)
         {
             //Log.Message("generating trader for " + rwd.RimWarFaction.Name + " from " + startingTile + " to " + destinationTile);
-            Options.SettingsRef settingsRef = new Options.SettingsRef();
-            Trader trader = new Trader();
-            trader = MakeTrader(rwd.RimWarFaction, startingTile);
-            trader.ParentSettlement = parentSettlement;
-            trader.MovesAtNight = rwd.movesAtNight;
-            trader.RimWarPoints = power;
-            trader.TicksPerMove = (int)(trader.TicksPerMove / settingsRef.objectMovementMultiplier);
-            if (rwd.behavior == RimWarBehavior.Expansionist)
+            try
             {
-                trader.TicksPerMove = (int)(trader.TicksPerMove * .9f);
+                Options.SettingsRef settingsRef = new Options.SettingsRef();
+                Trader trader = new Trader();
+                trader = MakeTrader(rwd.RimWarFaction, startingTile);
+                trader.ParentSettlement = parentSettlement;
+                trader.MovesAtNight = rwd.movesAtNight;
+                trader.RimWarPoints = power;
+                trader.TicksPerMove = (int)(trader.TicksPerMove / settingsRef.objectMovementMultiplier);
+                if (rwd.behavior == RimWarBehavior.Expansionist)
+                {
+                    trader.TicksPerMove = (int)(trader.TicksPerMove * .9f);
+                }
+                else if (rwd.behavior == RimWarBehavior.Merchant)
+                {
+                    trader.TicksPerMove = (int)(trader.TicksPerMove * .8f);
+                }
+                else if (rwd.behavior == RimWarBehavior.Warmonger)
+                {
+                    trader.TicksPerMove = (int)(trader.TicksPerMove * 1.2f);
+                }
+                if (!trader.pather.Moving && trader.Tile != destinationTile)
+                {
+                    trader.pather.StartPath(destinationTile, true);
+                    trader.pather.nextTileCostLeft /= 2f;
+                    trader.tweener.ResetTweenedPosToRoot();
+                    trader.DestinationTarget = Find.World.worldObjects.WorldObjectOfDefAt(worldDef, destinationTile);
+                }
+                return trader;
             }
-            else if (rwd.behavior == RimWarBehavior.Merchant)
+            catch (NullReferenceException ex)
             {
-                trader.TicksPerMove = (int)(trader.TicksPerMove * .8f);
+                Log.Message("failed to create trader\n rwd: " + rwd + " parent " + parentSettlement + " start " + startingTile + " end " + destinationTile + " def " + worldDef + "\n" + ex);
             }
-            else if(rwd.behavior == RimWarBehavior.Warmonger)
-            {
-                trader.TicksPerMove = (int)(trader.TicksPerMove * 1.2f);
-            }
-            if (!trader.pather.Moving && trader.Tile != destinationTile)
-            {
-                trader.pather.StartPath(destinationTile, true);
-                trader.pather.nextTileCostLeft /= 2f;
-                trader.tweener.ResetTweenedPosToRoot();
-                trader.DestinationTarget = Find.World.worldObjects.WorldObjectOfDefAt(worldDef, destinationTile);
-            }
-            return trader;
+            return null;
             //Log.Message("end create trader");
         }
 
@@ -521,7 +578,7 @@ namespace RimWar.Planet
 
         public static void CreateSettler(int power, RimWarData rwd, Settlement parentSettlement, int startingTile, int destinationTile, WorldObjectDef worldDef)
         {
-            //Log.Message("generating Settler for " + rwd.RimWarFaction.Name + " from " + startingTile + " to " + destinationTile);
+            //Log.Message("generating Settler for " + rwd.RimWarFaction.Name + " from " + startingTile + " to " + destinationTile); 
             Options.SettingsRef settingsRef = new Options.SettingsRef();
             Settler settler = new Settler();
             settler = MakeSettler(rwd.RimWarFaction, startingTile);
@@ -1186,6 +1243,38 @@ namespace RimWar.Planet
                     {
                         tmpObjects.Add(worldObjects[i]);
                     }
+                }
+            }
+            return tmpObjects;
+        }
+
+        public static List<WorldObject> GetAllWorldObjectsAt(int tile)
+        {
+            List<WorldObject> tmpObjects = new List<WorldObject>();
+            tmpObjects.Clear();
+            List<WorldObject> worldObjects = Find.WorldObjects.AllWorldObjects.ToList();
+            for (int i = 0; i < worldObjects.Count; i++)
+            {                 
+                if (tile == worldObjects[i].Tile)
+                {
+                    tmpObjects.Add(worldObjects[i]);
+                    continue;
+                }
+            }
+            return tmpObjects;
+        }
+
+        public static List<WorldObject> GetAllWorldObjectsAtExcept(int tile, WorldObject woThis)
+        {
+            List<WorldObject> tmpObjects = new List<WorldObject>();
+            tmpObjects.Clear();
+            List<WorldObject> worldObjects = Find.WorldObjects.AllWorldObjects.ToList();
+            for (int i = 0; i < worldObjects.Count; i++)
+            {
+                if (tile == worldObjects[i].Tile && woThis != worldObjects[i])
+                {
+                    tmpObjects.Add(worldObjects[i]);
+                    continue;
                 }
             }
             return tmpObjects;

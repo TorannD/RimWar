@@ -108,6 +108,10 @@ namespace RimWar.Planet
         {
             get
             {
+                if(targetWorldObject != null && targetWorldObject.Destroyed)
+                {
+                    targetWorldObject = null;
+                }
                 return this.targetWorldObject;
             }
             set
