@@ -32,10 +32,10 @@ namespace RimWar.Utility
                 woGTIList.Clear();
                 RimWar.Options.SettingsRef settingsRef = new Options.SettingsRef();
                 if (settingsRef.alertRange > 0)
-                {
+                {                    
                     foreach (WorldObject wo in WorldUtility.GetWorldObjectsInRange(Find.AnyPlayerHomeMap.Tile, settingsRef.alertRange))
                     {
-                        if (wo.Faction != Faction.OfPlayer)
+                        if (wo != null && wo.Faction != Faction.OfPlayer)
                         {
                             List<WarObject> tmpList = WorldUtility.GetRimWarObjectsAt(wo.Tile);
                             if (tmpList != null && tmpList.Count > 0)
@@ -47,7 +47,7 @@ namespace RimWar.Utility
                                 woGTIList.Add(wo);
                             }
                         }
-                    }
+                    }                    
                 }
                  
                 return woNearbyResult;
@@ -97,7 +97,19 @@ namespace RimWar.Utility
 
         public override AlertReport GetReport()
         {
-            return AlertReport.CulpritsAre(WOGTIList);
+
+            if (Find.AnyPlayerHomeMap != null)
+            {
+                return AlertReport.CulpritsAre(WOGTIList);
+            }
+            else
+            {
+                List<GlobalTargetInfo> nullList = new List<GlobalTargetInfo>();
+                nullList.Clear();
+                return AlertReport.CulpritsAre(nullList);
+            }
+
+            
         }
     }
 }

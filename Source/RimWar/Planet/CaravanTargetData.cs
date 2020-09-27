@@ -13,6 +13,16 @@ namespace RimWar.Planet
     {
         public Caravan caravan = null;
         public WarObject caravanTarget = null;
+
+        public bool shouldRegenerateCaravanTarget = false;
+        public WarObject rwo = null;
+        public int rwoPts = 0;
+        public int rwoTile = 0;
+        public int dstTile = 0;
+        public WorldObject dest = null;
+        public RimWorld.Planet.Settlement parent = null;
+        public Faction fac = null;
+        public RimWarData rwd = null;
         
         public int CaravanTile
         {
@@ -64,6 +74,10 @@ namespace RimWar.Planet
 
         public bool IsValid()
         {
+            if(shouldRegenerateCaravanTarget)
+            {
+                WorldUtility.CreateWarObjectOfType(caravanTarget, caravanTarget.RimWarPoints, caravanTarget.rimwarData, caravanTarget.ParentSettlement, caravanTarget.Tile, caravanTarget.DestinationTarget, null, caravanTarget.DestinationTile, false);
+            }
             if(caravan == null || caravanTarget == null)
             {
                 return false;

@@ -13,6 +13,7 @@ namespace RimWar.Options
         public float rimwarDifficulty = Settings.Instance.rimwarDifficulty;
         public bool createDiplomats = Settings.Instance.createDiplomats;
         public bool useRimWarVictory = Settings.Instance.useRimWarVictory;
+        public bool restrictEvents = Settings.Instance.restrictEvents;
 
         public int maxFactionSettlements = Settings.Instance.maxFactionSettlements;
         public float settlementScanRangeDivider = Settings.Instance.settlementScanRangeDivider;

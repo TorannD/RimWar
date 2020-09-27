@@ -14,6 +14,7 @@ namespace RimWar.Options
         public float rimwarDifficulty = 1f;
         public bool createDiplomats = false;
         public bool useRimWarVictory = true;
+        public bool restrictEvents = true;
 
         //limit controls
         public int maxFactionSettlements = 20;
@@ -47,6 +48,7 @@ namespace RimWar.Options
             Scribe_Values.Look<bool>(ref this.randomizeFactionBehavior, "randomizeFactionBehavior", false, false);
             Scribe_Values.Look<bool>(ref this.storytellerBasedDifficulty, "storytellerBasedDifficulty", true, false);
             Scribe_Values.Look<bool>(ref this.createDiplomats, "createDiplomats", false, false);
+            Scribe_Values.Look<bool>(ref this.restrictEvents, "restrictEvents", true, false);
             Scribe_Values.Look<bool>(ref this.useRimWarVictory, "useRimWarVictory", true, true);
             Scribe_Values.Look<float>(ref this.rimwarDifficulty, "rimwarDifficulty", 1f, false);
             Scribe_Values.Look<int>(ref this.maxFactionSettlements, "maxFactionSettlements", 20, false);

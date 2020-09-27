@@ -116,7 +116,10 @@ namespace RimWar.Planet
             {
                 //scan for nearby engagements
                 this.searchTick = Rand.Range(3000, 5000);
-                ScanForNearbyEnemy(1); //WorldUtility.GetRimWarDataForFaction(this.Faction).GetEngagementRange()
+                if (interactable)
+                {
+                    ScanForNearbyEnemy(1); //WorldUtility.GetRimWarDataForFaction(this.Faction).GetEngagementRange()
+                }
                 if(DestinationTarget != null)
                 {
                     if (this.DestinationTarget.Tile != pather.Destination)
@@ -195,19 +198,20 @@ namespace RimWar.Planet
 
         public void EngageNearbyEnemy()
         {
-            if (this.DestinationTarget != null && (this.DestinationTarget.Tile == this.Tile))
-            {
-                ImmediateAction(this.DestinationTarget);
-            }
-            else if (this.DestinationTarget != null && Find.WorldGrid.TraversalDistanceBetween(this.Tile, this.DestinationTarget.Tile) >= 1)
-            {
-                PathToTargetTile(this.DestinationTile);
-                this.DestinationTarget = null;
-            }
-            else
-            {
-                this.DestinationTarget = null;
-            }
+            ImmediateAction(this.DestinationTarget);
+            //if (this.DestinationTarget != null && (this.DestinationTarget.Tile == this.Tile))
+            //{
+            //    ImmediateAction(this.DestinationTarget);
+            //}
+            //else if (this.DestinationTarget != null && Find.WorldGrid.TraversalDistanceBetween(this.Tile, this.DestinationTarget.Tile) >= 1)
+            //{
+            //    PathToTargetTile(this.DestinationTile);
+            //    this.DestinationTarget = null;
+            //}
+            //else
+            //{
+            //    this.DestinationTarget = null;
+            //}
         }
 
         public override void ImmediateAction(WorldObject wo)
@@ -216,9 +220,9 @@ namespace RimWar.Planet
             {
                 if(wo.Faction != null && wo.Faction.HostileTo(this.Faction))
                 {
-                    if(wo is Caravan)
+                    if(wo is Caravan && interactable)
                     {
-                        IncidentUtility.DoCaravanAttackWithPoints(this, wo as Caravan, this.rimwarData, IncidentUtility.PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.EdgeWalkIn));
+                        IncidentUtility.DoCaravanAttackWithPoints(this, wo as Caravan, this.rimwarData, IncidentUtility.PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.EdgeWalkIn), PawnGroupKindDefOf.Peaceful);
                         base.ImmediateAction(wo);
                     }
                 }                
@@ -293,10 +297,10 @@ namespace RimWar.Planet
                         //Log.Message("this tile: " + this.Tile + " parent settlement tile: " + this.ParentSettlement.Tile);
                         if(wo is RimWorld.Planet.Settlement)
                         {
-                            Settlement settlement = WorldUtility.GetRimWarSettlementAtTile(wo.Tile);
-                            if(settlement != null)
+                            RimWarSettlementComp rwsc = wo.GetComponent<RimWarSettlementComp>();
+                            if(rwsc != null)
                             {
-                                settlement.RimWarPoints += this.RimWarPoints;
+                                rwsc.RimWarPoints += this.RimWarPoints;
                             }
                         }
                     }

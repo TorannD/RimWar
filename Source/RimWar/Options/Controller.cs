@@ -46,7 +46,7 @@ namespace RimWar.Options
             rowRect1ShiftRight.x += rowRect1.width + 56f;
             if (!Settings.Instance.storytellerBasedDifficulty)
             {
-                Settings.Instance.rimwarDifficulty = Widgets.HorizontalSlider(rowRect1ShiftRight, Settings.Instance.rimwarDifficulty, 0, 5f, false, "RW_rimwarDifficulty".Translate() + " " + Settings.Instance.rimwarDifficulty, "0.0", "5.0", .1f);
+                Settings.Instance.rimwarDifficulty = Widgets.HorizontalSlider(rowRect1ShiftRight, Settings.Instance.rimwarDifficulty, .5f, 2f, false, "RW_rimwarDifficulty".Translate() + " " + Settings.Instance.rimwarDifficulty, "0.5", "2", .1f);
             }
             num++;
             Rect rowRect11 = UIHelper.GetRowRect(rowRect1, rowHeight, num);
@@ -57,6 +57,10 @@ namespace RimWar.Options
             Widgets.CheckboxLabeled(rowRect12, "RW_useRimWarVictory".Translate(), ref Settings.Instance.useRimWarVictory, false);
             TooltipHandler.TipRegion(rowRect12, "RW_useRimWarVictoryInfo".Translate());
             //Widgets.CheckboxLabeled(rowRect11, "RW_createDiplomats".Translate(), ref Settings.Instance.createDiplomats, false);
+            num++;
+            Rect rowRect13 = UIHelper.GetRowRect(rowRect12, rowHeight, num);
+            Widgets.CheckboxLabeled(rowRect13, "RW_restrictEvents".Translate(), ref Settings.Instance.restrictEvents, false);
+            TooltipHandler.TipRegion(rowRect13, "RW_restrictEventsInfo".Translate());
             num++;
             //num++;
             Rect rowRect2 = UIHelper.GetRowRect(rowRect1, rowHeight, num);

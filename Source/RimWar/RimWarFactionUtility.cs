@@ -102,7 +102,7 @@ namespace RimWar
                     + faction.leader.Name.ToStringFull))
                     + "\n" + "RW_FactionBehavior".Translate(rwd == null ? RimWarBehavior.Undefined.ToString() : rwd.behavior.ToString())
                     + "\n" + "RW_FactionPower".Translate(rwd == null ? 0 : rwd.TotalFactionPoints)
-                    + "\n" + "RW_SettlementCount".Translate((rwd != null && rwd.FactionSettlements != null && rwd.FactionSettlements.Count > 0) ? rwd.FactionSettlements.Count : 0)
+                    + "\n" + "RW_SettlementCount".Translate((rwd != null && rwd.WorldSettlements != null && rwd.WorldSettlements.Count > 0) ? rwd.WorldSettlements.Count : 0)
                     + "\n" + "RW_WarObjectCount".Translate((rwd != null && WorldUtility.GetWarObjectsInFaction(faction) != null) ? WorldUtility.GetWarObjectsInFaction(faction).Count : 0)
                     + ((faction != WorldUtility.Get_WCPT().victoryFaction) ? string.Empty : "\n" + (string)"RW_RivalFaction".Translate());
                 Widgets.Label(rect, label);

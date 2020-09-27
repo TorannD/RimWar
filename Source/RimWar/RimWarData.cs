@@ -7,11 +7,19 @@ using RimWorld.Planet;
 using Verse;
 using UnityEngine;
 using RimWar.Planet;
+using HarmonyLib;
 
 namespace RimWar
 {
-    public class RimWarData : IExposable
+    public class RimWarData : IExposable, ILoadReferenceable
     {
+
+        public int uniqueID = -1;
+        public string GetUniqueLoadID()
+        {
+            return "RimWarData_" + uniqueID;
+        }
+
         private Faction rimwarFaction;
         public int lastEventTick = 0;
         public List<WorldObject> factionWorldObjects;
@@ -34,6 +42,7 @@ namespace RimWar
 
         public void ExposeData()
         {
+            Scribe_Values.Look(ref uniqueID, "uniqueID", -1);
             Scribe_Values.Look<float>(ref this.settlerChance, "settlerChance", 0, false);
             Scribe_Values.Look<float>(ref this.warbandChance, "warbandChance", 1f, false);
             Scribe_Values.Look<float>(ref this.warbandLaunchChance, "warbandLaunchChance", 0, false);
@@ -47,23 +56,160 @@ namespace RimWar
             Scribe_Values.Look<int>(ref this.lastEventTick, "lastEventTick", 0, false);
             Scribe_Defs.Look<BiomeDef>(ref this.biomeDef, "biomeDef");
             Scribe_References.Look<Faction>(ref this.rimwarFaction, "rimwarFaction");
-            Scribe_Collections.Look<Warband>(ref this.factionWarbands, "factionWarbands", LookMode.Reference, new object[0]);
-            Scribe_Collections.Look<RimWar.Planet.Settlement>(ref this.factionSettlements, "factionSettlements", LookMode.Deep, new object[0]);
+            //Scribe_Collections.Look<FactionRelation>(ref this.rimwarFactionRelations, "rimwarFactionRelations", LookMode.Deep, new object[0]);
+            //Scribe_Collections.Look<Warband>(ref this.factionWarbands, "factionWarbands", LookMode.Reference, new object[0]);
+            //Scribe_Collections.Look<RimWar.Planet.Settlement>(ref this.factionSettlements, "factionSettlements", LookMode.Deep);//, new object[0]);
+            //Scribe_Collections.Look<RimWorld.Planet.Settlement>(ref this.worldSettlements, "worldSettlements", LookMode.Reference);
             Scribe_Collections.Look<Faction>(ref this.warFactions, "warFactions", LookMode.Reference, new object[0]);
             Scribe_Collections.Look<Faction>(ref this.allianceFactions, "allianceFactions", LookMode.Reference, new object[0]);
             //Scribe_Collections.Look<Warband>(ref this.factionWarbands, "factionWarbands", LookMode.Reference, new object[0]);
-            //Scribe_Collections.Look<RimWar.Planet.Settlement>(ref this.factionSettlements, "factionSettlements", LookMode.Reference, new object[0]);
         }
 
-        private List<RimWar.Planet.Settlement> hostileSettlements;
-        public List<RimWar.Planet.Settlement> HostileSettlements
+        //private List<FactionRelation> rimwarFactionRelations;
+        //public List<FactionRelation> RimWarFactionRelations
+        //{
+        //    get
+        //    {                
+        //        rimwarFactionRelations = Traverse.Create(root: rimwarFaction).Field(name: "relations").GetValue<List<FactionRelation>>();
+        //        if (rimwarFactionRelations == null)
+        //        {
+        //            rimwarFactionRelations = new List<FactionRelation>();
+        //            rimwarFactionRelations.Clear();
+        //        }
+        //        return rimwarFactionRelations;
+        //    }
+        //    set
+        //    {
+        //        rimwarFactionRelations = value;
+        //        if (rimwarFactionRelations == null)
+        //        {
+        //            rimwarFactionRelations = new List<FactionRelation>();
+        //            rimwarFactionRelations.Clear();
+        //        }
+        //        Traverse.Create(rimwarFaction).Field(name: "relations").SetValue(rimwarFactionRelations);
+        //    }
+        //}
+        
+        private int GetNextUpdateTick
+        {
+            get
+            {
+                int min = 150;
+                int max = 200;
+                return Find.TickManager.TicksGame + Rand.Range(min, max);
+            }
+        }
+
+
+        private List<RimWorld.Planet.Settlement> worldSettlements;
+        public List<RimWorld.Planet.Settlement> WorldSettlements
+        {
+            get
+            {                
+                bool flag = this.worldSettlements == null || Find.TickManager.TicksGame >= this.rwdNextUpdateTick;
+                if (flag)
+                {
+                    this.rwdNextUpdateTick = GetNextUpdateTick;
+                    if (worldSettlements == null)
+                    {
+                        this.worldSettlements = new List<RimWorld.Planet.Settlement>();                        
+                    }
+                    this.worldSettlements.Clear();
+                    List<RimWorld.Planet.Settlement> tmpList = new List<RimWorld.Planet.Settlement>();
+                    tmpList.Clear();
+                    for(int i = 0; i < Find.WorldObjects.AllWorldObjects.Count; i++)
+                    {
+                        RimWorld.Planet.Settlement wos = Find.WorldObjects.AllWorldObjects[i] as RimWorld.Planet.Settlement;
+                        if(wos != null && !wos.Destroyed && wos.Faction == this.RimWarFaction)
+                        {
+                            tmpList.Add(wos);
+                        }
+                    }
+                    this.worldSettlements = tmpList;
+                }
+                return this.worldSettlements;
+            }
+        }
+
+        private List<RimWarSettlementComp> warSettlementComps;
+        public List<RimWarSettlementComp> WarSettlementComps
+        {
+            get
+            {
+                bool flag = this.warSettlementComps == null;
+                if (flag)
+                {
+                    this.warSettlementComps = new List<RimWarSettlementComp>();                    
+                }
+                this.warSettlementComps.Clear();
+                for (int i = 0; i < WorldSettlements.Count; i++)
+                {
+                    RimWarSettlementComp rwsc = WorldSettlements[i].GetComponent<RimWarSettlementComp>();
+                    if(rwsc != null)
+                    {
+                        warSettlementComps.Add(rwsc);
+                    }
+                }
+                return this.warSettlementComps;
+            }
+        }
+
+        public bool HasWarSettlementFor(RimWorld.Planet.Settlement wos, out RimWarSettlementComp rwsc)
+        {
+            rwsc = null;
+            if (this.WorldSettlements != null && this.WorldSettlements.Count > 0)
+            {
+                for (int i = 0; i < WorldSettlements.Count; i++)
+                {
+                    if (wos == WorldSettlements[i])
+                    {
+                        rwsc = WorldSettlements[i].GetComponent<RimWarSettlementComp>();
+                        if (rwsc != null)
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        public int PointsFromSettlements
+        {
+            get
+            {
+                int sum = 0;
+                for (int i = 0; i < WarSettlementComps.Count; i++)
+                {
+                    sum += WarSettlementComps[i].RimWarPoints;
+                }
+                return sum;
+            }
+        }
+
+        private int playerHeatInt;
+        public int PlayerHeat
+        {
+            get
+            {
+                playerHeatInt = 0;
+                foreach (RimWarSettlementComp rwsc in WarSettlementComps)
+                {
+                    playerHeatInt += rwsc.PlayerHeat;
+                }
+                return playerHeatInt;
+            }
+        }
+
+        private List<RimWorld.Planet.Settlement> hostileSettlements;
+        public List<RimWorld.Planet.Settlement> HostileSettlements
         {
             get
             {
                 bool flag = hostileSettlements == null;
-                if(flag)
+                if (flag)
                 {
-                    hostileSettlements = new List<RimWar.Planet.Settlement>();
+                    hostileSettlements = new List<RimWorld.Planet.Settlement>();
                     hostileSettlements.Clear();
                 }
                 return hostileSettlements;
@@ -73,22 +219,22 @@ namespace RimWar
                 bool flag = hostileSettlements == null;
                 if (flag)
                 {
-                    hostileSettlements = new List<RimWar.Planet.Settlement>();
+                    hostileSettlements = new List<RimWorld.Planet.Settlement>();
                     hostileSettlements.Clear();
                 }
                 hostileSettlements = value;
             }
         }
 
-        private List<RimWar.Planet.Settlement> nonHostileSettlements;
-        public List<RimWar.Planet.Settlement> NonHostileSettlements
+        private List<RimWorld.Planet.Settlement> nonHostileSettlements;
+        public List<RimWorld.Planet.Settlement> NonHostileSettlements
         {
             get
             {
                 bool flag = nonHostileSettlements == null;
                 if (flag)
                 {
-                    nonHostileSettlements = new List<RimWar.Planet.Settlement>();
+                    nonHostileSettlements = new List<RimWorld.Planet.Settlement>();
                     nonHostileSettlements.Clear();
                 }
                 return nonHostileSettlements;
@@ -98,14 +244,55 @@ namespace RimWar
                 bool flag = nonHostileSettlements == null;
                 if (flag)
                 {
-                    nonHostileSettlements = new List<RimWar.Planet.Settlement>();
+                    nonHostileSettlements = new List<RimWorld.Planet.Settlement>();
                     nonHostileSettlements.Clear();
                 }
                 nonHostileSettlements = value;
             }
         }
 
-        public Faction RimWarFaction => rimwarFaction;
+        //private Faction rimwarFaction = null;
+        public Faction RimWarFaction
+        {
+            get
+            {
+                //if (rimwarFaction == null)
+                //{
+                //    for (int i = 0; i < Find.FactionManager.AllFactionsListForReading.Count; i++)
+                //    {
+                //        if (Find.FactionManager.AllFactionsListForReading[i].Name == this.factionName)
+                //        {
+                //            rimwarFaction = Find.FactionManager.AllFactionsListForReading[i];
+                //        }
+                //    }
+                //}
+                //return rimwarFaction;
+                //if (this.rimwarFaction != null)
+                //{
+                //    if (!Find.FactionManager.AllFactions.Contains(this.rimwarFaction))
+                //    {
+                //        Log.Message("" + this.rimwarFaction.Name + " not found in factions ");
+                //        for (int i = 0; i < Find.FactionManager.AllFactionsListForReading.Count; i++)
+                //        {
+                //            if (Find.FactionManager.AllFactionsListForReading[i].Name == this.rimwarFaction.Name)
+                //            {
+                //                Log.Message("but name was the same ");
+                //                this.rimwarFaction = Find.FactionManager.AllFactionsListForReading[i];
+                //            }
+                //        }
+                //    }
+                //}
+                //else
+                //{
+                //    Log.Message("checked rwd with null faction");
+                //}
+                return rimwarFaction;
+            }
+            set
+            {
+                this.rimwarFaction = value;
+            }
+        }
 
         private List<Faction> warFactions;
         public List<Faction> WarFactions
@@ -200,7 +387,7 @@ namespace RimWar
         }
 
         private List<Warband> factionWarbands;
-        public List<Warband> FactionWarbands
+        public List<Warband> FactionWarbands  //incomplete
         {
             get
             {
@@ -213,7 +400,7 @@ namespace RimWar
             }
         }
 
-        public int PointsFromWarBands
+        public int PointsFromWarObjects  //incomplete
         {
             get
             {
@@ -221,42 +408,6 @@ namespace RimWar
                 for(int i =0; i < FactionWarbands.Count; i++)
                 {
                     sum += FactionWarbands[i].RimWarPoints;
-                }
-                return sum;
-            }
-        }
-
-        private List<RimWar.Planet.Settlement> factionSettlements;
-        public List<RimWar.Planet.Settlement> FactionSettlements
-        {
-            get
-            {
-                bool flag = this.factionSettlements == null;
-                if(flag)
-                {
-                    this.factionSettlements = new List<RimWar.Planet.Settlement>();
-                }
-                return this.factionSettlements;
-            }
-            set
-            {
-                bool flag = this.factionSettlements == null;
-                if (flag)
-                {
-                    this.factionSettlements = new List<RimWar.Planet.Settlement>();
-                }
-                this.factionSettlements = value;
-            }
-        }
-        
-        public int PointsFromSettlements
-        {
-            get
-            {
-                int sum = 0;
-                for(int i =0; i < FactionSettlements.Count; i++)
-                {
-                    sum += FactionSettlements[i].RimWarPoints;
                 }
                 return sum;
             }
@@ -270,6 +421,9 @@ namespace RimWar
         public RimWarData(Faction faction)
         {
             this.rimwarFaction = faction;
+            this.uniqueID = Find.UniqueIDsManager.GetNextWorldObjectID();
+            //SetUniqueId();
+            //this.factionName = faction.Name;
             this.factionWarbands = new List<Warband>();
             this.factionWarbands.Clear();
         }

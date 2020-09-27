@@ -6,6 +6,7 @@ using RimWorld;
 using RimWorld.Planet;
 using Verse;
 using UnityEngine;
+using HarmonyLib;
 
 namespace RimWar.Planet
 {
@@ -27,8 +28,9 @@ namespace RimWar.Planet
         private bool cachedImmobilized;
         private int cachedImmobilizedForTicks = -99999;
         private const int ImmobilizedCacheDuration = 60;
+        public bool interactable = true;
 
-        private Settlement parentSettlement = null;
+        private RimWorld.Planet.Settlement parentSettlement = null;
         private int parentSettlementTile = -1;
         private WorldObject targetWorldObject = null;
         private int destinationTile = -1;
@@ -72,36 +74,51 @@ namespace RimWar.Planet
             Scribe_Values.Look<int>(ref this.parentSettlementTile, "parentSettlementTile", -1, false);
             Scribe_Values.Look<int>(ref this.destinationTile, "destinationTile", -1, false);
             Scribe_Deep.Look(ref pather, "pather", this);
-            Scribe_References.Look<Settlement>(ref this.parentSettlement, "parentSettlement");
+            Scribe_References.Look<RimWorld.Planet.Settlement>(ref this.parentSettlement, "parentSettlement");
             Scribe_References.Look<WorldObject>(ref this.targetWorldObject, "targetWorldObject");
         }
 
-        public Settlement ParentSettlement
+        public RimWarSettlementComp WarSettlementComp
         {
             get
             {
-                if(this.parentSettlement != null && parentSettlement.Faction == this.Faction)
+                return this.ParentSettlement.GetComponent<RimWarSettlementComp>();
+            }
+        }
+
+        public RimWorld.Planet.Settlement ParentSettlement
+        {
+            get
+            {
+                if(this.parentSettlement != null)
                 {
-                    this.parentSettlementTile = this.parentSettlement.Tile;
-                    return this.parentSettlement;
+                    if(this.parentSettlement.Faction != this.Faction || this.parentSettlement.Destroyed)
+                    {
+                        this.parentSettlementTile = -1;
+                        this.parentSettlement = null;
+                        FindParentSettlement();
+                    }
                 }
                 else
                 {
                     if (this.parentSettlementTile != -1)
                     {
-                        WorldObject wo = Find.World.worldObjects.WorldObjectAt(this.parentSettlementTile, WorldObjectDefOf.Settlement);
-                        if(wo != null && wo.Faction == this.Faction)
+                        RimWorld.Planet.Settlement wo = Find.WorldObjects.SettlementAt(this.parentSettlementTile);
+                        if (wo != null && wo.Faction == this.Faction)
                         {
-                            this.parentSettlement = WorldUtility.GetRimWarSettlementAtTile(this.parentSettlementTile);
-                            if(this.parentSettlement == null)
+                            this.parentSettlement = wo;
+                            if (this.parentSettlement == null || this.parentSettlement.Destroyed)
                             {
                                 this.parentSettlementTile = -1;
                             }
                         }
                     }
-                    FindParentSettlement();
-                    return this.parentSettlement;
+                    if (this.parentSettlement == null)
+                    {
+                        FindParentSettlement();
+                    }
                 }
+                return this.parentSettlement;
             }
             set
             {
@@ -331,7 +348,7 @@ namespace RimWar.Planet
                         this.Destroy();
                     }
                     this.canReachDestination = true;
-                    this.DestinationTarget = ParentSettlement.RimWorld_Settlement;
+                    this.DestinationTarget = ParentSettlement;
                     PathToTarget(this.DestinationTarget);
                 }
             }
@@ -431,13 +448,14 @@ namespace RimWar.Planet
         {
             if (this.ParentSettlement != null)
             {
-                RimWorld.Planet.Settlement settlement = Find.World.worldObjects.SettlementAt(this.ParentSettlement.Tile);
-                if (settlement == null || settlement.Faction != this.Faction)
+                RimWorld.Planet.Settlement settlement = Find.WorldObjects.SettlementAt(this.ParentSettlement.Tile);                
+                if (settlement == null || settlement.Faction != this.Faction || settlement.Destroyed)
                 {
-                    if (WorldUtility.GetRimWarDataForFaction(this.Faction).FactionSettlements.Contains(this.ParentSettlement))
-                    {
-                        WorldUtility.GetRimWarDataForFaction(this.Faction).FactionSettlements.Remove(this.ParentSettlement);
-                    }
+                    ////RimWar.Planet.Settlement rws = null;
+                    ////if (WorldUtility.GetRimWarDataForFaction(this.Faction).HasFactionSettlementFor(settlement, out rws))
+                    ////{
+                    ////    WorldUtility.GetRimWarDataForFaction(this.Faction).FactionSettlements.Remove(rws);
+                    ////}
                     this.ParentSettlement = null;
                 }
             }
@@ -445,7 +463,13 @@ namespace RimWar.Planet
 
         public void FindParentSettlement()
         {
-            ParentSettlement = WorldUtility.GetClosestRimWarSettlementInRWDTo(WorldUtility.GetRimWarDataForFaction(this.Faction), this.Tile);
+            RimWorld.Planet.Settlement wos = null;
+            wos = WorldUtility.GetClosestSettlementInRWDTo(WorldUtility.GetRimWarDataForFaction(this.Faction), this.Tile);
+            if(wos != null)
+            {
+                this.parentSettlementTile = wos.Tile;
+                ParentSettlement = wos;
+            }
             //List<Settlement> rwdTownList = WorldUtility.GetFriendlyRimWarSettlementsInRange(this.Tile, 30, this.Faction, WorldUtility.GetRimWarData(), WorldUtility.GetRimWarDataForFaction(this.Faction));
             //if(rwdTownList != null && rwdTownList.Count <= 0)
             //{
@@ -475,12 +499,12 @@ namespace RimWar.Planet
             this.ValidateParentSettlement();
             WorldUtility.Get_WCPT().UpdateFactionSettlements(WorldUtility.GetRimWarDataForFaction(this.Faction));
             FindParentSettlement();
-            this.DestinationTarget = Find.World.worldObjects.WorldObjectAt(this.ParentSettlement.Tile, WorldObjectDefOf.Settlement);
+            this.DestinationTarget = this.ParentSettlement;
         }
 
         public void FindHostileSettlement()
         {
-            this.DestinationTarget = Find.World.worldObjects.WorldObjectOfDefAt(WorldObjectDefOf.Settlement, WorldUtility.GetHostileRimWarSettlementsInRange(this.Tile, 25, this.Faction, WorldUtility.GetRimWarData(), WorldUtility.GetRimWarDataForFaction(this.Faction)).RandomElement().Tile);
+            this.DestinationTarget = Find.World.worldObjects.WorldObjectOfDefAt(WorldObjectDefOf.Settlement, WorldUtility.GetHostileSettlementsInRange(this.Tile, 25, this.Faction, WorldUtility.GetRimWarData(), WorldUtility.GetRimWarDataForFaction(this.Faction)).RandomElement().Tile);
             if (this.DestinationTarget != null)
             {
                 PathToTarget(this.DestinationTarget);

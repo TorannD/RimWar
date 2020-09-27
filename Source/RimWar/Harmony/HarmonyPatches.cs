@@ -55,6 +55,10 @@ namespace RimWar.Harmony
                     typeof(bool),
                     typeof(bool)
                 }, null), null, new HarmonyMethod(patchType, "Pather_StartPath_WarObjects", null), null);
+            harmonyInstance.Patch(AccessTools.Method(typeof(IncidentWorker_CaravanMeeting), "RemoveAllPawnsAndPassToWorld", new Type[]
+                {
+                    typeof(Caravan)
+                }, null), null, new HarmonyMethod(patchType, "Caravan_MoveOn_Prefix", null), null);
 
             //GET
 
@@ -76,7 +80,7 @@ namespace RimWar.Harmony
                     typeof(Caravan),
                     typeof(List<ThingCount>),
                     typeof(List<Pawn>)
-                }, null), new HarmonyMethod(patchType, "Caravan_Give_Prefix", null), null, null);
+                }, null), new HarmonyMethod(patchType, "Caravan_Give_Prefix", null), null, null);            
             harmonyInstance.Patch(AccessTools.Method(typeof(IncidentWorker_NeutralGroup), "TryResolveParms", new Type[]
                 {
                     typeof(IncidentParms)
@@ -104,117 +108,66 @@ namespace RimWar.Harmony
                 }, null), new HarmonyMethod(patchType, "CallForAid_Replacement_Patch", null), null, null);
         }
 
-        //public static IEnumerable<CodeInstruction> RimWar_WorldParams_CoverageTranspiler(IEnumerable<CodeInstruction> instructions)
+        //[HarmonyPatch(typeof(RimWorld.Planet.Settlement), "GetGizmos")]
+        //public static class SettlementGizmoAdditions_Patch
         //{
-
-        //    foreach (CodeInstruction instruction in instructions)
+        //    public static void Postfix(RimWorld.Planet.Settlement __instance, ref IEnumerable<Gizmo> __result)
         //    {
-        //        var strOperand = instruction.ToString();
-        //        if (strOperand.Contains("ldsfld") && !strOperand.Contains("Tick_Tiny"))
+        //        //if (Prefs.DevMode)
+        //        //{
+        //        Options.SettingsRef settingsRef = new Options.SettingsRef();
+        //        if (__instance != null)
         //        {
-        //            Log.Message("operand string is " + strOperand);
-        //            yield return instruction;
-        //            yield return new CodeInstruction(opcode: OpCodes.Call, operand: AccessTools.Method(type: patchType, name: nameof(RimWar_PlanetCoverage)));
-        //        }
-        //        else
-        //        {
-        //            yield return instruction;
-        //        }
-        //    }
-        //}
-
-        //[HarmonyPatch(typeof(Scenario), "GetFirstConfigPage", null)]
-        //public class RimWarConfigs_Scenario_Patch
-        //{
-        //    public static bool Prefix(Scenario __instance, ref Page __result)
-        //    {
-        //        List<ScenPart> parts = Traverse.Create(__instance).Field(name: "parts").GetValue<List<ScenPart>>();
-        //        List<Page> list = new List<Page>();
-        //        list.Add(new Page_SelectStoryteller());
-        //        list.Add(new RimWar.Options.Page_CreateRimWarWorldParams());
-        //        list.Add(new Page_SelectStartingSite());
-        //        foreach (Page item in parts.SelectMany((ScenPart p) => p.GetConfigPages()))
-        //        {
-        //            list.Add(item);
-        //        }
-        //        Page page = PageUtility.StitchedPages(list);
-        //        if (page != null)
-        //        {
-        //            Page page2 = page;
-        //            while (page2.next != null)
+        //            //List<Gizmo> gizmoList = __instance.GetGizmos().ToList();
+        //            RimWar.Planet.Settlement settlement = WorldUtility.GetRimWarSettlementAtTile(__instance.Tile);
+        //            if (settlement != null)
         //            {
-        //                page2 = page2.next;
+        //                Command_Action command_Action_CreateTrader = new Command_Action();
+        //                //    command_Action_CreateTrader.defaultLabel = "Create Trader".Translate();
+        //                //    command_Action_CreateTrader.icon = RimWarMatPool.Icon_Trader;
+        //                //    command_Action_CreateTrader.action = delegate
+        //                //    {
+        //                //        Find.WorldSelector.ClearSelection();
+        //                //        int tile = settlement.Tile;
+        //                //        Find.WorldTargeter.BeginTargeting_NewTemp(new Func<GlobalTargetInfo, bool>(ChooseWorldTarget), true, RimWarMatPool.Icon_Trader, false, delegate
+        //                //        {
+        //                //            GenDraw.DrawWorldRadiusRing(tile, Mathf.RoundToInt(settlement.RimWarPoints / settingsRef.settlementScanRangeDivider));  //center, max launch distance
+        //                //    }, delegate (GlobalTargetInfo target)
+        //                //        {
+        //                //            return null;
+        //                //        });
+        //                //    };
+        //                //    gizmoList.Add(command_Action_CreateTrader);
+        //                yield return (Gizmo)command_Action_CreateTrader;
         //            }
-        //            page2.nextAct = delegate
-        //            {
-        //                PageUtility.InitGameStart();
-        //            };
+        //            //__result = gizmoList;
+        //            //Log.Message("patching");
         //        }
-        //        __result = page;
+        //        //}
+        //    }
+
+        //    private static bool ChooseWorldTarget(GlobalTargetInfo target)
+        //    {
+        //        if (!target.IsValid)
+        //        {
+        //            Messages.Message("Invalid Tile", MessageTypeDefOf.RejectInput);
+        //            return false;
+        //        }
+        //        RimWorld.Planet.Settlement s = target.WorldObject as RimWorld.Planet.Settlement;
+        //        if (s != null)
+        //        {
+        //            target = s;
+        //            return true;
+        //        }
+        //        if (Find.World.Impassable(target.Tile))
+        //        {
+        //            Messages.Message("Impassable Tile", MessageTypeDefOf.RejectInput);
+        //            return false;
+        //        }
         //        return false;
         //    }
         //}
 
-        //private static void RimWar_PlanetCoverage()
-        //{
-        //    float planetCoverage = (float)AccessTools.Field(typeof(Page_CreateWorldParams), "planetCoverage").GetValue(null);
-        //    List<FloatMenuOption> list = new List<FloatMenuOption>();
-        //    float[] array = Prefs.DevMode ? RimWar_PlanetCoveragesDev() : RimWar_PlanetCoveragesDev();
-        //    foreach (float coverage in array)
-        //    {
-        //        string text = coverage.ToStringPercent();
-        //        if (coverage <= 0.1f)
-        //        {
-        //            text += " (dev)";
-        //        }
-        //        FloatMenuOption item = new FloatMenuOption(text, delegate
-        //        {
-        //            if (planetCoverage != coverage)
-        //            {
-        //                planetCoverage = coverage;
-        //                if (planetCoverage == 1f)
-        //                {
-        //                    Messages.Message("MessageMaxPlanetCoveragePerformanceWarning".Translate(), MessageTypeDefOf.CautionInput, historical: false);
-        //                }
-        //            }
-        //        });
-        //        list.Add(item);
-        //    }
-        //    Find.WindowStack.Add(new FloatMenu(list));
-        //}
-
-        //private static float[] RimWar_PlanetCoverages()
-        //{
-        //    float[] pCoverages = new float[7]
-        //    {
-        //        0.07f,
-        //        0.1f,
-        //        0.15f,
-        //        0.2f,
-        //        0.3f,
-        //        0.5f,
-        //        1f
-        //    };
-        //    float[] array = pCoverages;
-        //    return array;
-        //}
-
-        //private static float[] RimWar_PlanetCoveragesDev()
-        //{
-        //    float[] pCoverages = new float[8]
-        //    {
-        //        0.07f,
-        //        0.1f,
-        //        0.15f,
-        //        0.2f,
-        //        0.3f,
-        //        0.5f,
-        //        1f,
-        //        0.05f
-        //    };
-        //    float[] array = pCoverages;
-        //    return array;
-        //}
 
         [HarmonyPatch(typeof(Faction), "RelationWith")]
         public static class FactionRelationCheck_Patch
@@ -243,29 +196,29 @@ namespace RimWar.Harmony
             }
         }
 
-        [HarmonyPatch(typeof(WorldObject), "Destroy")]
-        public static class SettlementDestroyed_Patch
-        {
-            private static void Postfix(WorldObject __instance)
-            {
-                if(__instance is RimWorld.Planet.Settlement)
-                {
-                    RimWarData rwd = WorldUtility.GetRimWarDataForFaction(__instance.Faction);
-                    for(int i = 0; i < rwd.FactionSettlements.Count; i++)
-                    {
-                        if(rwd.FactionSettlements[i].Tile == __instance.Tile)
-                        {
-                            rwd.FactionSettlements.Remove(rwd.FactionSettlements[i]);
-                            break;
-                        }
-                    }
-                    if(rwd.FactionSettlements.Count <= 0)
-                    {
-                        WorldUtility.RemoveRWDFaction(rwd);
-                    }
-                }
-            }
-        }
+        //[HarmonyPatch(typeof(WorldObject), "Destroy")]
+        //public static class SettlementDestroyed_Patch
+        //{
+        //    private static void Postfix(WorldObject __instance)
+        //    {
+        //        if(__instance is RimWorld.Planet.Settlement)
+        //        {
+        //            RimWarData rwd = WorldUtility.GetRimWarDataForFaction(__instance.Faction);
+        //            for(int i = 0; i < rwd.WorldSettlements.Count; i++)
+        //            {
+        //                if(rwd.WorldSettlements[i].Tile == __instance.Tile)
+        //                {
+        //                    rwd.WorldSettlements.Remove(rwd.WorldSettlements[i]);
+        //                    break;
+        //                }
+        //            }
+        //            if(rwd.WorldSettlements.Count <= 0)
+        //            {
+        //                WorldUtility.RemoveRWDFaction(rwd);
+        //            }
+        //        }
+        //    }
+        //}
 
         [HarmonyPatch(typeof(FactionManager), "Remove")]
         public static class RemoveFaction_Patch
@@ -341,10 +294,10 @@ namespace RimWar.Harmony
 
         public static void AttackNow_SettlementReinforcement_Postfix(SettlementUtility __instance, Caravan caravan, RimWorld.Planet.Settlement settlement)
         {
-            RimWar.Planet.Settlement rwSettlement = WorldUtility.GetRimWarSettlementAtTile(settlement.Tile);
-            if(rwSettlement != null && rwSettlement.RimWarPoints > 1050)
+            RimWarSettlementComp rwsc = settlement.GetComponent<RimWarSettlementComp>();
+            if(rwsc != null && rwsc.RimWarPoints > 1050)
             {
-                WorldUtility.CreateWarband((rwSettlement.RimWarPoints - 1000), WorldUtility.GetRimWarDataForFaction(rwSettlement.Faction), rwSettlement, rwSettlement.Tile, rwSettlement.Tile, WorldObjectDefOf.Settlement);
+                WorldUtility.CreateWarband((rwsc.RimWarPoints - 1000), WorldUtility.GetRimWarDataForFaction(rwsc.parent.Faction), settlement, settlement.Tile, settlement, WorldObjectDefOf.Settlement);
             }
         }
 
@@ -361,18 +314,18 @@ namespace RimWar.Harmony
             incidentParms.raidArrivalModeForQuickMilitaryAid = true;
             incidentParms.points = DiplomacyTuning.RequestedMilitaryAidPointsRange.RandomInRange;
             faction.lastMilitaryAidRequestTick = Find.TickManager.TicksGame;
-            RimWar.Planet.Settlement rwdTown = WorldUtility.GetClosestRimWarSettlementOfFaction(faction, map.Tile, 40);
+            RimWarSettlementComp rwdTown = WorldUtility.GetClosestSettlementOfFaction(faction, map.Tile, 40);
             if (rwdTown != null)
             {
                 RimWarData rwd = WorldUtility.GetRimWarDataForFaction(faction);
                 int pts = Mathf.RoundToInt(rwdTown.RimWarPoints / 2);
                 if (rwd.CanLaunch)
                 {
-                    WorldUtility.CreateLaunchedWarband(pts, rwd, rwdTown, rwdTown.Tile, map.Tile, WorldObjectDefOf.Settlement);
+                    WorldUtility.CreateLaunchedWarband(pts, rwd, rwdTown.parent as RimWorld.Planet.Settlement, map.Tile, Find.WorldObjects.SettlementAt(map.Tile), WorldObjectDefOf.Settlement);
                 }
                 else
                 {
-                    WorldUtility.CreateWarband(pts, rwd, rwdTown, rwdTown.Tile, map.Tile, WorldObjectDefOf.Settlement);
+                    WorldUtility.CreateWarband(pts, rwd, rwdTown.parent as RimWorld.Planet.Settlement, rwdTown.parent.Tile, Find.WorldObjects.SettlementAt(map.Tile), WorldObjectDefOf.Settlement);
                 }
                 rwdTown.RimWarPoints = pts;
                 return false;
@@ -384,10 +337,10 @@ namespace RimWar.Harmony
         {
             if(def == IncidentDefOf.TraderCaravanArrival && fireTick == (Find.TickManager.TicksGame + 120000))
             {
-                RimWar.Planet.Settlement rwdTown = WorldUtility.GetClosestRimWarSettlementOfFaction(parms.faction, parms.target.Tile, 40);
+                RimWarSettlementComp rwdTown = WorldUtility.GetClosestSettlementOfFaction(parms.faction, parms.target.Tile, 40);
                 if(rwdTown != null)
                 {
-                    WorldUtility.CreateTrader(Mathf.RoundToInt(rwdTown.RimWarPoints / 2), WorldUtility.GetRimWarDataForFaction(rwdTown.Faction), rwdTown, rwdTown.Tile, parms.target.Tile, WorldObjectDefOf.Settlement);
+                    WorldUtility.CreateTrader(Mathf.RoundToInt(rwdTown.RimWarPoints / 2), WorldUtility.GetRimWarDataForFaction(rwdTown.parent.Faction), rwdTown.parent as RimWorld.Planet.Settlement, rwdTown.parent.Tile, Find.WorldObjects.SettlementAt(parms.target.Tile), WorldObjectDefOf.Settlement);
                     rwdTown.RimWarPoints = Mathf.RoundToInt(rwdTown.RimWarPoints / 2);
                     return false;
                 }
@@ -437,7 +390,7 @@ namespace RimWar.Harmony
                         if (warObject[i].ParentSettlement != null)
                         {
                             ConsolidatePoints reconstitute = new ConsolidatePoints(points, Mathf.RoundToInt(Find.WorldGrid.TraversalDistanceBetween(caravan.Tile, warObject[i].ParentSettlement.Tile) * warObject[i].TicksPerMove) + Find.TickManager.TicksGame);
-                            warObject[i].ParentSettlement.SettlementPointGains.Add(reconstitute);
+                            warObject[i].WarSettlementComp.SettlementPointGains.Add(reconstitute);
                             warObject[i].ImmediateAction(null);
                         }
                         break;
@@ -448,6 +401,26 @@ namespace RimWar.Harmony
             return true;
         }
 
+        public static void Caravan_MoveOn_Prefix(Caravan caravan)
+        {
+            //Log.Message("moving on...");
+            //List<CaravanTargetData> ctd = WorldUtility.Get_WCPT().caravanTargetData;
+            //if (ctd != null && ctd.Count > 0)
+            //{
+            //    Log.Message("1");
+            //    for (int i = 0; i < ctd.Count; i++)
+            //    {
+            //        Log.Message("ctd " + i + " " + ctd[i].caravanTarget.Name);
+            //        if (Find.WorldGrid.ApproxDistanceInTiles(caravan.Tile, ctd[i].CaravanTile) <= 2)
+            //        {
+            //            //ctd[i].shouldRegenerateCaravanTarget = true;
+            //            //ctd[i].rwo = ctd[i].
+            //        }
+            //    }
+            //}
+        }
+
+        [HarmonyPriority (10000)] // be sure to patch before other mod so def is not null
         public static bool IncidentWorker_Prefix(IncidentWorker __instance, IncidentParms parms, ref bool __result)
         {
             //Log.Message("def " + __instance.def);
@@ -495,22 +468,18 @@ namespace RimWar.Harmony
         {
             if (!__instance.Faction.def.hidden)
             {
-                RimWarData rwData = WorldUtility.GetRimWarDataForFaction(__instance.Faction);
-                if (rwData != null)
+                RimWarSettlementComp rwsc = __instance.GetComponent<RimWarSettlementComp>();
+                RimWarData rwd = WorldUtility.GetRimWarDataForFaction(__instance.Faction);
+                if (rwsc != null && rwd != null)
                 {
                     string text = "";
                     if (!__result.NullOrEmpty())
                     {
                         text += "\n";
                     }
-                    for (int i = 0; i < rwData.FactionSettlements.Count; i++)
-                    {
-                        if(rwData.FactionSettlements[i].Tile == __instance.Tile)
-                        {
-                            text += "RW_SettlementPoints".Translate(rwData.FactionSettlements[i].RimWarPoints + "\n" + rwData.behavior.ToString());
-                            break;
-                        }
-                    }
+                    
+                    text += "RW_SettlementPoints".Translate(rwsc.RimWarPoints + "\n" + "RW_FactionBehavior".Translate(rwd.behavior.ToString()));
+
                     __result += text;
                 }               
             }
@@ -549,10 +518,14 @@ namespace RimWar.Harmony
         {
             public static bool Prefix(IncidentWorker_Ambush_EnemyFaction __instance, IncidentParms parms, ref bool __result)
             {
-                if (__instance != null && __instance.def.defName != "VisitorGroup" && __instance.def.defName != "VisitorGroupMax" && !__instance.def.defName.Contains("Cult") && parms.quest == null && !parms.forced && !__instance.def.workerClass.ToString().StartsWith("Rumor_Code"))
+                Options.SettingsRef settingsRef = new Options.SettingsRef();
+                if (settingsRef.restrictEvents)
                 {
-                    __result = false;
-                    return false;
+                    if (__instance != null && __instance.def.defName != "VisitorGroup" && __instance.def.defName != "VisitorGroupMax" && !__instance.def.defName.Contains("Cult") && parms.quest == null && !parms.forced && !__instance.def.workerClass.ToString().StartsWith("Rumor_Code"))
+                    {
+                        __result = false;
+                        return false;
+                    }
                 }
                 return true;
             }
@@ -563,10 +536,14 @@ namespace RimWar.Harmony
         {
             public static bool Prefix(IncidentWorker_CaravanDemand __instance, IncidentParms parms, ref bool __result)
             {
-                if (__instance != null && __instance.def.defName != "VisitorGroup" && __instance.def.defName != "VisitorGroupMax" && !__instance.def.defName.Contains("Cult") && parms.quest == null && !parms.forced && !__instance.def.workerClass.ToString().StartsWith("Rumor_Code"))
+                Options.SettingsRef settingsRef = new Options.SettingsRef();
+                if (settingsRef.restrictEvents)
                 {
-                    __result = false;
-                    return false;
+                    if (__instance != null && __instance.def.defName != "VisitorGroup" && __instance.def.defName != "VisitorGroupMax" && !__instance.def.defName.Contains("Cult") && parms.quest == null && !parms.forced && !__instance.def.workerClass.ToString().StartsWith("Rumor_Code"))
+                    {
+                        __result = false;
+                        return false;
+                    }
                 }
                 return true;
             }
@@ -577,10 +554,14 @@ namespace RimWar.Harmony
         {
             public static bool Prefix(IncidentWorker_CaravanMeeting __instance, IncidentParms parms, ref bool __result)
             {
-                if (__instance != null && __instance.def.defName != "VisitorGroup" && __instance.def.defName != "VisitorGroupMax" && !__instance.def.defName.Contains("Cult") && parms.quest == null && !parms.forced && !__instance.def.workerClass.ToString().StartsWith("Rumor_Code"))
+                Options.SettingsRef settingsRef = new Options.SettingsRef();
+                if (settingsRef.restrictEvents)
                 {
-                    __result = false;
-                    return false;
+                    if (__instance != null && __instance.def.defName != "VisitorGroup" && __instance.def.defName != "VisitorGroupMax" && !__instance.def.defName.Contains("Cult") && parms.quest == null && !parms.forced && !__instance.def.workerClass.ToString().StartsWith("Rumor_Code"))
+                    {
+                        __result = false;
+                        return false;
+                    }
                 }
                 return true;
             }
@@ -601,12 +582,16 @@ namespace RimWar.Harmony
         {
             public static bool Prefix(IncidentWorker_PawnsArrive __instance, IncidentParms parms, ref bool __result)
             {
-                if (__instance != null && __instance.def.defName != "VisitorGroup" && __instance.def.defName != "VisitorGroupMax" && !__instance.def.defName.Contains("Cult") && parms.quest == null && !parms.forced && !__instance.def.workerClass.ToString().StartsWith("Rumor_Code"))
+                Options.SettingsRef settingsRef = new Options.SettingsRef();
+                if (settingsRef.restrictEvents)
                 {
-                    if (__instance.def == IncidentDefOf.RaidEnemy || __instance.def == IncidentDefOf.RaidFriendly || __instance.def == IncidentDefOf.TraderCaravanArrival)
+                    if (__instance != null && __instance.def.defName != "VisitorGroup" && __instance.def.defName != "VisitorGroupMax" && !__instance.def.defName.Contains("Cult") && parms.quest == null && !parms.forced && !__instance.def.workerClass.ToString().StartsWith("Rumor_Code"))
                     {
-                        __result = false;
-                        return false;
+                        if (__instance.def == IncidentDefOf.RaidEnemy || __instance.def == IncidentDefOf.RaidFriendly || __instance.def == IncidentDefOf.TraderCaravanArrival)
+                        {
+                            __result = false;
+                            return false;
+                        }
                     }
                 }
                 return true;

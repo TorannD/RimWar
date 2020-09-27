@@ -142,7 +142,10 @@ namespace RimWar.Planet
             {
                 //scan for nearby engagements
                 this.searchTick = Rand.Range(2000, 3000);
-                ScanNearby(1); //WorldUtility.GetRimWarDataForFaction(this.Faction).GetEngagementRange()
+                if (interactable)
+                {
+                    ScanNearby(1); //WorldUtility.GetRimWarDataForFaction(this.Faction).GetEngagementRange()
+                }
                 if(this.RimWarPoints >= 100000)
                 {
                     ReAssignParentSettlement();
@@ -225,7 +228,7 @@ namespace RimWar.Planet
                 if (wo.Faction.HostileTo(this.Faction))
                 {
                     //resolve combat
-                    if (wo is Caravan)
+                    if (wo is Caravan && interactable)
                     {
                         IncidentUtility.DoCaravanAttackWithPoints(this, wo as Caravan, this.rimwarData, IncidentUtility.PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.EdgeWalkIn));
                         base.ImmediateAction(wo);
@@ -233,7 +236,7 @@ namespace RimWar.Planet
                 }
                 else
                 {
-                    if (wo is Caravan && !tradedWithPlayer) //!TradedWith.Contains(wo))
+                    if (wo is Caravan && !tradedWithPlayer && interactable) //!TradedWith.Contains(wo))
                     {
                         //trade with player
                         this.tradedWithPlayer = true;
@@ -258,7 +261,7 @@ namespace RimWar.Planet
                 {
                     if(wo is Caravan)
                     {
-                        IncidentUtility.DoCaravanAttackWithPoints(this, wo as Caravan, this.rimwarData, IncidentUtility.PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.EdgeWalkIn));
+                        IncidentUtility.DoCaravanAttackWithPoints(this, wo as Caravan, this.rimwarData, IncidentUtility.PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.EdgeWalkIn), PawnGroupKindDefOf.Trader);
                         base.ImmediateAction(wo);
                     }
                 }    
@@ -287,41 +290,78 @@ namespace RimWar.Planet
             WorldObject wo = this.DestinationTarget;
             if (wo != null)
             {
+                //Log.Message("Trader AA 1");
                 if (wo.Faction != this.Faction)
                 {
+                    //Log.Message("Trader AA 2");
                     if (wo.Faction.HostileTo(this.Faction))
                     {
-                        //this.DestinationTarget = null;
+                        //Log.Message("Trader AA 3");
+                        if (wo.Faction == Faction.OfPlayer)
+                        {
+                            //Log.Message("Trader AA 4");
+                            RimWorld.Planet.Settlement playerSettlement = wo as RimWorld.Planet.Settlement;
+                            Caravan playerCaravan = wo as Caravan;
+                            if (playerSettlement != null)
+                            {
+                                IncidentUtility.DoRaidWithPoints(Mathf.RoundToInt(this.RimWarPoints * .8f), playerSettlement, this.rimwarData, PawnsArrivalModeDefOf.EdgeWalkIn, PawnGroupKindDefOf.Trader);
+                            }
+                            else if(playerCaravan != null)
+                            {
+                                IncidentUtility.DoCaravanAttackWithPoints(this, playerCaravan, this.rimwarData, PawnsArrivalModeDefOf.EdgeWalkIn, PawnGroupKindDefOf.Trader);
+                            }
+                        }
+                        else
+                        {
+                            //Log.Message("Trader AA 5");
+                            if (wo is RimWorld.Planet.Settlement)
+                            {
+                                RimWorld.Planet.Settlement settlement = Find.WorldObjects.SettlementAt(this.Tile);
+                                if (settlement != null)
+                                {
+                                    RimWarSettlementComp rwsc = settlement.GetComponent<RimWarSettlementComp>();
+                                    if (rwsc != null)
+                                    {
+                                        IncidentUtility.ResolveWarObjectAttackOnSettlement(this, this.ParentSettlement, rwsc, this.rimwarData);
+                                    }
+                                }
+                            }
+                        }
                     }
                     else
                     {
+                       // Log.Message("Trader AA 6");
                         if (wo.Faction.IsPlayer)
                         {
+                            //Log.Message("Trader AA 7");
                             RimWorld.Planet.Settlement playerSettlement = Find.World.worldObjects.SettlementAt(this.Tile);
                             if (playerSettlement != null)
                             {
+                                //Log.Message("Trader AA 7.1");
                                 IncidentUtility.DoSettlementTradeWithPoints(this, playerSettlement, this.rimwarData, IncidentUtility.PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.EdgeWalkIn));
-                                if (this.ParentSettlement != null)
+                                if (this.WarSettlementComp != null)
                                 {
-                                    this.ParentSettlement.RimWarPoints += Mathf.RoundToInt(this.RimWarPoints * (Rand.Range(1.05f, 1.25f)));
+                                    this.WarSettlementComp.RimWarPoints += Mathf.RoundToInt(this.RimWarPoints * (Rand.Range(1.05f, 1.25f)));
                                 }
                             }
                         }
                         else
                         {
-                            Settlement settlement = WorldUtility.GetRimWarSettlementAtTile(this.Tile);
-                            if(settlement != null && settlement.Faction != this.Faction && !tradedWithSettlement)
+                            //Log.Message("Trader AA 8");
+                            RimWarSettlementComp rwsc = WorldUtility.GetRimWarSettlementAtTile(this.Tile);
+                            if(rwsc != null && rwsc.parent.Faction != this.Faction && !tradedWithSettlement)
                             {
-                                IncidentUtility.ResolveSettlementTrade(this, settlement);
+                                //Log.Message("Trader AA 8.1");
+                                IncidentUtility.ResolveSettlementTrade(this, rwsc);
                             }
                             else
                             {
-                                this.DestinationTarget = Find.WorldObjects.WorldObjectAt(this.ParentSettlement.Tile, WorldObjectDefOf.Settlement);
-                                if(this.DestinationTarget.Tile == this.ParentSettlement.Tile)
+                                //Log.Message("Trader AA 8.2");
+                                this.DestinationTarget = this.ParentSettlement;
+                                if(this.ParentSettlement == null || this.ParentSettlement.Destroyed || this.DestinationTarget.Tile == this.ParentSettlement.Tile)
                                 {
                                     this.ParentSettlement = null;
                                     ReAssignParentSettlement();
-
                                 }
                                 PathToTarget(this.DestinationTarget);
                             }
@@ -330,29 +370,38 @@ namespace RimWar.Planet
                 }
                 else
                 {
+                    //Log.Message("Trader AA 9");
+                    RimWarSettlementComp settlement = WorldUtility.GetRimWarSettlementAtTile(this.Tile);
+                    settlement.RimWarPoints += this.RimWarPoints;
                     //Log.Message("this tile: " + this.Tile + " parent settlement tile: " + this.ParentSettlement.Tile);
-                    if (this.Tile == ParentSettlement.Tile)
-                    {
-                        if (Find.World.worldObjects.AnyMapParentAt(this.Tile))
-                        {
-                            //reinforce
-                            //Log.Message("attempting to reinforce");
-                            //Log.Message("map is spawn " + Find.World.worldObjects.MapParentAt(this.Tile).Spawned);
-                            //Log.Message("map " + Find.World.worldObjects.MapParentAt(this.Tile).Map + " has faction " + Find.World.worldObjects.MapParentAt(this.Tile).Faction);
-                            this.ParentSettlement.RimWarPoints += this.RimWarPoints;
-                        }
-                        else
-                        {
-                            //Log.Message("parent settlement points: " + this.ParentSettlement.RimWarPoints);
-                            if (wo.Faction != this.Faction) //could happen if parent town is taken over while army is away, in which case - perform another raid
-                            {
+                    //if (this.Tile == ParentSettlement.Tile)
+                    //{
+                    //    Log.Message("Trader AA 10");
+                    //    if (Find.World.worldObjects.AnyMapParentAt(this.Tile))
+                    //    {
+                    //        //reinforce
+                    //        //Log.Message("attempting to reinforce");
+                    //        //Log.Message("map is spawn " + Find.World.worldObjects.MapParentAt(this.Tile).Spawned);
+                    //        //Log.Message("map " + Find.World.worldObjects.MapParentAt(this.Tile).Map + " has faction " + Find.World.worldObjects.MapParentAt(this.Tile).Faction);
+                    //        Log.Message("Trader AA 11.1");
+                    //        Log.Message("parent settlement was " + this.ParentSettlement.RimWorld_Settlement.Label);
+                    //        this.ParentSettlement.RimWarPoints += this.RimWarPoints;
+                    //    }
+                    //    else
+                    //    {
+                    //        //Log.Message("parent settlement points: " + this.ParentSettlement.RimWarPoints);
+                    //        if (wo.Faction != this.Faction) //could happen if parent town is taken over while army is away, in which case - perform another raid
+                    //        {
 
-                            }
-                            this.ParentSettlement.RimWarPoints += this.RimWarPoints;
-                        }
-                    }
+                    //        }
+                    //        Log.Message("Trader AA 11.2");
+                    //        Log.Message("parent settlement was " + this.ParentSettlement.RimWorld_Settlement.Label);
+                    //        this.ParentSettlement.RimWarPoints += this.RimWarPoints;
+                    //    }
+                    //}
                 }
             }
+            //Log.Message("Trader AA end");
             //Log.Message("ending arrival actions");
             base.ArrivalAction();
         }       

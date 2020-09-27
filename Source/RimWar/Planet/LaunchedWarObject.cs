@@ -33,7 +33,7 @@ namespace RimWar.Planet
         private Vector3 Start => Find.WorldGrid.GetTileCenter(initialTile);
         private Vector3 End => Find.WorldGrid.GetTileCenter(destinationTile);
 
-        private Settlement parentSettlement = null;
+        private RimWorld.Planet.Settlement parentSettlement = null;
         private WorldObject targetWorldObject = null;
 
         public override Vector3 DrawPos => Vector3.Slerp(Start, End, traveledPct);
@@ -49,7 +49,7 @@ namespace RimWar.Planet
             Scribe_Values.Look(ref arrived, "arrived", defaultValue: false);
             Scribe_Values.Look(ref initialTile, "initialTile", 0);
             Scribe_Values.Look(ref traveledPct, "traveledPct", 0f);
-            Scribe_References.Look<Settlement>(ref this.parentSettlement, "parentSettlement");
+            Scribe_References.Look<RimWorld.Planet.Settlement>(ref this.parentSettlement, "parentSettlement");
             Scribe_References.Look<WorldObject>(ref this.targetWorldObject, "targetWorldObject");
         }
 
@@ -78,7 +78,7 @@ namespace RimWar.Planet
             initialTile = base.Tile;
         }        
 
-        public Settlement ParentSettlement
+        public RimWorld.Planet.Settlement ParentSettlement
         {
             get
             {
@@ -223,15 +223,15 @@ namespace RimWar.Planet
 
         public void FindParentSettlement()
         {
-            List<Settlement> rwdTownList = WorldUtility.GetFriendlyRimWarSettlementsInRange(this.Tile, 30, this.Faction, WorldUtility.GetRimWarData(), WorldUtility.GetRimWarDataForFaction(this.Faction));
+            List<RimWorld.Planet.Settlement> rwdTownList = WorldUtility.GetFriendlySettlementsInRange(this.Tile, 30, this.Faction, WorldUtility.GetRimWarData(), WorldUtility.GetRimWarDataForFaction(this.Faction));
             if (rwdTownList != null && rwdTownList.Count <= 0)
             {
-                rwdTownList = WorldUtility.GetFriendlyRimWarSettlementsInRange(this.Tile, 100, this.Faction, WorldUtility.GetRimWarData(), WorldUtility.GetRimWarDataForFaction(this.Faction));
+                rwdTownList = WorldUtility.GetFriendlySettlementsInRange(this.Tile, 100, this.Faction, WorldUtility.GetRimWarData(), WorldUtility.GetRimWarDataForFaction(this.Faction));
             }
 
             if (rwdTownList != null && rwdTownList.Count > 0)
             {
-                this.ParentSettlement = WorldUtility.GetFriendlyRimWarSettlementsInRange(this.Tile, 100, this.Faction, WorldUtility.GetRimWarData(), WorldUtility.GetRimWarDataForFaction(this.Faction)).RandomElement();
+                this.ParentSettlement = WorldUtility.GetFriendlySettlementsInRange(this.Tile, 100, this.Faction, WorldUtility.GetRimWarData(), WorldUtility.GetRimWarDataForFaction(this.Faction)).RandomElement();
             }
             else
             {

@@ -134,7 +134,10 @@ namespace RimWar.Planet
             {
                 //scan for nearby engagements
                 this.searchTick = Rand.Range(2000, 3000);
-                ScanForNearbyEnemy(1); //WorldUtility.GetRimWarDataForFaction(this.Faction).GetEngagementRange()
+                if (interactable)
+                {
+                    ScanForNearbyEnemy(1); //WorldUtility.GetRimWarDataForFaction(this.Faction).GetEngagementRange()
+                }
                 Notify_Player();
                 if (DestinationTarget is WarObject || DestinationTarget is Caravan)
                 {
@@ -231,9 +234,10 @@ namespace RimWar.Planet
                         IncidentUtility.ResolveRimWarBattle(this, wo as WarObject);
                         base.ImmediateAction(wo);
                     }
-                    else if(wo is Caravan)
+                    else if(wo is Caravan && interactable)
                     {
                         IncidentUtility.DoCaravanAttackWithPoints(this, wo as Caravan, this.rimwarData, IncidentUtility.PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.EdgeWalkIn));
+                        base.ImmediateAction(wo);
                     }
                 }                
             }
@@ -246,7 +250,7 @@ namespace RimWar.Planet
 
         public override void ArrivalAction()
         {
-            //Log.Message("beginning arrival actions");
+            //Log.Message("beginning arrival actions - warband; destination: " + this.DestinationTarget.Label + " parent: " + this.ParentSettlement.Label);
             WorldObject wo = this.DestinationTarget;
             if(wo != null)
             {
@@ -279,10 +283,10 @@ namespace RimWar.Planet
                         }
                         else
                         {
-                            Settlement settlement = WorldUtility.GetRimWarSettlementAtTile(this.Tile);
+                            RimWarSettlementComp settlement = WorldUtility.GetRimWarSettlementAtTile(this.Tile);
                             if (settlement != null)
                             {
-                                if (settlement.Faction == Faction.OfPlayer)
+                                if (settlement.parent.Faction == Faction.OfPlayer)
                                 {
                                     RimWorld.Planet.Settlement playerSettlement = Find.World.worldObjects.SettlementAt(this.Tile);
                                     IncidentUtility.DoRaidWithPoints(this.RimWarPoints, playerSettlement, WorldUtility.GetRimWarDataForFaction(this.Faction), IncidentUtility.PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.EdgeWalkIn));
@@ -334,7 +338,7 @@ namespace RimWar.Planet
                 }
                 else
                 {
-                    this.ParentSettlement.RimWarPoints += this.RimWarPoints;
+                    this.WarSettlementComp.RimWarPoints += this.RimWarPoints;
                     List<Map> maps = Find.Maps;
                     for (int i =0; i < maps.Count; i++)
                     {
@@ -342,7 +346,8 @@ namespace RimWar.Planet
                         if(sBase != null && sBase.Faction != null && sBase.Tile == this.ParentSettlement.Tile)
                         {
                             //reinforcement against player
-                            IncidentUtility.DoRaidWithPoints((ParentSettlement.RimWarPoints - 1000), this.ParentSettlement.RimWorld_Settlement, this.rimwarData, IncidentUtility.PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.EdgeWalkIn));
+                            this.WarSettlementComp.RimWarPoints -= this.RimWarPoints;
+                            IncidentUtility.DoRaidWithPoints((WarSettlementComp.RimWarPoints - 1000), this.ParentSettlement, this.rimwarData, IncidentUtility.PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.EdgeWalkIn));
                         }
                     }
                 }
@@ -359,7 +364,7 @@ namespace RimWar.Planet
                         //Log.Message("attempting to reinforce");
                         //Log.Message("map is spawn " + Find.World.worldObjects.MapParentAt(this.Tile).Spawned);
                         //Log.Message("map " + Find.World.worldObjects.MapParentAt(this.Tile).Map + " has faction " + Find.World.worldObjects.MapParentAt(this.Tile).Faction);
-                        this.ParentSettlement.RimWarPoints += this.RimWarPoints;
+                        this.WarSettlementComp.RimWarPoints += this.RimWarPoints;
                     }
                     else
                     {
@@ -368,13 +373,13 @@ namespace RimWar.Planet
                         {
 
                         }
-                        this.ParentSettlement.RimWarPoints += this.RimWarPoints;
+                        this.WarSettlementComp.RimWarPoints += this.RimWarPoints;
                     }
                     base.ArrivalAction();
                 }
                 ValidateParentSettlement();
                 FindParentSettlement();
-                this.DestinationTarget = ParentSettlement.RimWorld_Settlement;
+                this.DestinationTarget = ParentSettlement;
                 PathToTarget(DestinationTarget);
             }
             //this.DestinationTarget = null;

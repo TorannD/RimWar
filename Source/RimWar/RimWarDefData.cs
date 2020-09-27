@@ -15,5 +15,10 @@ namespace RimWar
         public bool createsSettlements = true;
         public bool hatesPlayer = false;
         public bool movesAtNight = false;
+
+        //preferred biome
+        //movement multiplier
+        //faction offset with player
+        //difficulty multipler
     }
 }

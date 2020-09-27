@@ -229,12 +229,12 @@ namespace RimWar.Planet
                         }
                         else
                         {
-                            Settlement settlement = WorldUtility.GetRimWarSettlementAtTile(this.Tile);
-                            if (settlement != null)
+                            RimWarSettlementComp rwsc = WorldUtility.GetRimWarSettlementAtTile(this.Tile);
+                            if (rwsc != null)
                             {
-                                this.ParentSettlement.RimWarPoints += Mathf.RoundToInt(Rand.Range(.5f, .8f) * this.RimWarPoints);
-                                this.Faction.TryAffectGoodwillWith(settlement.Faction, 4, true, true, null, null);
-                                settlement.Faction.TryAffectGoodwillWith(this.Faction, 4, true, true, null, null);
+                                rwsc.RimWarPoints += Mathf.RoundToInt(Rand.Range(.5f, .8f) * this.RimWarPoints);
+                                this.Faction.TryAffectGoodwillWith(rwsc.parent.Faction, 4, true, true, null, null);
+                                rwsc.parent.Faction.TryAffectGoodwillWith(this.Faction, 4, true, true, null, null);
                             }
                             else if (wo is WarObject)
                             {
@@ -255,7 +255,7 @@ namespace RimWar.Planet
                             //Log.Message("attempting to reinforce");
                             //Log.Message("map is spawn " + Find.World.worldObjects.MapParentAt(this.Tile).Spawned);
                             //Log.Message("map " + Find.World.worldObjects.MapParentAt(this.Tile).Map + " has faction " + Find.World.worldObjects.MapParentAt(this.Tile).Faction);
-                            this.ParentSettlement.RimWarPoints += this.RimWarPoints;
+                            WorldUtility.GetRimWarSettlementAtTile(this.Tile).RimWarPoints += this.RimWarPoints;
                         }
                         else
                         {
@@ -264,7 +264,7 @@ namespace RimWar.Planet
                             {
 
                             }
-                            this.ParentSettlement.RimWarPoints += this.RimWarPoints;
+                            WorldUtility.GetRimWarSettlementAtTile(this.Tile).RimWarPoints += this.RimWarPoints;
                         }
                         base.ArrivalAction();
                     }                    

@@ -3,6 +3,9 @@
 
 <RW_RimWar>Rim War</RW_RimWar>
 
+<!-- ============ Dev Actions =============-->
+<RW_dev_createTrader>Dev: Create Trader</RW_dev_createTrader>
+
 <!-- ============ WarObject =============-->
 
 <!-- ============ World Objects =============-->
@@ -56,6 +59,8 @@
 <RW_alertRangeInfo>Shows an alert whenever a Rim War related entity is within range of player settlements. Setting the radius to 0 will disable this alert.</RW_alertRangeInfo>
 <RW_letterNotificationRange>Letter notification range:</RW_letterNotificationRange>
 <RW_letterNotificationRangeInfo>Generate a warning letter whenever a hostile force is approaching and targeting the players settlement. Setting the radius to 0 will disable letter notifications.</RW_letterNotificationRangeInfo>
+<RW_restrictEvents>Restrict events</RW_restrictEvents>
+<RW_restrictEventsInfo>Restricts Rim War actions from occurring randomly. When disabled, the storyteller will continue to generate random raids, caravans, and any other events associated with Rim War global objects.</RW_restrictEventsInfo>
 
 <!-- ============ Game Start Settings =============-->
 <RW_playerVSworld>Player vs All</RW_playerVSworld>
@@ -119,9 +124,11 @@ Current standing: {0}</RW_DeclarePeaceInfo>
 {3}.</RW_LetterApproachingThreatEventText>
 
 <RW_LetterPlayerSettlementBattle>Assault on Player Colony</RW_LetterPlayerSettlementBattle>
+<RW_LetterSettlementDefense>Defending Settlement</RW_LetterSettlementDefense>
 <RW_CaravanAmbush>{0} ambushed</RW_CaravanAmbush>
 <RW_CaravanAmbushedText>{0} was ambushed by {1} with {2} combat power.</RW_CaravanAmbushedText>
 <RW_RaidedPlayer>{0} assaulted the player settlement {1} with a combat power of {2}.</RW_RaidedPlayer>
+<RW_ReinforcedSettlement>Nearby warriors from {0} are rallying to defend {1}.</RW_ReinforcedSettlement>
 <RW_LetterPlayerSettlementReinforcement>Assault on Player Colony</RW_LetterPlayerSettlementReinforcement>
 <RW_ReinforcedPlayer>{0} reinforced the player settlement {1} with a combat force of {2} power.</RW_ReinforcedPlayer>
 <RW_CaravanTrade>Caravan Trade</RW_CaravanTrade>
