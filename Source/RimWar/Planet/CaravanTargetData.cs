@@ -76,7 +76,7 @@ namespace RimWar.Planet
         {
             if(shouldRegenerateCaravanTarget)
             {
-                WorldUtility.CreateWarObjectOfType(caravanTarget, caravanTarget.RimWarPoints, caravanTarget.rimwarData, caravanTarget.ParentSettlement, caravanTarget.Tile, caravanTarget.DestinationTarget, null, caravanTarget.DestinationTile, false);
+                WorldUtility.CreateWarObjectOfType(caravanTarget, caravanTarget.RimWarPoints, caravanTarget.rimwarData, caravanTarget.ParentSettlement, caravanTarget.Tile, caravanTarget.DestinationTarget, null, caravanTarget.DestinationTile, false, false);
             }
             if(caravan == null || caravanTarget == null)
             {

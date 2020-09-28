@@ -40,7 +40,7 @@ namespace RimWar.Harmony
             //        typeof(float),
             //        typeof(Rect)
             //    }, null), null, new HarmonyMethod(typeof(HarmonyPatches), "DrawFactionRow_WithFactionPoints_Postfix", null), null);
-            harmonyInstance.Patch(AccessTools.Method(typeof(SettlementUtility), "AttackNow", new Type[]
+            harmonyInstance.Patch(AccessTools.Method(typeof(RimWorld.Planet.SettlementUtility), "AttackNow", new Type[]
                 {
                     typeof(Caravan),
                     typeof(RimWorld.Planet.Settlement)
@@ -292,12 +292,20 @@ namespace RimWar.Harmony
             }
         }
 
-        public static void AttackNow_SettlementReinforcement_Postfix(SettlementUtility __instance, Caravan caravan, RimWorld.Planet.Settlement settlement)
+        public static void AttackNow_SettlementReinforcement_Postfix(RimWorld.Planet.SettlementUtility __instance, Caravan caravan, RimWorld.Planet.Settlement settlement)
         {
             RimWarSettlementComp rwsc = settlement.GetComponent<RimWarSettlementComp>();
-            if(rwsc != null && rwsc.RimWarPoints > 1050)
+            if(rwsc != null && rwsc.ReinforcementPoints >  0)
             {
-                WorldUtility.CreateWarband((rwsc.RimWarPoints - 1000), WorldUtility.GetRimWarDataForFaction(rwsc.parent.Faction), settlement, settlement.Tile, settlement, WorldObjectDefOf.Settlement);
+                //if(rwsc.parent.def.defName == "City_Faction" || rwsc.parent.def.defName == "City_Citadel")
+                //{
+                //    Warband b = WorldUtility.CreateWarband((rwsc.ReinforcementPoints), WorldUtility.GetRimWarDataForFaction(rwsc.parent.Faction), settlement, settlement.Tile, settlement, WorldObjectDefOf.Settlement);
+                //    b.launched = true;
+                //}
+                //else
+                //{
+                    WorldUtility.CreateWarband((rwsc.ReinforcementPoints), WorldUtility.GetRimWarDataForFaction(rwsc.parent.Faction), settlement, settlement.Tile, settlement, WorldObjectDefOf.Settlement);
+                //}                
             }
         }
 
@@ -362,6 +370,7 @@ namespace RimWar.Harmony
 
         public static bool TryResolveParms_Points_Prefix(IncidentParms parms)
         {
+            return true;
             if(parms.points <= 1000)
             {
                 return true;

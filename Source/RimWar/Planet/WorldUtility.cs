@@ -33,7 +33,7 @@ namespace RimWar.Planet
                 }
             }
             return wcpt;
-        }
+        }        
 
         public static RimWarData GetRimWarDataForFaction(Faction faction)
         {
@@ -82,6 +82,10 @@ namespace RimWar.Planet
                         let.relatedFaction = rwd.RimWarFaction;
                         RW_LetterMaker.Archive_RWLetter(let);
                     }
+                }
+                else
+                {
+                    Log.Message("no rwsc found for " + wo.def.defName);
                 }
                 ////rwd.FactionSettlements.Add(rimwarSettlement);
                 ////rimwarSettlement.Tile = wo.Tile;
@@ -165,7 +169,7 @@ namespace RimWar.Planet
                 worldSettlement.Destroy();
                 rwdFrom.rwdNextUpdateTick = Find.TickManager.TicksGame;
                 Find.World.WorldUpdate();
-                RimWorld.Planet.Settlement newSettlement = SettleUtility.AddNewHome(tile, rwdTo.RimWarFaction);
+                RimWorld.Planet.Settlement newSettlement = SettlementUtility.AddNewHome(tile, rwdTo.RimWarFaction, worldSettlement.def);
                 CreateRimWarSettlementWithPoints(rwdTo, newSettlement, points, false);
                 Find.World.WorldUpdate();
                 if(rwdFrom.RimWarFaction.defeated || rwdFrom.WorldSettlements.Count <= 0)
@@ -221,11 +225,11 @@ namespace RimWar.Planet
             return warObject;
         }
 
-        public static void CreateWarObjectOfType(WarObject warObject, int power, RimWarData rwd, RimWorld.Planet.Settlement parentSettlement, int startingTile, WorldObject destination, WorldObjectDef worldDef, int destinationTile = 0, bool _interactable = true)
+        public static void CreateWarObjectOfType(WarObject warObject, int power, RimWarData rwd, RimWorld.Planet.Settlement parentSettlement, int startingTile, WorldObject destination, WorldObjectDef worldDef, int destinationTile = 0, bool _launched = false, bool _interactable = true)
         {
             if(warObject is Warband)
             {
-                CreateWarband(power, rwd, parentSettlement, startingTile, destination, worldDef, _interactable);
+                CreateWarband(power, rwd, parentSettlement, startingTile, destination, worldDef, _launched, _interactable);
             }
             else if(warObject is Scout)
             {
@@ -331,7 +335,7 @@ namespace RimWar.Planet
             return warband;
         }        
 
-        public static void CreateWarband(int power, RimWarData rwd, RimWorld.Planet.Settlement parentSettlement, int startingTile, WorldObject destination, WorldObjectDef worldDef, bool launched = false, bool _interactable = true)
+        public static Warband CreateWarband(int power, RimWarData rwd, RimWorld.Planet.Settlement parentSettlement, int startingTile, WorldObject destination, WorldObjectDef worldDef, bool _launched = false, bool _interactable = true)
         {
             //Log.Message("generating warband for " + rwd.RimWarFaction.Name + " from " + startingTile + " to " + destinationTile);
             try
@@ -343,7 +347,7 @@ namespace RimWar.Planet
                 warband.ParentSettlement = parentSettlement;
                 warband.MovesAtNight = rwd.movesAtNight;
                 warband.RimWarPoints = power;
-                warband.launched = launched;
+                warband.launched = _launched;
                 warband.TicksPerMove = (int)(warband.TicksPerMove / settingsRef.objectMovementMultiplier);
                 warband.DestinationTarget = destination;                
                 if (rwd.behavior == RimWarBehavior.Warmonger)
@@ -354,20 +358,22 @@ namespace RimWar.Planet
                 {
                     warband.TicksPerMove = (int)(warband.TicksPerMove * 1.1f);
                 }
-                if (launched)
+                if (_launched)
                 {
                     warband.ArrivalAction();
                 }
-                else if (!warband.pather.Moving && warband.Tile != destination.Tile)
+                else if (warband.Tile != destination.Tile)
                 {
                     warband.pather.StartPath(destination.Tile, true);
                     warband.pather.nextTileCostLeft /= 2f;
                     warband.tweener.ResetTweenedPosToRoot();
                 }
+                return warband;
             }
             catch (NullReferenceException ex)
             {
                 Log.Message("failed to create warband\n rwd: " + rwd + " parent " + parentSettlement + " start " + startingTile + " end " + destination.Tile + " def " + worldDef + "\n" + ex);
+                return null;
             }
             
             //Log.Message("end create warband");
@@ -408,7 +414,7 @@ namespace RimWar.Planet
             }
             catch (NullReferenceException ex)
             {
-                Log.Message("failed to create warband\n rwd: " + rwd + " parent " + parentSettlement + " start " + startingTile + " end " + destination.Tile + " def " + worldDef + "\n" + ex);
+                Log.Message("failed to create launched warband\n rwd: " + rwd + " parent " + parentSettlement + " start " + startingTile + " end " + destination.Tile + " def " + worldDef + "\n" + ex);
             }
             //Log.Message("end create warband");
         }
@@ -652,11 +658,27 @@ namespace RimWar.Planet
         {
             if (faction != null)
             {
-                int sum = 500;
+                int sum = 300;
                 float techMultiplier = GetFactionTechLevelMultiplier(faction);
                 sum = Mathf.RoundToInt(sum / techMultiplier);
                 float biomeMultiplier = GetBiomeMultiplier(worldObject.Biome);
                 sum = Mathf.RoundToInt(sum * biomeMultiplier);
+                if(worldObject.def.defName == "City_Faction")
+                {
+                    sum = Mathf.RoundToInt(sum * 1.35f);
+                }
+                if (worldObject.def.defName == "City_Abandoned")
+                {
+                    sum = Mathf.RoundToInt(sum * .1f);
+                }
+                if (worldObject.def.defName == "City_Compromised")
+                {
+                    sum = Mathf.RoundToInt(sum * .4f);
+                }
+                if (worldObject.def.defName == "City_Citadel")
+                {
+                    sum = Mathf.RoundToInt(sum * 2.75f);
+                }
                 return sum;
             }
             else
@@ -695,6 +717,7 @@ namespace RimWar.Planet
         public static int CalculateTraderPoints(RimWarSettlementComp targetTown)
         {
             int pointsNeeded = 0;
+            
             if (targetTown.parent.Faction == Faction.OfPlayerSilentFail)
             {
                 pointsNeeded = targetTown.RimWarPoints;
@@ -1468,6 +1491,25 @@ namespace RimWar.Planet
                 fr.Add(_fr);
                 Traverse.Create(root: thisFaction).Field(name: "relations").SetValue(fr);
             }
+        }
+
+        public static bool IsValidSettlement(WorldObject wo)
+        {
+            if (wo != null)
+            {
+                if (wo is RimWorld.Planet.Settlement)
+                {
+                    RimWorld.Planet.Settlement wos = wo as RimWorld.Planet.Settlement;
+                    if (!wos.Destroyed && wos.Faction != null)
+                    {
+                        if (wo.def.defName == "Settlement" || wo.def.defName == "City_Faction" || wo.def.defName == "City_Citadel")
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
         }
     }
 }

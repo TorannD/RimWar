@@ -72,8 +72,8 @@ namespace RimWar.Planet
                 if (attackerResult > defenderResult)
                 {
                     //Log.Message("attacker " + attacker.Label + " wins agaisnt warband " + defender.Label);
-                    endPointsAttacker = (attacker.RimWarPoints * (1 - ((Rand.Range(.2f, .3f) * defender.RimWarPoints) / combinedPoints))); //always lose points in relation to warband sizes
-                    endPointsDefender = (defender.RimWarPoints * (1 - ((Rand.Range(.2f, .3f) * attacker.RimWarPoints) / combinedPoints))); //always lose points in relation to warband sizes
+                    endPointsAttacker = (attacker.RimWarPoints * (1 - ((Rand.Range(.3f, .5f) * defender.RimWarPoints) / combinedPoints))); //always lose points in relation to warband sizes
+                    endPointsDefender = (defender.RimWarPoints * (1 - ((Rand.Range(.3f, .5f) * attacker.RimWarPoints) / combinedPoints))); //always lose points in relation to warband sizes
                                                                                                                                            //Attacker wins
                     if (attackerResult > 2 * defenderResult) //routed
                     {
@@ -106,8 +106,8 @@ namespace RimWar.Planet
                 {
                     //Log.Message("defender " + defender.Label + " wins against warband " + defender.Label);
                     //Defender wins
-                    endPointsAttacker = (attacker.RimWarPoints * (1 - ((Rand.Range(.2f, .3f) * defender.RimWarPoints) / combinedPoints))); //always lose points in relation to warband sizes
-                    endPointsDefender = (defender.RimWarPoints * (1 - ((Rand.Range(.2f, .3f) * attacker.RimWarPoints) / combinedPoints))); //always lose points in relation to warband sizes
+                    endPointsAttacker = (attacker.RimWarPoints * (1 - ((Rand.Range(.3f, .5f) * defender.RimWarPoints) / combinedPoints))); //always lose points in relation to warband sizes
+                    endPointsDefender = (defender.RimWarPoints * (1 - ((Rand.Range(.3f, .5f) * attacker.RimWarPoints) / combinedPoints))); //always lose points in relation to warband sizes
                     if (defenderResult > 2 * attackerResult) //routed
                     {
                         endPointsDefender += endPointsAttacker * (Rand.Range(.35f, .5f)); //gain up to half the points of the defender warband in combat power
@@ -170,8 +170,8 @@ namespace RimWar.Planet
                 if (attackerResult > defenderResult)
                 {
                     //Log.Message("attacker " + attacker.Label + " wins against settlement " + defender.RimWorld_Settlement.Name);
-                    endPointsAttacker = (attacker.RimWarPoints * (1 - ((Rand.Range(.2f, .3f) * defender.RimWarPoints) / combinedPoints))); //always lose points in relation to warband sizes
-                    endPointsDefender = (defender.RimWarPoints * (1 - ((Rand.Range(.2f, .3f) * attacker.RimWarPoints) / combinedPoints))); //always lose points in relation to warband sizes
+                    endPointsAttacker = (attacker.RimWarPoints * (1 - ((Rand.Range(.3f, .5f) * defender.RimWarPoints) / combinedPoints))); //always lose points in relation to warband sizes
+                    endPointsDefender = (defender.RimWarPoints * (1 - ((Rand.Range(.3f, .5f) * attacker.RimWarPoints) / combinedPoints))); //always lose points in relation to warband sizes
                                                                                                                                            //Attacker wins
                     if (attackerResult > 1.75 * defenderResult) //routed
                     {
@@ -357,8 +357,8 @@ namespace RimWar.Planet
                 {
                     //Log.Message("attacker " + attacker.Label + " loses against settlement " + defender.RimWorld_Settlement.Name);
                     //Defender wins
-                    endPointsAttacker = (attacker.RimWarPoints * (1 - ((Rand.Range(.2f, .3f) * defender.RimWarPoints) / combinedPoints))); //always lose points in relation to warband sizes
-                    endPointsDefender = (defender.RimWarPoints * (1 - ((Rand.Range(.2f, .3f) * attacker.RimWarPoints) / combinedPoints))); //always lose points in relation to warband sizes
+                    endPointsAttacker = (attacker.RimWarPoints * (1 - ((Rand.Range(.3f, .5f) * defender.RimWarPoints) / combinedPoints))); //always lose points in relation to warband sizes
+                    endPointsDefender = (defender.RimWarPoints * (1 - ((Rand.Range(.3f, .5f) * attacker.RimWarPoints) / combinedPoints))); //always lose points in relation to warband sizes
                     let.text = "RW_LetterBattleText".Translate(attacker.Label.CapitalizeFirst(), attacker.RimWarPoints, "failed in their assault against", defender.parent.Label, defender.RimWarPoints);
                     let.lookTargets = defender.parent;
                     let.relatedFaction = defender.parent.Faction;

@@ -120,7 +120,7 @@ namespace RimWar
                     for(int i = 0; i < Find.WorldObjects.AllWorldObjects.Count; i++)
                     {
                         RimWorld.Planet.Settlement wos = Find.WorldObjects.AllWorldObjects[i] as RimWorld.Planet.Settlement;
-                        if(wos != null && !wos.Destroyed && wos.Faction == this.RimWarFaction)
+                        if(WorldUtility.IsValidSettlement(wos) && wos.Faction == this.RimWarFaction)
                         {
                             tmpList.Add(wos);
                         }

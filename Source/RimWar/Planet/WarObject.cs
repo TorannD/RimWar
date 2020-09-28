@@ -385,6 +385,7 @@ namespace RimWar.Planet
 
         public virtual void ArrivalAction()
         {
+            //Log.Message("arrival destroy; dest " + DestinationTarget + " parent " + this.ParentSettlement);
             if (!this.Destroyed)
             {
                 this.Destroy();

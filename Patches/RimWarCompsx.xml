@@ -8,4 +8,19 @@
 	  </value>
 	</Operation> 	
 	
+	<Operation Class="PatchOperationSequence">
+	<success>Always</success>
+	<operations>
+		<li Class="PatchOperationTest">
+			<xpath>*/WorldObjectDef[worldObjectClass = "Cities.City"]/comps</xpath>
+		</li>
+	   <li Class="PatchOperationAdd">
+			<xpath>*/WorldObjectDef[worldObjectClass = "Cities.City"]/comps</xpath>
+			<value>
+				<li Class = "RimWar.Planet.WorldObjectCompProperties_RimWarSettlement"></li>
+			</value>
+	  </li>
+	 </operations>
+  </Operation>	
+	
 </Patch>

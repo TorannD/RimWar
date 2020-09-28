@@ -163,21 +163,13 @@ namespace RimWar.Planet
         {
             int currentTick = Find.TickManager.TicksGame;
             Options.SettingsRef settingsRef = new Options.SettingsRef();
-            //if(!doOnce)
+            //if (!doOnce)
             //{
             //    doOnce = true;
-            //    Log.Message("RWD is " + this.RimWarData);
-            //    if(this.RimWarData != null)
+            //    IEnumerable<ModMetaData> datas = ModsConfig.ActiveModsInLoadOrder;
+            //    foreach(ModMetaData mmd in datas)
             //    {
-            //        Log.Message("RWD count is " + this.RimWarData.Count);
-            //        for(int i = 0; i < this.RimWarData.Count; i++)
-            //        {
-            //            RimWarData rwd = this.RimWarData[i];
-            //            if(rwd != null)
-            //            {
-            //                Log.Message("RWD " + i + " for faction " + rwd.RimWarFaction.Name + " has " + rwd.FactionSettlements.Count + " settlements");
-            //            }
-            //        }
+            //        Log.Message("loaded package id " + mmd.PackageId);
             //    }
             //}
             if (currentTick >= 10 && !this.rwdInitialized)
@@ -218,102 +210,105 @@ namespace RimWar.Planet
                     {
                         //Log.Message("detecting " + rwd.WorldSettlements.Count + " for faction " + rwd.RimWarFaction.Name);
                         RimWorld.Planet.Settlement settlement = rwd.WorldSettlements.RandomElement();
-                        RimWarSettlementComp rwsComp = settlement.GetComponent<RimWarSettlementComp>();
-                        //Log.Message("town selected " + rwdTown.parent.Label + " next tick event " + rwdTown.nextEventTick + " current tick " + currentTick);
-                        if (rwsComp != null)
+                        if (WorldUtility.IsValidSettlement(settlement))
                         {
-                            if (rwsComp.nextEventTick - currentTick > settingsRef.settlementEventDelay * 2)
+                            RimWarSettlementComp rwsComp = settlement.GetComponent<RimWarSettlementComp>();
+                            //Log.Message("town selected " + rwdTown.parent.Label + " next tick event " + rwdTown.nextEventTick + " current tick " + currentTick);
+                            if (rwsComp != null)
                             {
-                                rwsComp.nextEventTick = currentTick;
-                            }
-                            if (rwd.behavior != RimWarBehavior.Player && rwsComp.nextEventTick <= currentTick && ((!CaravanNightRestUtility.RestingNowAt(rwsComp.parent.Tile) && !rwd.movesAtNight) || (CaravanNightRestUtility.RestingNowAt(rwsComp.parent.Tile) && rwd.movesAtNight)))
-                            {
-                                if (rwd.rwdNextUpdateTick < currentTick)
+                                if (rwsComp.nextEventTick - currentTick > settingsRef.settlementEventDelay * 2)
                                 {
-                                    rwd.rwdNextUpdateTick = currentTick + settingsRef.rwdUpdateFrequency;
-                                    WorldUtility.UpdateRWDSettlementLists(rwd);
+                                    rwsComp.nextEventTick = currentTick;
                                 }
-                                //if (!settingsRef.forceRandomObject)
-                                //{
-                                //    if (rwsComp.nextSettlementScan == 0 || rwsComp.nextSettlementScan <= Find.TickManager.TicksGame)
-                                //    {
-                                //        rwsComp.OtherSettlementsInRange = WorldUtility.GetRimWarSettlementsInRange(rwsComp.parent.Tile, Mathf.Min(Mathf.RoundToInt(rwsComp.RimWarPoints / (settingsRef.settlementScanRangeDivider)), (int)settingsRef.maxSettelementScanRange), this.RimWarData, rwd);
-                                //        rwsComp.nextSettlementScan = Find.TickManager.TicksGame + settingsRef.settlementScanDelay;
-                                //    }
-                                //}
-                                RimWarAction newAction = rwd.GetWeightedSettlementAction();
-                                if (rwd.IsAtWar && !(newAction == RimWarAction.LaunchedWarband || newAction == RimWarAction.ScoutingParty || newAction == RimWarAction.Warband))
+                                if (rwd.behavior != RimWarBehavior.Player && rwsComp.nextEventTick <= currentTick && ((!CaravanNightRestUtility.RestingNowAt(rwsComp.parent.Tile) && !rwd.movesAtNight) || (CaravanNightRestUtility.RestingNowAt(rwsComp.parent.Tile) && rwd.movesAtNight)))
                                 {
-                                    newAction = rwd.GetWeightedSettlementAction();
-                                }
-                                //Log.Message("attempting new action of " + newAction.ToString() + " at " + settlement.Label);
-                                //newAction = RimWarAction.LaunchedWarband;
-                                if (newAction != RimWarAction.None)
-                                {
-                                    this.objectsCreated++;
-                                    if (Rand.Chance(.02f))
+                                    if (rwd.rwdNextUpdateTick < currentTick)
                                     {
-                                        rwsComp.RimWarPoints += Rand.Range(20, 200);
-                                        this.globalActions++;
-                                        //Log.Message("" + rwsComp.RimWorld_Settlement.Name + " had a burst of growth");
+                                        rwd.rwdNextUpdateTick = currentTick + settingsRef.rwdUpdateFrequency;
+                                        WorldUtility.UpdateRWDSettlementLists(rwd);
                                     }
-                                    if (newAction == RimWarAction.Caravan)
+                                    //if (!settingsRef.forceRandomObject)
+                                    //{
+                                    //    if (rwsComp.nextSettlementScan == 0 || rwsComp.nextSettlementScan <= Find.TickManager.TicksGame)
+                                    //    {
+                                    //        rwsComp.OtherSettlementsInRange = WorldUtility.GetRimWarSettlementsInRange(rwsComp.parent.Tile, Mathf.Min(Mathf.RoundToInt(rwsComp.RimWarPoints / (settingsRef.settlementScanRangeDivider)), (int)settingsRef.maxSettelementScanRange), this.RimWarData, rwd);
+                                    //        rwsComp.nextSettlementScan = Find.TickManager.TicksGame + settingsRef.settlementScanDelay;
+                                    //    }
+                                    //}
+                                    RimWarAction newAction = rwd.GetWeightedSettlementAction();
+                                    if (rwd.IsAtWar && !(newAction == RimWarAction.LaunchedWarband || newAction == RimWarAction.ScoutingParty || newAction == RimWarAction.Warband))
                                     {
-                                        //Log.Message("Caravan attempt by " + rwd.RimWarFaction.Name);
-                                        AttemptTradeMission(rwd, settlement, rwsComp);
+                                        newAction = rwd.GetWeightedSettlementAction();
                                     }
-                                    else if (newAction == RimWarAction.Diplomat)
+                                    //Log.Message("attempting new action of " + newAction.ToString() + " at " + settlement.Label);
+                                    //newAction = RimWarAction.LaunchedWarband;
+                                    if (newAction != RimWarAction.None)
                                     {
-                                        //Log.Message("Diplomat attempt by " + rwd.RimWarFaction.Name);
-                                        if (settingsRef.createDiplomats)
+                                        this.objectsCreated++;
+                                        if (Rand.Chance(.02f))
                                         {
-                                            AttemptDiplomatMission(rwd, settlement, rwsComp);
+                                            rwsComp.RimWarPoints += Rand.Range(20, 200);
+                                            this.globalActions++;
+                                            //Log.Message("" + rwsComp.RimWorld_Settlement.Name + " had a burst of growth");
                                         }
-                                        else
+                                        if (newAction == RimWarAction.Caravan)
                                         {
-                                            this.creationAttempts++;
+                                            //Log.Message("Caravan attempt by " + rwd.RimWarFaction.Name);
+                                            AttemptTradeMission(rwd, settlement, rwsComp);
                                         }
-                                    }
-                                    else if (newAction == RimWarAction.LaunchedWarband)
-                                    {
-                                        //Log.Message("Launched Warband attempt by " + rwd.RimWarFaction.Name);
-                                        AttemptLaunchedWarbandAgainstTown(rwd, settlement, rwsComp);
-                                    }
-                                    else if (newAction == RimWarAction.ScoutingParty)
-                                    {
-                                        //Log.Message("Scout attempt by " + rwd.RimWarFaction.Name);
-                                        AttemptScoutMission(rwd, settlement, rwsComp);
-                                    }
-                                    else if (newAction == RimWarAction.Settler && rwd.WorldSettlements.Count < settingsRef.maxFactionSettlements)
-                                    {
-                                        //Log.Message("Settler attempt by " + rwd.RimWarFaction.Name);
-                                        AttemptSettlerMission(rwd, settlement, rwsComp);
-                                    }
-                                    else if (newAction == RimWarAction.Warband)
-                                    {
-                                        //Log.Message("Warband attempt by " + rwd.RimWarFaction.Name);
-                                        AttemptWarbandActionAgainstTown(rwd, settlement, rwsComp);
-                                    }
-                                    else
-                                    {
-                                        if (rwd.WorldSettlements.Count >= settingsRef.maxFactionSettlements)
+                                        else if (newAction == RimWarAction.Diplomat)
                                         {
-                                            if (Rand.Chance(.3f))
+                                            //Log.Message("Diplomat attempt by " + rwd.RimWarFaction.Name);
+                                            if (settingsRef.createDiplomats)
                                             {
-                                                AttemptTradeMission(rwd, settlement, rwsComp);
+                                                AttemptDiplomatMission(rwd, settlement, rwsComp);
+                                            }
+                                            else
+                                            {
+                                                this.creationAttempts++;
                                             }
                                         }
+                                        else if (newAction == RimWarAction.LaunchedWarband)
+                                        {
+                                            //Log.Message("Launched Warband attempt by " + rwd.RimWarFaction.Name);
+                                            AttemptLaunchedWarbandAgainstTown(rwd, settlement, rwsComp);
+                                        }
+                                        else if (newAction == RimWarAction.ScoutingParty)
+                                        {
+                                            //Log.Message("Scout attempt by " + rwd.RimWarFaction.Name);
+                                            AttemptScoutMission(rwd, settlement, rwsComp);
+                                        }
+                                        else if (newAction == RimWarAction.Settler && rwd.WorldSettlements.Count < settingsRef.maxFactionSettlements)
+                                        {
+                                            //Log.Message("Settler attempt by " + rwd.RimWarFaction.Name);
+                                            AttemptSettlerMission(rwd, settlement, rwsComp);
+                                        }
+                                        else if (newAction == RimWarAction.Warband)
+                                        {
+                                            //Log.Message("Warband attempt by " + rwd.RimWarFaction.Name);
+                                            AttemptWarbandActionAgainstTown(rwd, settlement, rwsComp);
+                                        }
                                         else
                                         {
-                                            Log.Warning("attempted to generate undefined RimWar settlement action");
+                                            if (rwd.WorldSettlements.Count >= settingsRef.maxFactionSettlements)
+                                            {
+                                                if (Rand.Chance(.3f))
+                                                {
+                                                    AttemptTradeMission(rwd, settlement, rwsComp);
+                                                }
+                                            }
+                                            else
+                                            {
+                                                Log.Warning("attempted to generate undefined RimWar settlement action");
+                                            }
                                         }
+                                        rwsComp.nextEventTick = currentTick + settingsRef.settlementEventDelay; //one day (60000) default
                                     }
-                                    rwsComp.nextEventTick = currentTick + settingsRef.settlementEventDelay; //one day (60000) default
                                 }
-                            }
-                            else
-                            {
-                                this.creationAttempts++;
+                                else
+                                {
+                                    this.creationAttempts++;
+                                }
                             }
                         }
                     }
@@ -645,9 +640,15 @@ namespace RimWar.Planet
                         RimWarSettlementComp rwdTown = rwd.WorldSettlements[j].GetComponent<RimWarSettlementComp>();
                         if (rwdTown != null)
                         {
-                            if (rwdTown.RimWarPoints <= 25000)
+                            int maxPts = 25000;
+                            if(rwdTown.parent.def.defName == "City_Citadel")
                             {
-                                float pts = (Rand.Range(2, 5)) + 2 + WorldUtility.GetBiomeMultiplier(Find.WorldGrid[rwdTown.parent.Tile].biome);
+                                maxPts = 40000;
+                                mult = 2f;
+                            }
+                            if (rwdTown.RimWarPoints <= maxPts)
+                            {
+                                float pts = (Rand.Range(1, 4)) + 2 + WorldUtility.GetBiomeMultiplier(Find.WorldGrid[rwdTown.parent.Tile].biome);
                                 pts = pts * mult * WorldUtility.GetFactionTechLevelMultiplier(rwd.RimWarFaction) * Rand.Range(.2f, 1f);
                                 rwdTown.RimWarPoints += Mathf.RoundToInt(pts);
                             }
@@ -671,7 +672,7 @@ namespace RimWar.Planet
                     for (int j = 0; j < rwd.WorldSettlements.Count; j++)
                     {
                         RimWarSettlementComp rwdTown = rwd.WorldSettlements[j].GetComponent<RimWarSettlementComp>();
-                        if (rwdTown.SettlementPointGains != null && rwdTown.SettlementPointGains.Count > 0)
+                        if (rwdTown != null && rwdTown.SettlementPointGains != null && rwdTown.SettlementPointGains.Count > 0)
                         {
                             for (int k = 0; k < rwdTown.SettlementPointGains.Count; k++)
                             {
@@ -817,7 +818,7 @@ namespace RimWar.Planet
                 for (int i = 0; i < worldObjects.Count; i++)
                 {
                     RimWorld.Planet.Settlement wos = worldObjects[i] as RimWorld.Planet.Settlement;
-                    if (wos != null && wos.Faction == rwd.RimWarFaction)
+                    if (WorldUtility.IsValidSettlement(wos) && wos.Faction == rwd.RimWarFaction)
                     {
                         bool hasSettlement = false;
                         if (rwd.WorldSettlements != null && rwd.WorldSettlements.Count > 0)

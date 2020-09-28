@@ -14,7 +14,6 @@ namespace RimWar.Planet
 {
     public class RimWarSettlementComp : WorldObjectComp
     {
-
         private int rimwarPointsInt = 0;
         public int nextEventTick = 0;
         public int nextSettlementScan = 0;
@@ -95,6 +94,27 @@ namespace RimWar.Planet
             set
             {
                 this.rimwarPointsInt = Mathf.Max(0, value);
+            }
+        }
+
+        public int ReinforcementPoints
+        {
+            get
+            {
+                int pts = this.RimWarPoints - 1050;                
+                if(this.parent.def.defName == "City_Faction")
+                {
+                    pts -= 1000;
+                }
+                else if(this.parent.def.defName == "City_Citadel")
+                {
+                    pts = -1;
+                }
+                else if(this.parent.def.defName == "City_Abandoned" || this.parent.def.defName == "City_Compromised" || this.parent.def.defName == "City_Ghost")
+                {
+                    pts = -1;
+                }
+                return pts;
             }
         }
 

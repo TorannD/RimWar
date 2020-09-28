@@ -50,6 +50,10 @@
       <HintPath>..\..\..\..\..\..\workshop\content\294100\818773962\v1.2\Assemblies\HugsLib.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="RimCities">
+      <HintPath>..\..\..\..\..\..\workshop\content\294100\1775170117\1.2\Assemblies\RimCities.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -103,6 +107,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Base.cs" />
+    <Compile Include="Planet\SettlementUtility.cs" />
     <Compile Include="Planet\RimWarSettlementComp.cs" />
     <Compile Include="Planet\WorldObjectCompProperties_RimWarSettlement.cs" />
     <Compile Include="RimWarMatPool.cs" />

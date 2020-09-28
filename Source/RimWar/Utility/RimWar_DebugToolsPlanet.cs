@@ -532,7 +532,32 @@ namespace RimWar.Utility
                         if (rwd != null && rwd.WorldSettlements != null && rwd.WorldSettlements.Count > 0)
                         {
                             resetCount++;
-                            rwd.WorldSettlements.RandomElement().GetComponent<RimWarSettlementComp>().RimWarPoints += rwo.RimWarPoints;
+                            RimWorld.Planet.Settlement settlement = rwd.WorldSettlements.RandomElement();
+                            if(settlement != null)
+                            {
+                                if(settlement.Destroyed)
+                                {
+                                    Log.Warning("Detected destroyed settlement in Rim War data for " + rwd.RimWarFaction.Name);
+                                }
+                                else
+                                {
+                                    RimWarSettlementComp rwsc = settlement.GetComponent<RimWarSettlementComp>();
+                                    if(rwsc != null)
+                                    {
+                                        rwsc.RimWarPoints += rwo.RimWarPoints;
+                                    }
+                                    else
+                                    {
+                                        Log.Warning("Found no Rim War component for settlement " + settlement.Label);
+                                        Log.Warning("Settlement in faction " + settlement.Faction);
+                                        Log.Warning("Settlement defname " + settlement.def.defName);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                Log.Warning("Detected null settlement in Rim War data for " + rwd.RimWarFaction.Name);
+                            }
                             if (!rwo.Destroyed)
                             {
                                 rwo.Destroy();
@@ -568,6 +593,7 @@ namespace RimWar.Utility
             Log.Message("Reseting Rim War Settlement Points...");
             int totalSettlements = 0;
             int initialPoints = GetPointsFromAllSettlements(out totalSettlements);
+            float yearMultiplier = 1f + (GenDate.YearsPassed * .1f);
             List<RimWarData> rwdList = WorldUtility.Get_WCPT().RimWarData;
             if(rwdList != null && rwdList.Count > 0)
             {
@@ -578,7 +604,7 @@ namespace RimWar.Utility
                     {
                         for(int j = 0; j < rwscList.Count; j++)
                         {
-                            rwscList[j].RimWarPoints = Mathf.RoundToInt(WorldUtility.CalculateSettlementPoints(rwscList[j].parent, rwscList[j].parent.Faction) * Rand.Range(.5f, 1.5f));
+                            rwscList[j].RimWarPoints = Mathf.RoundToInt(WorldUtility.CalculateSettlementPoints(rwscList[j].parent, rwscList[j].parent.Faction) * Rand.Range(.5f, 1.5f) * yearMultiplier);
                         }
                     }
                 }
