@@ -11,14 +11,14 @@ using HarmonyLib;
 
 namespace RimWar
 {
-    public class RimWarData : IExposable, ILoadReferenceable
+    public class RimWarData : IExposable //, ILoadReferenceable
     {
 
-        public int uniqueID = -1;
-        public string GetUniqueLoadID()
-        {
-            return "RimWarData_" + uniqueID;
-        }
+        //public int uniqueID = -1;
+        //public string GetUniqueLoadID()
+        //{
+        //    return "RimWarData_" + uniqueID;
+        //}
 
         private Faction rimwarFaction;
         public int lastEventTick = 0;
@@ -42,7 +42,7 @@ namespace RimWar
 
         public void ExposeData()
         {
-            Scribe_Values.Look(ref uniqueID, "uniqueID", -1);
+            //Scribe_Values.Look(ref uniqueID, "uniqueID", -1);
             Scribe_Values.Look<float>(ref this.settlerChance, "settlerChance", 0, false);
             Scribe_Values.Look<float>(ref this.warbandChance, "warbandChance", 1f, false);
             Scribe_Values.Look<float>(ref this.warbandLaunchChance, "warbandLaunchChance", 0, false);
@@ -421,7 +421,7 @@ namespace RimWar
         public RimWarData(Faction faction)
         {
             this.rimwarFaction = faction;
-            this.uniqueID = Find.UniqueIDsManager.GetNextWorldObjectID();
+            //this.uniqueID = Find.UniqueIDsManager.GetNextWorldObjectID();
             //SetUniqueId();
             //this.factionName = faction.Name;
             this.factionWarbands = new List<Warband>();

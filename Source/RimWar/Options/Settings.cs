@@ -19,7 +19,7 @@ namespace RimWar.Options
         //limit controls
         public int maxFactionSettlements = 20;
         public float maxSettlementScanRange = 30f;
-        public float settlementScanRangeDivider = 100f;        
+        public float settlementScanRangeDivider = 50f;        
         public float objectMovementMultiplier = 1f;
 
         //performance controls
@@ -53,7 +53,7 @@ namespace RimWar.Options
             Scribe_Values.Look<float>(ref this.rimwarDifficulty, "rimwarDifficulty", 1f, false);
             Scribe_Values.Look<int>(ref this.maxFactionSettlements, "maxFactionSettlements", 20, false);
             Scribe_Values.Look<float>(ref this.maxSettlementScanRange, "maxSettlementScanRange", 30f, false);
-            Scribe_Values.Look<float>(ref this.settlementScanRangeDivider, "settlementScanRangeDivider", 100f, false);
+            Scribe_Values.Look<float>(ref this.settlementScanRangeDivider, "settlementScanRangeDivider", 50f, false);
             Scribe_Values.Look<int>(ref this.maxFactionObjects, "maxFactionObjects", 30, false);
             Scribe_Values.Look<bool>(ref this.forceRandomObject, "forceRandomObject", false, false);
             Scribe_Values.Look<int>(ref this.maxScanObjects, "maxScanObjects", 100, false);

@@ -38,11 +38,8 @@ namespace RimWar.Planet
 
         public override void Arrived(Caravan caravan)
         {
-            wo.ImmediateAction(caravan);
-            if (Find.WorldObjects.Contains(wo))
-            {
-                Find.WorldObjects.Remove(wo);
-            }
+            WorldUtility.Get_WCPT().RemoveCaravanTarget(caravan);
+            wo.EngageNearbyCaravan(caravan);            
         }
 
         public override void ExposeData()

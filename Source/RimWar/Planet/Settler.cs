@@ -95,13 +95,18 @@ namespace RimWar.Planet
                     stringBuilder.AppendLine();
                 }
                 stringBuilder.Append("RW_EstimatedTimeToDestination".Translate(num6.ToString("0.#")));
-                stringBuilder.Append("\n" + Find.WorldGrid.TraversalDistanceBetween(this.Tile, pather.Destination) + " tiles");
+                stringBuilder.Append(" (" + Find.WorldGrid.TraversalDistanceBetween(this.Tile, pather.Destination) + "RW_TilesAway_Verbatum".Translate() + ")");
+                if(this.NightResting)
+                {
+                    stringBuilder.Append("\n"+"RW_UnitCamped".Translate());
+                }
             }
             if (stringBuilder.Length != 0)
             {
                 stringBuilder.AppendLine();
             }
             stringBuilder.Append("RW_CombatPower".Translate(this.RimWarPoints));
+            stringBuilder.Append("\n" + this.Faction.PlayerRelationKind.ToString());
             if (!pather.MovingNow)
             {
 
@@ -109,89 +114,48 @@ namespace RimWar.Planet
             return stringBuilder.ToString();
         }
 
+        //NextSearchTick
+        //NextSearchTickIncrement (override by type)
+        //ScanRange (override by type)
+        //EngageNearbyWarObject --> IncidentUtility -- > ImmediateAction
+        //EngageNearbyCaravan --> IncidentUtility --> ImmediateAction
+        //NotifyPlayer
+        //NextMoveTick
+        //NextMoveTickIncrement (default is settings based)
+        //ArrivalAction
+        //public override int NextSearchTickIncrement => Rand.Range(1000, 3000);
+
         public override void Tick()
         {
             base.Tick();
-            if (Find.TickManager.TicksGame % this.searchTick == 0)
+            if (DestinationTarget != null)
             {
-                //scan for nearby engagements
-                this.searchTick = Rand.Range(3000, 5000);
-                if (interactable)
+                if (this.DestinationTarget.Tile != pather.Destination)
                 {
-                    ScanForNearbyEnemy(1); //WorldUtility.GetRimWarDataForFaction(this.Faction).GetEngagementRange()
+                    PathToTarget(DestinationTarget);
                 }
-                if(DestinationTarget != null)
-                {
-                    if (this.DestinationTarget.Tile != pather.Destination)
-                    {
-                        PathToTarget(DestinationTarget);
-                    }
-                }
-                else if (this.DestinationTile > 0 && this.DestinationTile != pather.Destination)
-                {
-                    PathToTargetTile(this.DestinationTile);
-                }
-                //else
-                //{
-                //    if (this.ParentSettlement != null)
-                //    {
-                //        this.DestinationTarget = Find.World.worldObjects.WorldObjectAt(this.ParentSettlement.Tile, WorldObjectDefOf.Settlement);
-                //    }
-                //}
             }
-            if (Find.TickManager.TicksGame % (this.searchTick - 10) == 0)
+            else if (this.DestinationTile > 0 && this.DestinationTile != pather.Destination)
             {
-                this.ValidateParentSettlement();
-            }
-            if (true) //Find.TickManager.TicksGame % 60 == 0)
-            {
-                if (this.ParentSettlement == null)
-                {
-                    FindParentSettlement();
-                }
-                //target is gone; return home
-                if (this.DestinationTile <= 0)
-                {
-                    this.DestinationTarget = Find.World.worldObjects.WorldObjectAt(this.ParentSettlement.Tile, WorldObjectDefOf.Settlement);
-                    if (this.DestinationTarget == null)
-                    {
-                        this.ValidateParentSettlement();
-                        WorldUtility.Get_WCPT().UpdateFactionSettlements(WorldUtility.GetRimWarDataForFaction(this.Faction));
-                        FindParentSettlement();
-                        this.DestinationTarget = Find.World.worldObjects.WorldObjectAt(this.ParentSettlement.Tile, WorldObjectDefOf.Settlement);
-                    }
-                    if (DestinationTarget != null && DestinationTarget.Tile != pather.Destination)
-                    {
-                        PathToTarget(DestinationTarget);
-                    }
-                    else
-                    {
-                        //not heading in the right direction; pause then attempt to reroute
-                        pather.StopDead();
-                    }
-                }
+                PathToTargetTile(this.DestinationTile);
             }
         }
 
-        public void ScanForNearbyEnemy(int range)
+        public override void EngageNearbyCaravan(Caravan car)
         {
-            List<WorldObject> worldObjects = WorldUtility.GetWorldObjectsInRange(this.Tile, range);
-            if (worldObjects != null && worldObjects.Count > 0)
+            if (ShouldInteractWith(car, this))
             {
-                for (int i = 0; i < worldObjects.Count; i++)
+                if (this.Faction.HostileTo(car.Faction))
                 {
-                    WorldObject wo = worldObjects[i];
-                    if (wo.Faction != this.Faction && wo.Faction.HostileTo(this.Faction))
-                    {
-                        //Log.Message("" + this.Name + " scanned nearby object " + this.targetWorldObject.Label);
-                        if (wo is Caravan) //or rimwar caravan, or diplomat, or merchant; ignore scouts and settlements
-                        {
-                            //Log.Message(this.Label + " engaging nearby warband " + wo.Label);
-                            this.DestinationTarget = wo;
-                            EngageNearbyEnemy();
-                            break;
-                        }
-                    }
+                    WorldUtility.Get_WCPT().RemoveCaravanTarget(car);
+                    car.pather.StopDead();
+                    IncidentUtility.DoCaravanAttackWithPoints(this, car, this.rimwarData, IncidentUtility.PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.EdgeWalkIn), PawnGroupKindDefOf.Trader);
+                }
+                else
+                {
+                    WorldUtility.Get_WCPT().RemoveCaravanTarget(car);
+                    car.pather.StopDead();
+                    IncidentUtility.DoCaravanTradeWithPoints(this, car, this.rimwarData, IncidentUtility.PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.EdgeWalkIn));
                 }
             }
         }
@@ -199,39 +163,11 @@ namespace RimWar.Planet
         public void EngageNearbyEnemy()
         {
             ImmediateAction(this.DestinationTarget);
-            //if (this.DestinationTarget != null && (this.DestinationTarget.Tile == this.Tile))
-            //{
-            //    ImmediateAction(this.DestinationTarget);
-            //}
-            //else if (this.DestinationTarget != null && Find.WorldGrid.TraversalDistanceBetween(this.Tile, this.DestinationTarget.Tile) >= 1)
-            //{
-            //    PathToTargetTile(this.DestinationTile);
-            //    this.DestinationTarget = null;
-            //}
-            //else
-            //{
-            //    this.DestinationTarget = null;
-            //}
         }
 
         public override void ImmediateAction(WorldObject wo)
         {
-            if(wo != null)
-            {
-                if(wo.Faction != null && wo.Faction.HostileTo(this.Faction))
-                {
-                    if(wo is Caravan && interactable)
-                    {
-                        IncidentUtility.DoCaravanAttackWithPoints(this, wo as Caravan, this.rimwarData, IncidentUtility.PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.EdgeWalkIn), PawnGroupKindDefOf.Peaceful);
-                        base.ImmediateAction(wo);
-                    }
-                }                
-            }
-            else
-            {
-                base.ImmediateAction(wo);
-            }
-            
+            base.ImmediateAction(wo);
         }
 
         public override void ArrivalAction()

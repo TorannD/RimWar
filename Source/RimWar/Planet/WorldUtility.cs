@@ -28,7 +28,8 @@ namespace RimWar.Planet
                     WorldComponent_PowerTracker cp = components[i] as WorldComponent_PowerTracker;
                     if (cp != null)
                     {
-                        wcpt = cp;
+                        return cp;
+                        wcpt = cp; // why does the world component get initialized twice?  this is leading to an empty world component and many manay bugs... for now, return the first component
                     }
                 }
             }
@@ -1112,7 +1113,7 @@ namespace RimWar.Planet
 
         public static RimWarSettlementComp GetClosestSettlementOfFaction(Faction faction, int tile, int maxRange)
         {
-            List<RimWarSettlementComp> settlementsInRange = GetRimWarSettlementsInRange(tile, maxRange, GetRimWarData(), GetRimWarDataForFaction(faction));
+            List<RimWarSettlementComp> settlementsInRange = WorldUtility.GetRimWarDataForFaction(faction).WarSettlementComps;
             RimWarSettlementComp closestSettlement = null;
             float closestDist = 0f;
             if(settlementsInRange != null && settlementsInRange.Count > 0)
@@ -1218,7 +1219,10 @@ namespace RimWar.Planet
         {
             RimWarSettlementComp rwsc = null;
             RimWorld.Planet.Settlement wos = Find.WorldObjects.SettlementAt(tile);
-            rwsc = wos.GetComponent<RimWarSettlementComp>();
+            if (wos != null)
+            {
+                rwsc = wos.GetComponent<RimWarSettlementComp>();
+            }
             return rwsc;
             ////List<RimWarData> rwd = GetRimWarData();
             ////if(rwd != null && rwd.Count > 0)
@@ -1277,11 +1281,11 @@ namespace RimWar.Planet
             return warObjects;
         }
 
-        public static List<WorldObject> GetWorldObjectsInRange(int from, int range)
+        public static List<WorldObject> GetWorldObjectsInRange(int from, float range)
         {
             List<WorldObject> tmpObjects = new List<WorldObject>();
             tmpObjects.Clear();
-            List<WorldObject> worldObjects = Find.WorldObjects.AllWorldObjects.ToList();
+            List<WorldObject> worldObjects = Find.WorldObjects.AllWorldObjects.InRandomOrder().ToList();
             for (int i = 0; i < worldObjects.Count; i++)
             {
                 int to = worldObjects[i].Tile;     
@@ -1291,11 +1295,11 @@ namespace RimWar.Planet
                     continue;
                 }
                 //int distance = Find.WorldGrid.TraversalDistanceBetween(from, to, false, range);
-                int distance = (int)Find.WorldGrid.ApproxDistanceInTiles(from, to);
+                float distance = Find.WorldGrid.ApproxDistanceInTiles(from, to);
                 //Log.Message("getting tile in range is an approx distance of " + Find.WorldGrid.ApproxDistanceInTiles(from, to) + " travel distance is " + distance + " and has a range cap of " + range);
                 if (distance <= range)
                 {
-                    distance = Find.WorldGrid.TraversalDistanceBetween(from, to, false, range);
+                    distance = Find.WorldGrid.TraversalDistanceBetween(from, to, false, Mathf.RoundToInt(range));
                     if (distance <= range)
                     {
                         tmpObjects.Add(worldObjects[i]);
@@ -1507,6 +1511,32 @@ namespace RimWar.Planet
                             return true;
                         }
                     }
+                }
+            }
+            return false;
+        }
+
+        public static bool FactionCanTrade(Faction faction)
+        {
+            for (int i = 0; i < Find.FactionManager.AllFactionsListForReading.Count; i++)
+            {
+                Faction x = Find.FactionManager.AllFactionsListForReading[i];
+                if (x == faction && !x.IsPlayer && !x.Hidden && x.def.humanlikeFaction && !x.temporary && x.def.caravanTraderKinds.Any())
+                {
+                    return !x.def.pawnGroupMakers.NullOrEmpty();
+                }
+            }
+            return false;
+        }
+
+        public static bool FactionCanFight(int points, Faction faction)
+        {
+            for (int i = 0; i < Find.FactionManager.AllFactionsListForReading.Count; i++)
+            {
+                Faction f = Find.FactionManager.AllFactionsListForReading[i];
+                if (f == faction && !f.Hidden && !f.temporary && !f.defeated && f.def.pawnGroupMakers != null && f.def.pawnGroupMakers.Any((PawnGroupMaker x) => x.kindDef == PawnGroupKindDefOf.Combat))
+                {
+                    return points >= f.def.MinPointsToGeneratePawnGroup(PawnGroupKindDefOf.Combat);
                 }
             }
             return false;

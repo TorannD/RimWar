@@ -268,6 +268,7 @@ namespace RimWar.Harmony
                     //Log.Message("assigning war object action: attack");
                     Caravan caravan = Traverse.Create(root: __instance).Field(name: "caravan").GetValue<Caravan>();
                     CaravanArrivalAction_AttackWarObject woAction = arrivalAction as CaravanArrivalAction_AttackWarObject;
+                    woAction.wo.interactable = true;
                     RimWar.Planet.WorldUtility.Get_WCPT().AssignCaravanTargets(caravan, woAction.wo);
                 }
                 else if(arrivalAction is RimWar.Planet.CaravanArrivalAction_EngageWarObject)
@@ -275,19 +276,13 @@ namespace RimWar.Harmony
                     //Log.Message("assigning war object action: engage");
                     Caravan caravan = Traverse.Create(root: __instance).Field(name: "caravan").GetValue<Caravan>();
                     CaravanArrivalAction_EngageWarObject woAction = arrivalAction as CaravanArrivalAction_EngageWarObject;
+                    woAction.wo.interactable = true;
                     RimWar.Planet.WorldUtility.Get_WCPT().AssignCaravanTargets(caravan, woAction.wo);
                 }
                 else
                 {
                     Caravan caravan = Traverse.Create(root: __instance).Field(name: "caravan").GetValue<Caravan>();
-                    List<CaravanTargetData> ctdList = RimWar.Planet.WorldUtility.Get_WCPT().caravanTargetData;
-                    for (int i = 0; i < ctdList.Count; i++)
-                    {
-                        if(ctdList[i].caravan == caravan)
-                        {
-                            ctdList.Remove(ctdList[i]);
-                        }
-                    }
+                    WorldUtility.Get_WCPT().RemoveCaravanTarget(caravan);
                 }
             }
         }
@@ -387,7 +382,7 @@ namespace RimWar.Harmony
                 //Log.Message("found " + warObject.Count + " warObjects");
                 for(int i =0; i < warObject.Count; i++)
                 {
-                    if(warObject[i].Faction !=null )//&& warObject[i].Faction == attackers[0].Faction)
+                    if(warObject[i].Faction != null )//&& warObject[i].Faction == attackers[0].Faction)
                     {
                         float marketValue = 0;
                         for(int j =0; j < demands.Count; j++)
@@ -396,12 +391,13 @@ namespace RimWar.Harmony
                         }
                         //Log.Message("market value of caravan ransom is " + marketValue);
                         int points = warObject[i].RimWarPoints + Mathf.RoundToInt(marketValue / 20);
-                        if (warObject[i].ParentSettlement != null)
-                        {
-                            ConsolidatePoints reconstitute = new ConsolidatePoints(points, Mathf.RoundToInt(Find.WorldGrid.TraversalDistanceBetween(caravan.Tile, warObject[i].ParentSettlement.Tile) * warObject[i].TicksPerMove) + Find.TickManager.TicksGame);
-                            warObject[i].WarSettlementComp.SettlementPointGains.Add(reconstitute);
-                            warObject[i].ImmediateAction(null);
-                        }
+                        //if (warObject[i].ParentSettlement != null)
+                        //{
+                        //    ConsolidatePoints reconstitute = new ConsolidatePoints(points, Mathf.RoundToInt(Find.WorldGrid.TraversalDistanceBetween(caravan.Tile, warObject[i].ParentSettlement.Tile) * warObject[i].TicksPerMove) + Find.TickManager.TicksGame);
+                        //    warObject[i].WarSettlementComp.SettlementPointGains.Add(reconstitute);
+                        //    warObject[i].ImmediateAction(null);
+                        //}
+                        warObject[i].interactable = false;
                         break;
                     }
                 }

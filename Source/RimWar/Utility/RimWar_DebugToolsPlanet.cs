@@ -581,9 +581,12 @@ namespace RimWar.Utility
         {
             int sCount = 0;
             int sPoints = GetPointsFromAllSettlements(out sCount);
-            if(Mathf.RoundToInt(sPoints/sCount) < 110)
+            if (sCount > 0)
             {
-                DebugResetAllSettlements();
+                if (Mathf.RoundToInt(sPoints / sCount) < 110)
+                {
+                    DebugResetAllSettlements();
+                }
             }
         }
 

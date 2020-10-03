@@ -109,6 +109,7 @@
     <Compile Include="Base.cs" />
     <Compile Include="Planet\SettlementUtility.cs" />
     <Compile Include="Planet\RimWarSettlementComp.cs" />
+    <Compile Include="Planet\WorldComponent_IncidentTracker.cs" />
     <Compile Include="Planet\WorldObjectCompProperties_RimWarSettlement.cs" />
     <Compile Include="RimWarMatPool.cs" />
     <Compile Include="History\HistoryAutoRecorderWorker_RWObjectCreationAttempts_Day.cs" />
@@ -162,6 +163,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility\ArrivalTimeEstimator.cs" />
     <Compile Include="Utility\Alert_NearbyRimWarObject.cs" />
+    <Compile Include="Utility\IncidentWorker_WarObjectDemand.cs" />
+    <Compile Include="Utility\IncidentWorker_WarObjectMeeting.cs" />
     <Compile Include="Utility\RimWar_DebugToolsPlanet.cs" />
     <Compile Include="Utility\ColorUtility.cs" />
     <Compile Include="Utility\WorldReachability.cs" />

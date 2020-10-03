@@ -30,7 +30,7 @@ namespace RimWar.Planet
         private bool rwdInitVictory = false;
 
         //Stored variables
-        public List<CaravanTargetData> caravanTargetData = new List<CaravanTargetData>();
+        public List<CaravanTargetData> caravanTargetData;
 
         public int preventActionsAgainstPlayerUntilTick = 60000;
         public int minimumHeatForPlayerAction = 0;
@@ -48,6 +48,7 @@ namespace RimWar.Planet
             Scribe_Values.Look<int>(ref this.minimumHeatForPlayerAction, "minimumHeatForPlayerAction", 0, false);
             Scribe_References.Look<Faction>(ref this.victoryFaction, "victoryFaction");
             Scribe_Collections.Look<RimWarData>(ref this.rimwarData, "rimwarData", LookMode.Deep);//, new object[0]);
+            Scribe_Collections.Look<CaravanTargetData>(ref this.caravanTargetData, "caravanTargetData", LookMode.Deep);
             //Scribe_Collections.Look<WarObject>(ref this.allWarObjects, "allWarObjects", LookMode.Reference, new object[0]);
             //Scribe_Collections.Look<RimWorld.Planet.Settlement>(ref this.allRimWarSettlements, "allRimWarSettlements", LookMode.Reference, new object[0]);
             //
@@ -91,24 +92,7 @@ namespace RimWar.Planet
             get
             {
                 return WorldUtility.GetRimWarSettlements(this.RimWarData);
-                //bool flag = allRimWarSettlements == null;
-                //if(flag)
-                //{
-                //    allRimWarSettlements = new List<Settlement>();
-                //    allRimWarSettlements.Clear();
-                //}
-                //return allRimWarSettlements;
             }
-            //set
-            //{
-            //    bool flag = allRimWarSettlements == null;
-            //    if (flag)
-            //    {
-            //        allRimWarSettlements = new List<Settlement>();
-            //        allRimWarSettlements.Clear();
-            //    }
-            //    allRimWarSettlements = value;
-            //}
         }
 
 
@@ -160,18 +144,22 @@ namespace RimWar.Planet
 
         private bool doOnce = false;
         public override void WorldComponentTick()
-        {
+        {            
             int currentTick = Find.TickManager.TicksGame;
             Options.SettingsRef settingsRef = new Options.SettingsRef();
-            //if (!doOnce)
-            //{
-            //    doOnce = true;
-            //    IEnumerable<ModMetaData> datas = ModsConfig.ActiveModsInLoadOrder;
-            //    foreach(ModMetaData mmd in datas)
-            //    {
-            //        Log.Message("loaded package id " + mmd.PackageId);
-            //    }
-            //}
+            if (!doOnce)
+            {
+                doOnce = true;
+                //IEnumerable<ModMetaData> datas = ModsConfig.ActiveModsInLoadOrder;
+                //foreach (ModMetaData mmd in datas)
+                //{
+                //    Log.Message("loaded package id " + mmd.PackageId);
+                //}
+                //for(int i =0; i < Find.World.components.Count; i++)
+                //{
+                //    Log.Message("world component " + i + " is " + Find.World.components[i].ToString());
+                //}
+            }
             if (currentTick >= 10 && !this.rwdInitialized)
             {
                 //Log.Message("initializing");
@@ -317,6 +305,30 @@ namespace RimWar.Planet
             base.WorldComponentTick();
         }
 
+        public void RemoveCaravanTarget(WorldObject wo)
+        {
+            if (this.caravanTargetData != null && this.caravanTargetData.Count > 0)
+            {
+                for (int i = 0; i < this.caravanTargetData.Count; i++)
+                {
+                    CaravanTargetData ctd = caravanTargetData[i];
+                    if (ctd.IsValid())
+                    {
+                        if(ctd.caravan == wo || ctd.caravanTarget == wo)
+                        {
+                            this.caravanTargetData.Remove(ctd);
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        this.caravanTargetData.Remove(ctd);
+                        break;
+                    }
+                }
+            }
+        }
+
         public void AdjustCaravanTargets()
         {
             if (this.caravanTargetData != null && this.caravanTargetData.Count > 0)
@@ -352,22 +364,17 @@ namespace RimWar.Planet
                 this.caravanTargetData = new List<CaravanTargetData>();
                 this.caravanTargetData.Clear();
             }
-            bool existingCaravan = false;
             for(int i = 0; i < this.caravanTargetData.Count; i++)
             {
                 if(caravanTargetData[i].caravan == caravan)
                 {
-                    caravanTargetData[i].caravanTarget = warObject;
-                    existingCaravan = true;
+                    RemoveCaravanTarget(caravan);
                 }
             }
-            if(!existingCaravan)
-            {
-                CaravanTargetData ctd = new CaravanTargetData();
-                ctd.caravan = caravan;
-                ctd.caravanTarget = warObject;
-                this.caravanTargetData.Add(ctd);
-            }            
+            CaravanTargetData ctd = new CaravanTargetData();
+            ctd.caravan = caravan;
+            ctd.caravanTarget = warObject;
+            this.caravanTargetData.Add(ctd);                     
         }
 
         public void DoGlobalRWDAction()
@@ -920,6 +927,13 @@ namespace RimWar.Planet
                         {
                             return;
                         }
+                        if (targetTown.Faction == Faction.OfPlayer && !WorldUtility.FactionCanFight(200, parentSettlement.Faction))
+                        {
+                            if (!forcePlayer)
+                            {
+                                return;
+                            }
+                        }
                         //Log.Message("" + rwsComp.RimWorld_Settlement.Name + " with " + rwsComp.RimWarPoints + " evaluating " + targetTown.RimWorld_Settlement.Name + " with " + targetTown.RimWarPoints);
                         int pts = WorldUtility.CalculateWarbandPointsForRaid(targetTown.GetComponent<RimWarSettlementComp>());                        
                         if (rwd.behavior == RimWarBehavior.Cautious)
@@ -1018,6 +1032,13 @@ namespace RimWar.Planet
                             {
                                 return;
                             }
+                            if (targetTown.Faction == Faction.OfPlayer && !WorldUtility.FactionCanFight(200, parentSettlement.Faction))
+                            {
+                                if (!forcePlayer)
+                                {
+                                    return;
+                                }
+                            }
                             //Log.Message("" + rwsComp.RimWorld_Settlement.Name + " with " + rwsComp.RimWarPoints + " evaluating " + targetTown.RimWorld_Settlement.Name + " with " + targetTown.RimWarPoints);
                             int pts = WorldUtility.CalculateWarbandPointsForRaid(targetTown.GetComponent<RimWarSettlementComp>());
                             if (rwd.behavior == RimWarBehavior.Cautious)
@@ -1093,13 +1114,7 @@ namespace RimWar.Planet
                 }
                 else if(forcePlayerTown)
                 {
-                    //worldObjects.Add(WorldUtility.GetClosestRimWarSettlementOfFaction(Faction.OfPlayer, rwsComp.Tile, 200).RimWorld_Settlement);
-                    woList.Add(WorldUtility.GetClosestSettlementInRWDTo(rwd, parentSettlement.Tile, Mathf.Min(Mathf.RoundToInt((rwsComp.RimWarPoints * 1.5f) / (settingsRef.settlementScanRangeDivider)), (int)settingsRef.maxSettelementScanRange)));
-                    //if (warSettlement != null)
-                    //{
-                    //    tmpSettlements.Add(warSettlement);
-                    //}
-
+                    woList.Add(WorldUtility.GetClosestSettlementOfFaction(Faction.OfPlayer, parentSettlement.Tile, 500).parent);
                 }
                 else
                 {
@@ -1121,6 +1136,13 @@ namespace RimWar.Planet
                             if (wo.Faction == Faction.OfPlayer && rwsComp.PlayerHeat < minimumHeatForPlayerAction && !ignoreRestrictions)
                             {                                
                                 continue;
+                            }
+                            if(wo.Faction == Faction.OfPlayer && !WorldUtility.FactionCanFight(200, parentSettlement.Faction))
+                            {
+                                if(!forcePlayerCaravan && !forcePlayerTown)
+                                {
+                                    continue;
+                                }
                             }
                             if (wo is Caravan)
                             {
@@ -1258,7 +1280,7 @@ namespace RimWar.Planet
             if (rwd != null && rwsComp != null && parentSettlement != null)
             {
                 Options.SettingsRef settingsRef = new Options.SettingsRef();
-                if (rwsComp.RimWarPoints > 1000 || ignoreRestrictions)
+                if (rwsComp.RimWarPoints > 500 || ignoreRestrictions)
                 {
                     int targetRange = Mathf.RoundToInt(rwsComp.RimWarPoints / settingsRef.settlementScanRangeDivider);
                     if (rwd.behavior == RimWarBehavior.Expansionist)
@@ -1296,9 +1318,16 @@ namespace RimWar.Planet
                             //Log.Message(" evaluating " + targetTown.Label);
                             //Log.Message(" with " + targetTown.GetComponent<RimWarSettlementComp>().RimWarPoints);
                             //Log.Message("settlement has " + rwsComp.PlayerHeat + " and needs " + minimumHeatForPlayerAction);
-                            if(targetTown.Faction == Faction.OfPlayer && rwsComp.PlayerHeat < minimumHeatForPlayerAction && !ignoreRestrictions)
+                            if(targetTown.Faction == Faction.OfPlayer)
                             {
-                                return;
+                                if (rwsComp.PlayerHeat < minimumHeatForPlayerAction && !ignoreRestrictions)
+                                {
+                                    return;
+                                }
+                                if(!WorldUtility.FactionCanTrade(rwsComp.parent.Faction) && !ignoreRestrictions && !forcePlayer)
+                                {
+                                    return;
+                                }
                             }
                             int pts = WorldUtility.CalculateTraderPoints(targetTown.GetComponent<RimWarSettlementComp>());
                             if (rwd.behavior == RimWarBehavior.Cautious)

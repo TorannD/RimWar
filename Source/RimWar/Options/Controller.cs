@@ -115,7 +115,7 @@ namespace RimWar.Options
                 Settings.Instance.alertRange = 6;
 
                 Settings.Instance.maxFactionSettlements = 20;
-                Settings.Instance.settlementScanRangeDivider = 100;
+                Settings.Instance.settlementScanRangeDivider = 50;
                 Settings.Instance.objectMovementMultiplier = 1f;
 
                 Settings.Instance.averageEventFrequency = 50;
@@ -138,14 +138,14 @@ namespace RimWar.Options
                 Settings.Instance.createDiplomats = false;
 
                 Settings.Instance.maxFactionSettlements = 15;
-                Settings.Instance.settlementScanRangeDivider = 200;
+                Settings.Instance.settlementScanRangeDivider = 40;
                 Settings.Instance.objectMovementMultiplier = 2f;
                 Settings.Instance.alertRange = 4;
 
                 Settings.Instance.averageEventFrequency = 480;
                 Settings.Instance.settlementEventDelay = 120000;
                 Settings.Instance.settlementScanDelay = 200000;
-                Settings.Instance.maxSettlementScanRange = 20;
+                Settings.Instance.maxSettlementScanRange = 25;
                 Settings.Instance.woEventFrequency = 480;
                 Settings.Instance.rwdUpdateFrequency = 5000;
                 Settings.Instance.forceRandomObject = false;
@@ -169,7 +169,7 @@ namespace RimWar.Options
                 Settings.Instance.averageEventFrequency = 240;
                 Settings.Instance.settlementEventDelay = 240000;
                 Settings.Instance.settlementScanDelay = 480000;
-                Settings.Instance.maxSettlementScanRange = 24;
+                Settings.Instance.maxSettlementScanRange = 30;
                 Settings.Instance.woEventFrequency = 600;
                 Settings.Instance.rwdUpdateFrequency = 10000;
                 Settings.Instance.forceRandomObject = false;

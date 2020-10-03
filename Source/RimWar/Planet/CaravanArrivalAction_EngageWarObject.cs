@@ -38,7 +38,8 @@ namespace RimWar.Planet
 
         public override void Arrived(Caravan caravan)
         {
-            wo.ImmediateAction(caravan);
+            WorldUtility.Get_WCPT().RemoveCaravanTarget(caravan);
+            wo.EngageNearbyCaravan(caravan);
         }
 
         public override void ExposeData()
@@ -60,7 +61,7 @@ namespace RimWar.Planet
             if(wo is Trader)
             {
                 Trader trader = wo as Trader;
-                if(!trader.tradedWithPlayer) //trader.TradedWith.Contains(caravan))
+                if(trader.tradedWithPlayer) //trader.TradedWith.Contains(caravan))
                 {
                     return FloatMenuAcceptanceReport.WithFailMessage("Already Traded");
                 }

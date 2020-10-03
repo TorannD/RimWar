@@ -36,7 +36,21 @@ namespace RimWar.Planet
         private RimWorld.Planet.Settlement parentSettlement = null;
         private WorldObject targetWorldObject = null;
 
-        public override Vector3 DrawPos => Vector3.Slerp(Start, End, traveledPct);
+        public override Vector3 DrawPos
+        {
+            get
+            {
+                try
+                {
+                    return Vector3.Slerp(Start, End, traveledPct);
+                }
+                catch
+                {
+                    return Vector3.zero;
+                }
+            }
+        }
+
         private static readonly Color WarObjectDefaultColor = new Color(1f, 1f, 1f);
 
         public override void ExposeData()
