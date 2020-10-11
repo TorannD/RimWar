@@ -898,7 +898,7 @@ namespace RimWar.Planet
 
         public static bool ValidateRimWarAction(WarObject warObject, RimWarSettlementComp settlement, List<WorldObject> objectsHere)
         {
-            if (warObject != null && settlement != null && objectsHere != null && objectsHere.Count > 0)
+            if (warObject != null && settlement != null && settlement.parent != null && !settlement.parent.Destroyed && objectsHere != null && objectsHere.Count > 0)
             {
                 return true;
             }

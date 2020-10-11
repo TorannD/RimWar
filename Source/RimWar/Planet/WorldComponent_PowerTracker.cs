@@ -168,7 +168,7 @@ namespace RimWar.Planet
             }
             if(currentTick % 60 == 0)
             {
-                AdjustCaravanTargets();
+                AdjustCaravanTargets();                
             }
             if (currentTick % settingsRef.rwdUpdateFrequency == 0)
             {
@@ -303,6 +303,19 @@ namespace RimWar.Planet
                 }
             }
             base.WorldComponentTick();
+        }
+
+        public List<CaravanTargetData> GetCaravaTargetData
+        {
+            get
+            {
+                if(this.caravanTargetData == null)
+                {
+                    this.caravanTargetData = new List<CaravanTargetData>();
+                    this.caravanTargetData.Clear();
+                }
+                return this.caravanTargetData;
+            }
         }
 
         public void RemoveCaravanTarget(WorldObject wo)
@@ -723,7 +736,7 @@ namespace RimWar.Planet
                     {
                         return true;
                     }
-                    else if (RimWarData[i].RimWarFaction.Name == faction.Name)
+                    else if (RimWarData[i].RimWarFaction.HasName && RimWarData[i].RimWarFaction.Name == faction.Name)
                     {
                         //Log.Message("faction names same, factiond different");
                         RimWarData[i].RimWarFaction = faction;
@@ -1235,7 +1248,11 @@ namespace RimWar.Planet
                         TileFinder.TryFindPassableTileWithTraversalDistance(parentSettlement.Tile, 10, targetRange, out tile);
                         if (tile != -1)
                         {
-                            tmpTiles.Add(tile);
+                            Tile t = Find.WorldGrid[tile];
+                            if (t.biome != null && !t.biome.isExtremeBiome && t.biome.canBuildBase)
+                            {
+                                tmpTiles.Add(tile);
+                            }
                         }
                     }
                     if (tmpTiles != null && tmpTiles.Count > 0)

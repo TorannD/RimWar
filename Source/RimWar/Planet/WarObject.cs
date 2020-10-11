@@ -495,14 +495,17 @@ namespace RimWar.Planet
 
         public virtual bool ShouldInteractWith(Caravan car, WarObject rwo)
         {
-            List<CaravanTargetData> ctdList = WorldUtility.Get_WCPT().caravanTargetData;
-            for (int i = 0; i < ctdList.Count; i++)
+            List<CaravanTargetData> ctdList = WorldUtility.Get_WCPT().GetCaravaTargetData;
+            if (ctdList != null && ctdList.Count > 0)
             {
-                if (ctdList[i].caravan == car && ctdList[i].caravanTarget == rwo)
+                for (int i = 0; i < ctdList.Count; i++)
                 {
-                    return (car.Faction != null && car.Faction == Faction.OfPlayer);
+                    if (ctdList[i].caravan == car && ctdList[i].caravanTarget == rwo)
+                    {
+                        return (car.Faction != null && car.Faction == Faction.OfPlayer);
+                    }
                 }
-            }            
+            }
             return false;
         }
 

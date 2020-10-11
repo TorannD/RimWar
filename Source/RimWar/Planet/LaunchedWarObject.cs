@@ -46,8 +46,12 @@ namespace RimWar.Planet
                 }
                 catch
                 {
-                    return Vector3.zero;
+                    if (!Destroyed)
+                    {
+                        this.Destroy();
+                    }
                 }
+                return Vector3.zero;
             }
         }
 

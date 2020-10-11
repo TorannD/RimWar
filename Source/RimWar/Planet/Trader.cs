@@ -66,7 +66,7 @@ namespace RimWar.Planet
             {
                 this.ticksPerMove = value;
             }
-        }       
+        }
 
         //NextSearchTick
         //NextSearchTickIncrement (override by type)
@@ -77,6 +77,8 @@ namespace RimWar.Planet
         //NextMoveTick
         //NextMoveTickIncrement (default is settings based)
         //ArrivalAction
+
+        public override float ScanRange => 1.6f;
 
         public override void Tick()
         {
