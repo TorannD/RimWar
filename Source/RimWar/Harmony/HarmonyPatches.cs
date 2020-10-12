@@ -172,18 +172,17 @@ namespace RimWar.Harmony
         [HarmonyPatch(typeof(Faction), "RelationWith")]
         public static class FactionRelationCheck_Patch
         {
-            private static bool Prefix(Faction __instance, Faction other, ref FactionRelation __result, bool allowNull = false)
+            private static bool Prefix(Faction __instance, List<FactionRelation> ___relations, Faction other, ref FactionRelation __result, bool allowNull = false)
             {
                 if(other == __instance)
                 {
                     return true;
                 }
-                List<FactionRelation> fr = Traverse.Create(root: __instance).Field(name: "relations").GetValue<List<FactionRelation>>();
-                for (int i = 0; i < fr.Count; i++)
+                for (int i = 0; i < ___relations.Count; i++)
                 {
-                    if(fr[i].other == other)
+                    if(___relations[i].other == other)
                     {
-                        __result = fr[i];
+                        __result = ___relations[i];
                         return false;
                     }                    
                 }
@@ -259,30 +258,27 @@ namespace RimWar.Harmony
             }
         }
 
-        public static void Pather_StartPath_WarObjects(Caravan_PathFollower __instance, int destTile, CaravanArrivalAction arrivalAction, ref bool __result, bool repathImmediately = false, bool resetPauseStatus = true)
+        public static void Pather_StartPath_WarObjects(Caravan_PathFollower __instance, Caravan ___caravan, int destTile, CaravanArrivalAction arrivalAction, ref bool __result, bool repathImmediately = false, bool resetPauseStatus = true)
         {
             if(__result == true)
             {
                 if (arrivalAction is RimWar.Planet.CaravanArrivalAction_AttackWarObject)
                 {
                     //Log.Message("assigning war object action: attack");
-                    Caravan caravan = Traverse.Create(root: __instance).Field(name: "caravan").GetValue<Caravan>();
                     CaravanArrivalAction_AttackWarObject woAction = arrivalAction as CaravanArrivalAction_AttackWarObject;
                     woAction.wo.interactable = true;
-                    RimWar.Planet.WorldUtility.Get_WCPT().AssignCaravanTargets(caravan, woAction.wo);
+                    RimWar.Planet.WorldUtility.Get_WCPT().AssignCaravanTargets(___caravan, woAction.wo);
                 }
                 else if(arrivalAction is RimWar.Planet.CaravanArrivalAction_EngageWarObject)
                 {
                     //Log.Message("assigning war object action: engage");
-                    Caravan caravan = Traverse.Create(root: __instance).Field(name: "caravan").GetValue<Caravan>();
                     CaravanArrivalAction_EngageWarObject woAction = arrivalAction as CaravanArrivalAction_EngageWarObject;
                     woAction.wo.interactable = true;
-                    RimWar.Planet.WorldUtility.Get_WCPT().AssignCaravanTargets(caravan, woAction.wo);
+                    RimWar.Planet.WorldUtility.Get_WCPT().AssignCaravanTargets(___caravan, woAction.wo);
                 }
                 else
                 {
-                    Caravan caravan = Traverse.Create(root: __instance).Field(name: "caravan").GetValue<Caravan>();
-                    WorldUtility.Get_WCPT().RemoveCaravanTarget(caravan);
+                    WorldUtility.Get_WCPT().RemoveCaravanTarget(___caravan);
                 }
             }
         }
@@ -493,25 +489,24 @@ namespace RimWar.Harmony
         [HarmonyPatch(typeof(WorldPathPool), "GetEmptyWorldPath", null)]
         public class WorldPathPool_Prefix_Patch
         {
-            public static bool Prefix(WorldPathPool __instance, ref WorldPath __result)
+            public static bool Prefix(WorldPathPool __instance, ref List<WorldPath> ___paths, ref WorldPath __result)
             {
-                List<WorldPath> paths = Traverse.Create(root: __instance).Field(name: "paths").GetValue<List<WorldPath>>();
-                for (int i = 0; i < paths.Count; i++)
+                for (int i = 0; i < ___paths.Count; i++)
                 {
-                    if (!paths[i].inUse)
+                    if (!___paths[i].inUse)
                     {
-                        paths[i].inUse = true;
-                        __result = paths[i];
+                        ___paths[i].inUse = true;
+                        __result = ___paths[i];
                         return false;
                     }
                 }
-                if (paths.Count > Find.WorldObjects.CaravansCount + 2 + (Find.WorldObjects.RoutePlannerWaypointsCount - 1))
+                if (___paths.Count > Find.WorldObjects.CaravansCount + 2 + (Find.WorldObjects.RoutePlannerWaypointsCount - 1))
                 {
                     //Log.ErrorOnce("WorldPathPool leak: more paths than caravans. Force-recovering.", 664788);
-                    paths.Clear();
+                    ___paths.Clear();
                 }
                 WorldPath worldPath = new WorldPath();
-                paths.Add(worldPath);
+                ___paths.Add(worldPath);
                 worldPath.inUse = true;
                 __result = worldPath;
                 return false;
