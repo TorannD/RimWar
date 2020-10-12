@@ -154,6 +154,25 @@ namespace RimWar
             }
         }
 
+        public WorldObject StrongestSettlement
+        {
+            get
+            {
+                WorldObject result = null;
+                int highestPts = 0;
+                foreach(RimWarSettlementComp rwsc in WarSettlementComps)
+                {
+                    if(rwsc.RimWarPoints > highestPts)
+                    {
+                        highestPts = rwsc.RimWarPoints;
+                        result = rwsc.parent;
+                    }
+                }
+                return result;
+            }
+        }
+
+
         public bool HasWarSettlementFor(RimWorld.Planet.Settlement wos, out RimWarSettlementComp rwsc)
         {
             rwsc = null;

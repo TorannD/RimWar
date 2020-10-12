@@ -317,14 +317,14 @@ namespace RimWar.Harmony
             incidentParms.raidArrivalModeForQuickMilitaryAid = true;
             incidentParms.points = DiplomacyTuning.RequestedMilitaryAidPointsRange.RandomInRange;
             faction.lastMilitaryAidRequestTick = Find.TickManager.TicksGame;
-            RimWarSettlementComp rwdTown = WorldUtility.GetClosestSettlementOfFaction(faction, map.Tile, 40);
+            RimWarData rwd = WorldUtility.GetRimWarDataForFaction(faction);
+            RimWarSettlementComp rwdTown = rwd.WorldSettlements.RandomElement().GetComponent<RimWarSettlementComp>();
             if (rwdTown != null)
             {
-                RimWarData rwd = WorldUtility.GetRimWarDataForFaction(faction);
                 int pts = Mathf.RoundToInt(rwdTown.RimWarPoints / 2);
                 if (rwd.CanLaunch)
                 {
-                    WorldUtility.CreateLaunchedWarband(pts, rwd, rwdTown.parent as RimWorld.Planet.Settlement, map.Tile, Find.WorldObjects.SettlementAt(map.Tile), WorldObjectDefOf.Settlement);
+                    WorldUtility.CreateLaunchedWarband(pts, rwd, rwdTown.parent as RimWorld.Planet.Settlement, rwdTown.parent.Tile, Find.WorldObjects.SettlementAt(map.Tile), WorldObjectDefOf.Settlement);
                 }
                 else
                 {
