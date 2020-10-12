@@ -404,6 +404,8 @@ namespace RimWar.Planet
                     catch(NullReferenceException ex)
                     {
                         Log.Message(this.Name + " threw an error during arrival - RWD(" + this.rimwarData + ") dest(" + this.DestinationTarget + ") parent(" + this.ParentSettlement + ")");
+                        Log.Message(ex.StackTrace);
+                        Log.Message(ex.Source);
                         this.Destroy();
                     }
                 }                

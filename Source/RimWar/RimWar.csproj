@@ -163,6 +163,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility\ArrivalTimeEstimator.cs" />
     <Compile Include="Utility\Alert_NearbyRimWarObject.cs" />
+    <Compile Include="Utility\IncidentWorker_WarObjectRaid.cs" />
     <Compile Include="Utility\IncidentWorker_WarObjectDemand.cs" />
     <Compile Include="Utility\IncidentWorker_WarObjectMeeting.cs" />
     <Compile Include="Utility\RimWar_DebugToolsPlanet.cs" />

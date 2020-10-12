@@ -16,6 +16,33 @@ namespace RimWar.Utility
 {
     public static class RimWar_DebugToolsPlanet
     {
+        [DebugAction("Rim War", "Add 1k pts", actionType = DebugActionType.ToolWorld, allowedGameStates = AllowedGameStates.PlayingOnWorld)]
+        private static void Add1000RWP()
+        {
+            int tile = GenWorld.MouseTile();
+            if (tile < 0 || Find.World.Impassable(tile))
+            {
+                Messages.Message("Impassable", MessageTypeDefOf.RejectInput, historical: false);
+            }
+            else
+            {
+                RimWorld.Planet.Settlement s = Find.WorldObjects.SettlementAt(tile);
+                if (s != null && s.Faction != Faction.OfPlayer)
+                {
+                    RimWarSettlementComp rwsc = WorldUtility.GetRimWarSettlementAtTile(tile);
+                    if (rwsc != null && rwsc.parent.Faction != Faction.OfPlayer)
+                    {
+                        rwsc.RimWarPoints += 1000;
+                    }
+                }
+                WarObject rwo = Find.WorldObjects.WorldObjectAt(tile, RimWarDefOf.RW_WarObject) as WarObject;
+                if(rwo != null)
+                {
+                    rwo.RimWarPoints += 1000;
+                }
+            }
+        }
+
         [DebugAction("Rim War", null, actionType = DebugActionType.ToolWorld, allowedGameStates = AllowedGameStates.PlayingOnWorld)]
         private static void SpawnTrader()
         {

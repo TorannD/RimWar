@@ -8,6 +8,7 @@ using Verse;
 using UnityEngine;
 using Verse.AI.Group;
 using RimWar.History;
+using RimWar.Utility;
 
 namespace RimWar.Planet
 {
@@ -526,6 +527,7 @@ namespace RimWar.Planet
                     parms.target = playerSettlement.Map;
                     parms.points = points;
                     parms = ResolveRaidStrategy(parms, combat);
+                    //Log.Message("raid strategy is " + parms.raidStrategy + " worker is " + parms.raidStrategy.workerClass);
                     parms.points = AdjustedRaidPoints((float)points, parms.raidArrivalMode, parms.raidStrategy, rwd.RimWarFaction, combat);
                     if (!WorldUtility.FactionCanFight((int)parms.points, parms.faction))
                     {
@@ -541,10 +543,10 @@ namespace RimWar.Planet
                     //    //return false;
                     //}
                     //parms.raidArrivalMode.Worker.Arrive(list, parms);
-                    IncidentWorker_RaidEnemy raid = new IncidentWorker_RaidEnemy();
+                    IncidentWorker_WarObjectRaid raid = new IncidentWorker_WarObjectRaid();
                     try
                     {
-                        raid.TryExecute(parms);
+                        raid.TryExecuteCustomWorker(parms, combat);
 
                         RW_Letter let = RW_LetterMaker.Make_RWLetter(RimWarDefOf.RimWar_HostileEvent);
                         if (rwd.RimWarFaction == playerSettlement.Faction)
@@ -561,12 +563,12 @@ namespace RimWar.Planet
                         let.lookTargets = playerSettlement;
                         RW_LetterMaker.Archive_RWLetter(let);
                     }
-                    catch(NullReferenceException ex)
+                    catch (NullReferenceException ex)
                     {
                         Log.Warning("attempted to execute raid but encountered a null reference - " + ex);
-                        if(rwd != null)
+                        if (rwd != null)
                         {
-                            if(rwd.WorldSettlements != null && rwd.WorldSettlements.Count > 0)
+                            if (rwd.WorldSettlements != null && rwd.WorldSettlements.Count > 0)
                             {
                                 ConsolidatePoints reconstitute = new ConsolidatePoints(points, 10 + Find.TickManager.TicksGame);
                                 RimWarSettlementComp rwsc = rwd.WorldSettlements.RandomElement().GetComponent<RimWarSettlementComp>();

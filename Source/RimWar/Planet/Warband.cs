@@ -153,7 +153,17 @@ namespace RimWar.Planet
                                 //Raid Player Map
                                 if (this.launched)
                                 {
-                                    IncidentUtility.DoRaidWithPoints(this.RimWarPoints, playerSettlement, WorldUtility.GetRimWarDataForFaction(this.Faction), IncidentUtility.PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.RandomDrop));
+                                    PawnsArrivalModeDef arrivalDef = PawnsArrivalModeDefOf.EdgeDrop;
+                                    if(Rand.Chance(.35f))
+                                    {
+                                        arrivalDef = PawnsArrivalModeDefOf.CenterDrop;
+                                    }
+                                    else if(Rand.Chance(.2f))
+                                    {
+                                        arrivalDef = PawnsArrivalModeDefOf.RandomDrop;
+                                    }
+
+                                    IncidentUtility.DoRaidWithPoints(this.RimWarPoints, playerSettlement, WorldUtility.GetRimWarDataForFaction(this.Faction), IncidentUtility.PawnsArrivalModeOrRandom(arrivalDef));
                                 }
                                 else
                                 {
