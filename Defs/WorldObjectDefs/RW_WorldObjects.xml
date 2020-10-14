@@ -78,7 +78,7 @@
     <texture>World/WorldObjects/TravelingTransportPods</texture>
     <useDynamicDrawer>true</useDynamicDrawer>
     <expandingIcon>true</expandingIcon>
-    <expandingIconTexture>World/WorldObjects/Expanding/TravelingTransportPods</expandingIconTexture>
+    <expandingIconTexture>World/LaunchWarbandExpanded</expandingIconTexture>
     <expandingIconPriority>100</expandingIconPriority>
     <expandMore>true</expandMore>
     <inspectorTabs>

@@ -70,6 +70,22 @@
 <RW_useRimWarVictory>Add Rim War Rival and Victory Condition</RW_useRimWarVictory>
 <RW_useRimWarVictoryInfo>Adds a new victory condition to destroy an enemy faction. The faction is currently randomly selected from permanently hostile factions.</RW_useRimWarVictoryInfo>
 
+<!-- ============ Diplomacy Requests =============-->
+<RW_SendTrader>Send Trader</RW_SendTrader>
+<RW_SendTraderDesc>Requests an allied town to send a trader to another settlement.</RW_SendTraderDesc>
+<RW_NotEnoughPointsToSendUnit>Not enough points to send {2} {0} / {1}</RW_NotEnoughPointsToSendUnit>
+<RW_SendWarband>Send Warband</RW_SendWarband>
+<RW_SendWarbandDesc>Requests an allied town to mobilize a warband. Warbands may target settlements or other units.</RW_SendWarbandDesc>
+<RW_SendScout>Send Scout</RW_SendScout>
+<RW_SendScoutDesc>Requests an allied town to mobilize a scouting party. Scouts may target settlements or other units.</RW_SendScoutDesc>
+<RW_LaunchWarband>Launch Warband</RW_LaunchWarband>
+<RW_LaunchWarbandDesc>Requests an allied town to launch a Warband. Warbands may target settlements or other units.</RW_LaunchWarbandDesc>
+<RW_SendCannotReach>Beyond range</RW_SendCannotReach>
+<RW_DestinationSettlementOnly>Destination must be settlement</RW_DestinationSettlementOnly>
+<RW_DestinationHostile>Destination is hostile</RW_DestinationHostile>
+<RW_FactionIncapableOfTech>{0} does not have the technology</RW_FactionIncapableOfTech>
+<RW_InvalidTarget>Invalid target</RW_InvalidTarget>
+
 <!-- ============ Diplomacy Actions =============-->
 <RW_DeclareWarWarning>Declaring war on a faction has the following affects:
  - opposing faction will be set to max hostility and cannot be reduced while at war

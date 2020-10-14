@@ -455,8 +455,6 @@ namespace RimWar.Utility
                 }
             }
 
-            List<RimWar.Planet.Settlement> rwsList = new List<RimWar.Planet.Settlement>();
-            rwsList.Clear();
             List<RimWarData> rwdList = WorldUtility.Get_WCPT().RimWarData;
             for (int i = 0; i < rwdList.Count; i++)
             {
