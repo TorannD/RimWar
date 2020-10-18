@@ -35,37 +35,6 @@ namespace RimWar.Planet
         }
 
         public override int RimWarPoints { get => base.RimWarPoints; set => base.RimWarPoints = value; }        
-     
-
-        public override string GetInspectString()
-        {
-            StringBuilder stringBuilder = new StringBuilder();
-            //stringBuilder.Append(base.GetInspectString());            
-
-            if (Find.World.worldObjects.AnySettlementAt(this.destinationTile))
-            {
-                WorldObject wo = Find.World.worldObjects.ObjectsAt(this.destinationTile).FirstOrDefault();
-                if (wo != null)
-                {
-                    if (wo.Faction != this.Faction)
-                    {
-                        stringBuilder.Append("RW_WarbandInspectString".Translate(this.Name, "RW_Attacking".Translate(), wo.Label));
-                    }
-                    else
-                    {
-                        stringBuilder.Append("RW_WarbandInspectString".Translate(this.Name, "RW_ReturningTo".Translate(), wo.Label));
-                    }
-                }
-            }
-
-            if (stringBuilder.Length != 0)
-            {
-                stringBuilder.AppendLine();
-            }
-            stringBuilder.Append("RW_CombatPower".Translate(this.RimWarPoints));
-
-            return stringBuilder.ToString();
-        }
 
         public override void ArrivalAction()
         {

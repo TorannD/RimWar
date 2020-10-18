@@ -62,10 +62,12 @@ namespace RimWar
             Rect rect = new Rect(35f, rowY, 300f, 160f);
             StringBuilder stringBuilder = new StringBuilder();
             RimWarData rwd = WorldUtility.GetRimWarDataForFaction(faction);
+            int costToAlly = rwd.TotalFactionPoints / 15;
+            int playerSilver = GetPlayerSilver;
             if (rwd != null && faction != null)
             {
                 bool canDeclareWar = !rwd.IsAtWarWith(Faction.OfPlayer);
-                bool canDeclareAlliance = faction.PlayerRelationKind == FactionRelationKind.Ally && !rwd.AllianceFactions.Contains(Faction.OfPlayer);
+                bool canDeclareAlliance = faction.PlayerRelationKind == FactionRelationKind.Ally && !rwd.AllianceFactions.Contains(Faction.OfPlayer) && playerSilver > costToAlly;
                 foreach (Faction item in Find.FactionManager.AllFactionsInViewOrder)
                 {
                     if (item != faction && ((!item.IsPlayer && !item.def.hidden)) && faction.HostileTo(item))
@@ -87,14 +89,14 @@ namespace RimWar
                 string text = stringBuilder.ToString();
                 float width = fillRect.width - rect.xMax;
                 float num = Text.CalcHeight(text, width);
-                float num2 = Mathf.Max(160f, num);
+                float num2 = Mathf.Max(176f, num);
                 Rect position = new Rect(10f, rowY + 10f, 15f, 15f);
                 Rect rect2 = new Rect(0f, rowY, fillRect.width, num2);
                 if (Mouse.IsOver(rect2))
                 {
                     GUI.DrawTexture(rect2, TexUI.HighlightTex);
                 }
-                Text.Font = GameFont.Small;
+                Text.Font = GameFont.Tiny;
                 Text.Anchor = TextAnchor.UpperLeft;
                 //Widgets.DrawRectFast(position, faction.Color);
                 FactionUIUtility.DrawFactionIconWithTooltip(position, faction);
@@ -105,6 +107,11 @@ namespace RimWar
                     + "\n" + "RW_SettlementCount".Translate((rwd != null && rwd.WorldSettlements != null && rwd.WorldSettlements.Count > 0) ? rwd.WorldSettlements.Count : 0)
                     + "\n" + "RW_WarObjectCount".Translate((rwd != null && WorldUtility.GetWarObjectsInFaction(faction) != null) ? WorldUtility.GetWarObjectsInFaction(faction).Count : 0)
                     + ((faction != WorldUtility.Get_WCPT().victoryFaction) ? string.Empty : "\n" + (string)"RW_RivalFaction".Translate());
+                if(Options.Settings.Instance.randomizeAttributes)
+                {
+                    label += "\n" + "RW_AttributeDisplay".Translate(rwd.combatAttribute.ToString("P0"), rwd.movementAttribute.ToString("P0"), rwd.growthAttribute.ToString("P0"));
+                }
+                
                 Widgets.Label(rect, label);
                 Rect rect3 = new Rect(rect.xMax, rowY, 40f, 80f);  //Rect rect3 = new Rect(rect.xMax, rowY, 60f, 80f);
                 Widgets.InfoCardButton(rect3.x, rect3.y, faction.def);
@@ -190,11 +197,12 @@ namespace RimWar
                     bool declareAlly = Widgets.ButtonText(rect7, "Alliance", canDeclareAlliance, false, true);
                     if (declareAlly && canDeclareAlliance)
                     {
+                        TributeSilver(costToAlly);
                         DeclareAllianceWith(Faction.OfPlayer, faction);
                     }
                     if (canDeclareAlliance)
                     {
-                        TooltipHandler.TipRegion(rect7, "RW_DeclareAllianceWarning".Translate());
+                        TooltipHandler.TipRegion(rect7, "RW_DeclareAllianceWarning".Translate(costToAlly));
                     }
                     else
                     {
@@ -204,6 +212,10 @@ namespace RimWar
                             if (faction.PlayerRelationKind != FactionRelationKind.Ally)
                             {
                                 strAlly.Append("RW_Reason_NotAlly".Translate() + "\n");
+                            }
+                            if(costToAlly > playerSilver)
+                            {
+                                strAlly.Append("RW_Reason_NotEnoughTribute".Translate(playerSilver, costToAlly) + "\n");
                             }
                             List<RimWarData> rwdList = WorldUtility.GetRimWarData();
                             string alliedFactions = "";
@@ -383,6 +395,54 @@ namespace RimWar
                         }
                     }
                 }
+            }
+        }
+
+        public static void TributeSilver(int amount)
+        {
+            List<Zone> allZones = Find.AnyPlayerHomeMap.zoneManager.AllZones;
+            if (allZones != null && allZones.Count > 0)
+            {
+                for (int i = 0; i < allZones.Count; i++)
+                {
+                    foreach (Thing t in allZones[i].AllContainedThings)
+                    {
+                        if (t.def == ThingDefOf.Silver && amount > 0)
+                        {
+                            int splitAmount = amount > t.stackCount ? t.stackCount : amount;                            
+                            t.SplitOff(splitAmount).Destroy(DestroyMode.Vanish);
+                            amount -= splitAmount;
+                        }
+                    }
+                }
+            }
+        }
+
+        private static int hashSilver = 0;
+        public static int GetPlayerSilver
+        {
+            get
+            {
+                if (Find.TickManager.TicksGame % 60 == 0)
+                {
+                    int totalSilver = 0;
+                    List<Zone> allZones = Find.AnyPlayerHomeMap.zoneManager.AllZones;
+                    if (allZones != null && allZones.Count > 0)
+                    {
+                        for (int i = 0; i < allZones.Count; i++)
+                        {
+                            foreach (Thing t in allZones[i].AllContainedThings)
+                            {
+                                if (t.def == ThingDefOf.Silver)
+                                {
+                                    totalSilver += t.stackCount;
+                                }
+                            }
+                        }
+                    }
+                    hashSilver = totalSilver;
+                }
+                return hashSilver;
             }
         }
     }

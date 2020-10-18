@@ -19,12 +19,16 @@
 <RW_SettlerName>Settler of {0}</RW_SettlerName>
 <RW_DiplomatName>Diplomat of {0}</RW_DiplomatName>
 <RW_CombatPower>Combat power: {0}</RW_CombatPower>
+<RW_Capitol>Faction Capitol</RW_Capitol>
 
 <!-- ============ Faction Menu =============-->
 <RW_FactionPower>Faction power: {0}</RW_FactionPower>
 <RW_FactionBehavior>Behavior type: {0}</RW_FactionBehavior>
 <RW_SettlementCount>Settlements: {0}</RW_SettlementCount>
 <RW_WarObjectCount>Roaming Agents: {0}</RW_WarObjectCount>
+<RW_AttributeDisplay>Combat ({0})
+Movement ({1})
+Growth ({2})</RW_AttributeDisplay>
 <RW_RivalFaction>**Rival**</RW_RivalFaction>
 
 <!-- ============ MainTabWindow =============-->
@@ -69,6 +73,8 @@
 <RW_randomizeFactionRelationsInfo>Randomizes relations between all factions. No default values are used. Factions permanently hostile to the player will remain hostile. Invisible factions are not affected. Faction relations are randomized after the game begins.</RW_randomizeFactionRelationsInfo>
 <RW_useRimWarVictory>Add Rim War Rival and Victory Condition</RW_useRimWarVictory>
 <RW_useRimWarVictoryInfo>Adds a new victory condition to destroy an enemy faction. The faction is currently randomly selected from permanently hostile factions.</RW_useRimWarVictoryInfo>
+<RW_randomizeFactionAttributes>Randomize Faction Attributes</RW_randomizeFactionAttributes>
+<RW_randomizeFactionAttributesInfo>Factions have random attributes that increases or decreases their combat power, movement speed, and growth speed.</RW_randomizeFactionAttributesInfo>
 
 <!-- ============ Diplomacy Requests =============-->
 <RW_SendTrader>Send Trader</RW_SendTrader>
@@ -85,6 +91,17 @@
 <RW_DestinationHostile>Destination is hostile</RW_DestinationHostile>
 <RW_FactionIncapableOfTech>{0} does not have the technology</RW_FactionIncapableOfTech>
 <RW_InvalidTarget>Invalid target</RW_InvalidTarget>
+
+<!-- ============ Diplomacy Requests - comms console =============-->
+<RW_InvalidRWD>Invalid Rim War Faction</RW_InvalidRWD>
+<RW_NoTownForRequest>Cannot provide military assistance due to lack sufficient resources</RW_NoTownForRequest>
+<RW_RequestAddition>Will depart from {0} and arrive in ~{1} days</RW_RequestAddition>
+<RW_RequestScout>Request Scout reinforcements (-{0} relations cost}
+Will depart from {1} with {3} combat power and arrive in ~{2} days</RW_RequestScout>
+<RW_RequestWarband>Request Warband reinforcements (-{0} relations cost)
+Will depart from {1} with {3} combat power and arrive in ~{2} days</RW_RequestWarband>
+<RW_RequestLaunchedWarband>Request an airborne Warband for immediate assistance (-{0} relations cost)
+Will depart from {1} with {3} combat power and arrive in ~{2} days</RW_RequestLaunchedWarband>
 
 <!-- ============ Diplomacy Actions =============-->
 <RW_DeclareWarWarning>Declaring war on a faction has the following affects:
@@ -103,12 +120,14 @@ Current standing: {0}</RW_DeclarePeaceInfo>
  This option is currently unavailable due to the following reasons:
 {0}</RW_DeclareAllianceInfo>
  <RW_DeclareAllianceWarning>Declaring a formal alliance with a faction has the following affects:
+  - player pays {0} in tribute; this will automatically be deducted if an alliance is declared
   - sets relations to maximum between you and any other allied faction
   - allied factions will send more and larger trade caravans, unless...
   - allied factions will focus their resources on the destruction of factions you are at war with
  
  A formal alliance will be ended by any hostile action that reduces relations with this faction below Ally</RW_DeclareAllianceWarning>
  <RW_Reason_NotAlly>Not an ally</RW_Reason_NotAlly>
+ <RW_Reason_NotEnoughTribute>Not enough silver for tribute: {0} / {1}</RW_Reason_NotEnoughTribute>
  <RW_Reason_HostileTo>Hostile to {0}</RW_Reason_HostileTo>
  <RW_Reason_AlreadyAllied>Already allied</RW_Reason_AlreadyAllied>
  

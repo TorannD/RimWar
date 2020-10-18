@@ -132,7 +132,7 @@ namespace RimWar.Planet
 
         public override int RimWarPoints { get => base.RimWarPoints; set => base.RimWarPoints = value; }
         public override bool MovesAtNight { get => base.MovesAtNight; set => base.MovesAtNight = value; }
-        public override float MovementModifier => 1.1f;
+        public override float MovementModifier => (2500f / (float)TicksPerMove);
         public override float DetectionModifier => base.DetectionModifier;
 
         public override bool NightResting

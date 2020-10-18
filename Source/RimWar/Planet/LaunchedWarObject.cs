@@ -231,11 +231,26 @@ namespace RimWar.Planet
         public override string GetInspectString()
         {
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.Append(base.GetInspectString());
+
+            WorldObject wo = this.DestinationTarget;
+            if (wo != null)
+            {
+                if (wo.Faction != this.Faction)
+                {
+                    stringBuilder.Append("RW_WarObjectInspectString".Translate(this.Name, "RW_Attacking".Translate(), wo.Label));                    
+                }
+                else
+                {
+                    stringBuilder.Append("RW_WarObjectInspectString".Translate(this.Name, "RW_ReturningTo".Translate(), wo.Label));
+                }
+            }
+
             if (stringBuilder.Length != 0)
             {
                 stringBuilder.AppendLine();
             }
+            stringBuilder.Append("RW_CombatPower".Translate(this.RimWarPoints));
+
             return stringBuilder.ToString();
         }
 

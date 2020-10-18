@@ -29,6 +29,7 @@ namespace RimWar
         public bool hatesPlayer;
         public bool movesAtNight;
         public BiomeDef biomeDef;
+        private int capitolTile = 0;
 
         public int rwdNextUpdateTick = 0;
 
@@ -39,6 +40,11 @@ namespace RimWar
         public float warbandLaunchChance = 0;
         public float diplomatChance = 0;
         public float caravanChance = 0;
+
+        //Faction attributes
+        public float movementAttribute = 1f;
+        public float combatAttribute = 1f;
+        public float growthAttribute = 1f;
 
         public void ExposeData()
         {
@@ -63,6 +69,10 @@ namespace RimWar
             Scribe_Collections.Look<Faction>(ref this.warFactions, "warFactions", LookMode.Reference, new object[0]);
             Scribe_Collections.Look<Faction>(ref this.allianceFactions, "allianceFactions", LookMode.Reference, new object[0]);
             //Scribe_Collections.Look<Warband>(ref this.factionWarbands, "factionWarbands", LookMode.Reference, new object[0]);
+            Scribe_Values.Look<int>(ref this.capitolTile, "capitolTile");
+            Scribe_Values.Look<float>(ref this.movementAttribute, "movementAttribute", 1f, false);
+            Scribe_Values.Look<float>(ref this.combatAttribute, "combatAttribute", 1f, false);
+            Scribe_Values.Look<float>(ref this.growthAttribute, "growthAttribute", 1f, false);
         }
 
         //private List<FactionRelation> rimwarFactionRelations;
@@ -100,6 +110,69 @@ namespace RimWar
             }
         }
 
+        private CapitolBuilding capBuilding = null;
+        private Settlement capitol = null;
+        public Settlement GetCapitol
+        {
+            get
+            {
+                if(capitol == null)
+                {
+                    if (capitolTile != 0)
+                    {
+                        capitol = Find.WorldObjects.SettlementAt(capitolTile);
+                        foreach(WorldObject obj in Find.WorldObjects.AllWorldObjects)
+                        {
+                            if(obj is CapitolBuilding && obj.Tile == capitolTile)
+                            {
+                                capBuilding = obj as CapitolBuilding;
+                            }
+                        }
+                    }
+                    if(capitol == null || capitol.Faction != this.RimWarFaction)
+                    {
+                        AssignRWDCapitol();
+                    }
+                }
+                return capitol;
+            }
+        }
+
+        public void AssignRWDCapitol()
+        {
+            int bestPts = 0;
+            Settlement bestSelection = null;
+            int index = 0;
+            for(int i = 0; i < WarSettlementComps.Count; i++)
+            {
+                if (bestSelection != null)
+                {
+                    if (WarSettlementComps[i].RimWarPoints > bestPts)
+                    {
+                        bestSelection = WarSettlementComps[i].parent as Settlement;
+                        bestPts = WarSettlementComps[i].RimWarPoints;
+                        index = i;
+                    }
+                }
+                else
+                {
+                    index = i;
+                    bestSelection = WarSettlementComps[i].parent as Settlement;
+                    bestPts = WarSettlementComps[i].RimWarPoints;
+                }
+            }
+            if(bestSelection != null)
+            {
+                CapitolBuilding cap = (CapitolBuilding)WorldObjectMaker.MakeWorldObject(RimWarDefOf.RW_CapitolBuilding);
+                cap.Tile = bestSelection.Tile;
+                Find.WorldObjects.Add(cap);                
+                cap.SetFaction(this.RimWarFaction);
+                capBuilding = cap;
+            }
+            capitol = bestSelection;
+            capitolTile = capitol.Tile;
+            WarSettlementComps[index].isCapitol = true;
+        }
 
         private List<RimWorld.Planet.Settlement> worldSettlements;
         public List<RimWorld.Planet.Settlement> WorldSettlements
@@ -170,6 +243,29 @@ namespace RimWar
                 }
                 return result;
             }
+        }
+
+        public Settlement ClosestSettlementTo(int tile, int minPoints)
+        {
+            float closestDistance = 0f;
+            RimWarSettlementComp closest = null;
+            for (int i = 0; i < WarSettlementComps.Count; i++)
+            {
+                if (closest != null)
+                {
+                    if(WarSettlementComps[i].RimWarPoints >= minPoints && Find.WorldGrid.ApproxDistanceInTiles(tile, WarSettlementComps[i].parent.Tile) < closestDistance)
+                    {
+                        closestDistance = Find.WorldGrid.TraversalDistanceBetween(tile, WarSettlementComps[i].parent.Tile);
+                        closest = WarSettlementComps[i];
+                    }
+                }
+                else if(WarSettlementComps[i].RimWarPoints >= minPoints)
+                {
+                    closestDistance = Find.WorldGrid.TraversalDistanceBetween(tile, WarSettlementComps[i].parent.Tile);
+                    closest = WarSettlementComps[i];
+                }
+            }
+            return closest.parent as Settlement;
         }
 
 
@@ -401,34 +497,35 @@ namespace RimWar
         {
             get
             {
-                return PointsFromSettlements;
+                return PointsFromSettlements + PointsFromWarObjects;
             }
         }
 
-        private List<Warband> factionWarbands;
-        public List<Warband> FactionWarbands  //incomplete
+        private List<WarObject> factionUnits;
+        public List<WarObject> FactionUnits 
         {
             get
             {
-                bool flag = this.factionWarbands == null;
-                if(flag)
-                {
-                    this.factionWarbands = new List<Warband>();
-                }
-                return this.factionWarbands;        
+                return WorldUtility.GetWarObjectsInFaction(this.RimWarFaction);
             }
         }
 
-        public int PointsFromWarObjects  //incomplete
+        private int ptsFromUnitsHash = 0;
+        private int ptsFromUnitsTickHash = 0;
+        public int PointsFromWarObjects  
         {
             get
             {
-                int sum = 0;
-                for(int i =0; i < FactionWarbands.Count; i++)
+                if(ptsFromUnitsTickHash < Find.TickManager.TicksGame)
                 {
-                    sum += FactionWarbands[i].RimWarPoints;
+                    ptsFromUnitsTickHash = Find.TickManager.TicksGame + 100;
+                    ptsFromUnitsHash = 0;
+                    foreach(WarObject wo in FactionUnits)
+                    {
+                        ptsFromUnitsHash += wo.RimWarPoints;
+                    }
                 }
-                return sum;
+                return ptsFromUnitsHash;
             }
         }
 
@@ -443,8 +540,7 @@ namespace RimWar
             //this.uniqueID = Find.UniqueIDsManager.GetNextWorldObjectID();
             //SetUniqueId();
             //this.factionName = faction.Name;
-            this.factionWarbands = new List<Warband>();
-            this.factionWarbands.Clear();
+
         }
 
         public RimWarAction GetWeightedSettlementAction()

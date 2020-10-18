@@ -9,6 +9,21 @@ using Verse;
 
 namespace RimWar.Planet
 {
+    [StaticConstructorOnStartup]
+    public class CapitolBuilding : WorldObject// : IExposable, ILoadReferenceable
+    {
+        public override Vector3 DrawPos
+        {
+            get
+            {
+                Vector3 pos = base.DrawPos;
+                pos.x -= .05f;
+                pos.y += .1f;
+                pos.z += .05f;
+                return pos;
+            }
+        }
+    }
     //[StaticConstructorOnStartup]
     //public class Settlement// : IExposable, ILoadReferenceable
     //{
@@ -33,7 +48,7 @@ namespace RimWar.Planet
     //        //        rimwarPointsInt = rimwarPointsCached;
     //        //    }                
     //        //}
-            
+
     //        //Scribe_Values.Look<int>(ref this.rimwarPointsInt, "rimwarPointsInt", 0, false);
     //        //Scribe_Values.Look<int>(ref this.nextEventTick, "nextEventTick", 0, false);
     //        //Scribe_Values.Look<int>(ref this.tile, "tile", 0, false);
@@ -203,7 +218,7 @@ namespace RimWar.Planet
     //    //        this.tile = value;
     //    //    }
     //    //}
-        
+
 
     //    //public RimWorld.Planet.Settlement RimWorld_Settlement
     //    //{

@@ -17,6 +17,7 @@ namespace RimWar.Planet
         public bool tradedWithSettlement = false;
         public bool tradedWithTrader = false;
         public bool tradedWithPlayer = false;
+        public TraderKindDef traderKind = null;
 
         public override void ExposeData()
         {
@@ -26,6 +27,7 @@ namespace RimWar.Planet
             Scribe_Values.Look<bool>(ref this.tradedWithSettlement, "tradedWithSettlement", false, false);
             Scribe_Values.Look<bool>(ref this.tradedWithTrader, "tradedWithTrader", false, false);
             Scribe_Values.Look<bool>(ref this.tradedWithPlayer, "tradedWithPlayer", false, false);
+            Scribe_Defs.Look<TraderKindDef>(ref this.traderKind, "traderKind");
         }        
 
         public Trader()
@@ -35,6 +37,7 @@ namespace RimWar.Planet
 
         public override int RimWarPoints { get => base.RimWarPoints; set => base.RimWarPoints = value; }
         public override bool MovesAtNight { get => base.MovesAtNight; set => base.MovesAtNight = value; }
+        public override float MovementModifier => (2500f / (float)TicksPerMove);
 
         public override bool NightResting
         {
@@ -176,7 +179,7 @@ namespace RimWar.Planet
                             if (playerSettlement != null)
                             {
                                 //Log.Message("Trader AA 7.1");
-                                IncidentUtility.DoSettlementTradeWithPoints(this, playerSettlement, this.rimwarData, IncidentUtility.PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.EdgeWalkIn));
+                                IncidentUtility.DoSettlementTradeWithPoints(this, playerSettlement, this.rimwarData, IncidentUtility.PawnsArrivalModeOrRandom(PawnsArrivalModeDefOf.EdgeWalkIn), traderKind);
                                 if (this.WarSettlementComp != null)
                                 {
                                     this.WarSettlementComp.RimWarPoints += Mathf.RoundToInt(this.RimWarPoints * (Rand.Range(1.05f, 1.25f)));

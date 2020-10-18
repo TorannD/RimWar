@@ -27,7 +27,7 @@ namespace RimWar.Planet
         public WorldPath curPath;
 
         public int lastPathedTargetTile;
-        public const int MaxMoveTicks = 30000;
+        public const int MaxMoveTicks = 60000;
         private const int MaxCheckAheadNodes = 20;
         private const int MinCostWalk = 50;
         private const int MinCostAmble = 60;
@@ -296,7 +296,7 @@ namespace RimWar.Planet
                 explanation.Append("  = " + (num * roadMovementDifficultyMultiplier).ToString("0.#"));
             }
             int value = (int)((float)warObjectTicksPerMove * num * roadMovementDifficultyMultiplier);
-            value = Mathf.Clamp(value, 1, 30000);
+            value = Mathf.Clamp(value, 1, 60000);
             if (explanation != null)
             {
                 explanation.AppendLine();
@@ -324,14 +324,14 @@ namespace RimWar.Planet
 
         private float CostToPayThisTick()
         {
-            float num = warObject.nextMoveTickIncrement; //1f;
+            float num = (float)warObject.nextMoveTickIncrement * warObject.MovementModifier * warObject.rimwarData.movementAttribute; //1f;
             if (DebugSettings.fastCaravans)
             {
                 num = 100f;
             }
-            if (num < nextTileCostTotal / 30000f)
+            if (num < nextTileCostTotal / 60000)
             {
-                num = nextTileCostTotal / 30000f;
+                num = nextTileCostTotal / 60000;
             }
             return num;
         }

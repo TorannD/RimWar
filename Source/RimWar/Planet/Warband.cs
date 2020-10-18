@@ -12,7 +12,7 @@ namespace RimWar.Planet
     public class Warband : WarObject
     {        
         private int lastEventTick = 0;        
-        private int ticksPerMove = 2300;
+        private int ticksPerMove = 2800;
         private int searchTick = 60;               
 
         public override void ExposeData()
@@ -20,7 +20,7 @@ namespace RimWar.Planet
             base.ExposeData();
             
             Scribe_Values.Look<int>(ref this.lastEventTick, "lastEventTick", 0, false);
-            Scribe_Values.Look<int>(ref this.ticksPerMove, "ticksPerMove", 2300, false);                       
+            Scribe_Values.Look<int>(ref this.ticksPerMove, "ticksPerMove", 2800, false);                       
         }        
 
         public Warband()
@@ -31,7 +31,7 @@ namespace RimWar.Planet
         public override int RimWarPoints { get => base.RimWarPoints; set => base.RimWarPoints = value; }
         public override bool MovesAtNight { get => base.MovesAtNight; set => base.MovesAtNight = value; }
         public override float DetectionModifier => .8f;
-        public override float MovementModifier => .8f;
+        public override float MovementModifier => (2500f/(float)TicksPerMove);
 
         public override bool NightResting
         {

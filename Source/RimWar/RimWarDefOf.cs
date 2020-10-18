@@ -21,6 +21,7 @@ namespace RimWar
         public static WorldObjectDef RW_Settler;
         public static WorldObjectDef RW_Diplomat;
         public static WorldObjectDef RW_Trader;
+        public static WorldObjectDef RW_CapitolBuilding;
 
         public static RW_LetterDef RimWar_HostileEvent;
         public static RW_LetterDef RimWar_NeutralEvent;

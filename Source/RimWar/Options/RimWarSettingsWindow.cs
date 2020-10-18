@@ -102,8 +102,12 @@ namespace RimWar.Options
             TooltipHandler.TipRegion(rect8, "RW_randomizeFactionRelationsInfo".Translate());
             num += 40f;
             Rect rect9 = new Rect(0f, num, 400f, 30f);
-            Widgets.CheckboxLabeled(rect9, "RW_useRimWarVictory".Translate(), ref Settings.Instance.useRimWarVictory, false);
-            TooltipHandler.TipRegion(rect9, "RW_useRimWarVictoryInfo".Translate());
+            Widgets.CheckboxLabeled(rect9, "RW_randomizeFactionAttributes".Translate(), ref Settings.Instance.randomizeAttributes, false);
+            TooltipHandler.TipRegion(rect9, "RW_randomizeFactionAttributesInfo".Translate());
+            num += 40f;
+            Rect rect10 = new Rect(0f, num, 400f, 30f);
+            Widgets.CheckboxLabeled(rect10, "RW_useRimWarVictory".Translate(), ref Settings.Instance.useRimWarVictory, false);
+            TooltipHandler.TipRegion(rect10, "RW_useRimWarVictoryInfo".Translate());
             GUI.EndGroup();
         }
     }

@@ -27,7 +27,7 @@ namespace RimWar.Planet
         public Faction victoryFaction = null;
         private bool victoryDeclared = false;
         private bool rwdInitialized = false;
-        private bool rwdInitVictory = false;
+        private bool rwdInitVictory = false;        
 
         //Stored variables
         public List<CaravanTargetData> caravanTargetData;
@@ -141,10 +141,40 @@ namespace RimWar.Planet
             //Log.Message("world component power tracker init");
             //return;
         }
+        
+        public List<int> capitolTiles;
+        private void DrawOverlays()
+        {
+            if(capitolTiles == null)
+            {
+                capitolTiles = new List<int>();
+                capitolTiles.Clear();
+            }
+            if(rwdInitialized)
+            {
+                if(Find.TickManager.TicksGame % 300 == 0)
+                {
+                    capitolTiles.Clear();
+                    foreach(RimWarData rwd in this.RimWarData)
+                    {
+                        capitolTiles.Add(rwd.GetCapitol.Tile);
+                    }
+                }
+                //foreach (int capitol in capitolTiles)
+                //{
+                //    Vector3 tileCenter = Find.WorldGrid.GetTileCenter(capitol);
+                //    Vector3 s = new Vector3(3f, 0f, 3f);
+                //    Matrix4x4 matrix = default(Matrix4x4);
+                //    matrix.SetTRS(tileCenter, Quaternion.identity, s);
+                //    Graphics.DrawMesh(MeshPool.plane10, matrix, RimWarMatPool.Settlement_CapitolStar, WorldCameraManager.WorldLayer);
+                //}
+            }
+        }
 
         private bool doOnce = false;
         public override void WorldComponentTick()
-        {            
+        {
+            //DrawOverlays();
             int currentTick = Find.TickManager.TicksGame;
             Options.SettingsRef settingsRef = new Options.SettingsRef();
             if (!doOnce)
@@ -290,7 +320,14 @@ namespace RimWar.Planet
                                                 Log.Warning("attempted to generate undefined RimWar settlement action");
                                             }
                                         }
-                                        rwsComp.nextEventTick = currentTick + settingsRef.settlementEventDelay; //one day (60000) default
+                                        if (rwsComp.isCapitol)
+                                        {
+                                            rwsComp.nextEventTick = currentTick + (int)((float)settingsRef.settlementEventDelay / 2f);
+                                        }
+                                        else
+                                        {
+                                            rwsComp.nextEventTick = currentTick + settingsRef.settlementEventDelay; //one day (60000) default
+                                        }
                                     }
                                 }
                                 else
@@ -644,7 +681,7 @@ namespace RimWar.Planet
             //Log.Message("incrementing growth");
             this.totalTowns = 0;
             Options.SettingsRef settingsref = new Options.SettingsRef();
-            for(int i =0; i < this.RimWarData.Count; i++)
+            for(int i = 0; i < this.RimWarData.Count; i++)
             {
                 RimWarData rwd = RimWarData[i];
                 if (rwd.behavior != RimWarBehavior.Player)
@@ -663,18 +700,27 @@ namespace RimWar.Planet
                             int maxPts = 25000;
                             if(rwdTown.parent.def.defName == "City_Citadel")
                             {
-                                maxPts = 40000;
+                                maxPts += 15000;
                                 mult = 2f;
+                            }
+                            if(rwdTown.isCapitol)
+                            {
+                                maxPts += 20000;
+                                mult += .35f;
                             }
                             if (rwdTown.RimWarPoints <= maxPts)
                             {
-                                float pts = (Rand.Range(1, 4)) + 2 + WorldUtility.GetBiomeMultiplier(Find.WorldGrid[rwdTown.parent.Tile].biome);
-                                pts = pts * mult * WorldUtility.GetFactionTechLevelMultiplier(rwd.RimWarFaction) * Rand.Range(.2f, 1f);
+                                float pts = (Rand.Range(1, 4)) + (2 * GenDate.YearsPassed) + WorldUtility.GetBiomeMultiplier(Find.WorldGrid[rwdTown.parent.Tile].biome);
+                                pts = pts * mult * WorldUtility.GetFactionTechLevelMultiplier(rwd.RimWarFaction) * Rand.Range(.2f, 1f) * rwd.growthAttribute;
                                 rwdTown.RimWarPoints += Mathf.RoundToInt(pts);
                             }
                             if(rwdTown.PlayerHeat < 10000)
                             {
                                 rwdTown.PlayerHeat += Rand.Range(1, 3);
+                                if(rwdTown.isCapitol)
+                                {
+                                    rwdTown.PlayerHeat += Rand.Range(1, 3);
+                                }
                             }
                         }
                     }
@@ -721,6 +767,7 @@ namespace RimWar.Planet
                     GenerateFactionBehavior(newRimWarFaction);
                     AssignFactionSettlements(newRimWarFaction);
                 }
+                Settlement s = newRimWarFaction.GetCapitol;
                 this.RimWarData.Add(newRimWarFaction);
             }
         }
@@ -775,6 +822,12 @@ namespace RimWar.Planet
                             rimwarObject.behavior = defData.behavior;
                             rimwarObject.createsSettlements = defData.createsSettlements;
                             rimwarObject.hatesPlayer = defData.hatesPlayer;
+                            if (settingsRef.randomizeAttributes)
+                            {
+                                rimwarObject.movementAttribute = defData.movementBonus;
+                                rimwarObject.growthAttribute = defData.growthBonus;
+                                rimwarObject.combatAttribute = defData.combatBonus;
+                            }
                             break;
                         }
                     }
@@ -808,6 +861,12 @@ namespace RimWar.Planet
                 rimwarObject.behavior = (RimWarBehavior)Rand.RangeInclusive(0, 5);
                 rimwarObject.createsSettlements = true;
                 rimwarObject.hatesPlayer = rimwarObject.RimWarFaction.def.permanentEnemy;
+                if (Options.Settings.Instance.randomizeAttributes)
+                {
+                    rimwarObject.combatAttribute = Rand.Range(.75f, 1.25f);
+                    rimwarObject.growthAttribute = Rand.Range(.75f, 1.25f);
+                    rimwarObject.movementAttribute = Rand.Range(.75f, 1.25f);
+                }
             }
         }
 
@@ -1486,11 +1545,11 @@ namespace RimWar.Planet
             Options.SettingsRef settingsRef = new Options.SettingsRef();
             if (settingsRef.storytellerBasedDifficulty)
             {
-                pts = (int)(pts / Find.Storyteller.difficulty.threatScale);
+                pts = (int)((float)pts / Find.Storyteller.difficulty.threatScale);
             }
             else
             {
-                pts = (int)(pts / settingsRef.rimwarDifficulty);
+                pts = (int)((float)pts / settingsRef.rimwarDifficulty);
             }
             return pts;
         }

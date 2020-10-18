@@ -23,24 +23,38 @@
 		  <li>
 			<factionDefname>OutlanderCivil</factionDefname>
 			<behavior>Cautious</behavior>
+			<growthBonus>1.1</growthBonus>
+			<combatBonus>.9</combatBonus>
 		  </li>
 		  <li>
 			<factionDefname>OutlanderRough</factionDefname>
 			<behavior>Aggressive</behavior>
+			<combatBonus>1.1</combatBonus>
+			<movementBonus>1.05</movementBonus>
+			<growthBonus>.85</growthBonus>
 		  </li>
 		  <li>
 			<factionDefname>TribeCivil</factionDefname>
 			<behavior>Expansionist</behavior>
+			<movementBonus>1.15</movementBonus>
+			<growthBonus>.95</growthBonus>
+			<combatBonus>1.05</combatBonus>
 		  </li>
 		  <li>
 			<factionDefname>TribeRough</factionDefname>
 			<behavior>Warmonger</behavior>
+			<movementBonus>1.2</movementBonus>
+			<growthBonus>.9</growthBonus>
+			<combatBonus>1.1</combatBonus>
 		  </li>
 		  <li>
 			<factionDefname>Pirate</factionDefname>
 			<behavior>Warmonger</behavior>
 			<createsSettlements>false</createsSettlements>
 			<hatesPlayer>true</hatesPlayer>
+			<movementBonus>1.1</movementBonus>
+			<growthBonus>.8</growthBonus>
+			<combatBonus>1.2</combatBonus>
 		  </li>
 		</defDatas>	
 	</RimWar.RimWarDef>

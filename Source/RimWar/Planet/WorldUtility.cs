@@ -349,7 +349,7 @@ namespace RimWar.Planet
                 warband.MovesAtNight = rwd.movesAtNight;
                 warband.RimWarPoints = power;
                 warband.launched = _launched;
-                warband.TicksPerMove = (int)(warband.TicksPerMove / settingsRef.objectMovementMultiplier);
+                warband.TicksPerMove = Mathf.RoundToInt((float)warband.TicksPerMove / settingsRef.objectMovementMultiplier);
                 warband.DestinationTarget = destination;                
                 if (rwd.behavior == RimWarBehavior.Warmonger)
                 {
@@ -451,7 +451,7 @@ namespace RimWar.Planet
                 scout.MovesAtNight = rwd.movesAtNight;
                 scout.RimWarPoints = power;
                 scout.DestinationTarget = destination;
-                scout.TicksPerMove = (int)(scout.TicksPerMove / settingsRef.objectMovementMultiplier);
+                scout.TicksPerMove = Mathf.RoundToInt((float)scout.TicksPerMove / settingsRef.objectMovementMultiplier);
                 if (rwd.behavior == RimWarBehavior.Expansionist)
                 {
                     scout.TicksPerMove = (int)(scout.TicksPerMove * .8f);
@@ -507,7 +507,7 @@ namespace RimWar.Planet
                 trader.ParentSettlement = parentSettlement;
                 trader.MovesAtNight = rwd.movesAtNight;
                 trader.RimWarPoints = power;
-                trader.TicksPerMove = (int)(trader.TicksPerMove / settingsRef.objectMovementMultiplier);
+                trader.TicksPerMove = Mathf.RoundToInt((float)trader.TicksPerMove / settingsRef.objectMovementMultiplier);
                 if (rwd.behavior == RimWarBehavior.Expansionist)
                 {
                     trader.TicksPerMove = (int)(trader.TicksPerMove * .9f);
@@ -564,7 +564,7 @@ namespace RimWar.Planet
             diplomat.ParentSettlement = parentSettlement;
             diplomat.MovesAtNight = rwd.movesAtNight;
             diplomat.RimWarPoints = power;
-            diplomat.TicksPerMove = (int)(diplomat.TicksPerMove / settingsRef.objectMovementMultiplier);
+            diplomat.TicksPerMove = Mathf.RoundToInt((float)diplomat.TicksPerMove / settingsRef.objectMovementMultiplier);
             if (rwd.behavior == RimWarBehavior.Expansionist)
             {
                 diplomat.TicksPerMove = (int)(diplomat.TicksPerMove * .8f);
@@ -615,7 +615,7 @@ namespace RimWar.Planet
             settler.MovesAtNight = rwd.movesAtNight;
             settler.RimWarPoints = power;
             settler.DestinationTile = destinationTile;
-            settler.TicksPerMove = (int)(settler.TicksPerMove / settingsRef.objectMovementMultiplier);
+            settler.TicksPerMove = Mathf.RoundToInt((float)settler.TicksPerMove / settingsRef.objectMovementMultiplier);
             if (rwd.behavior == RimWarBehavior.Expansionist)
             {
                 settler.TicksPerMove = (int)(settler.TicksPerMove * .8f);
@@ -1424,6 +1424,7 @@ namespace RimWar.Planet
                     bool hasRelation = false;
                     for (int k = 0; k < rwdList.Count; k++)
                     {
+                        Settlement capitol = rwdList[k].GetCapitol;
                         for (int i = 0; i < factions.Count; i++)
                         {
                             List<FactionRelation> fr = Traverse.Create(root: factions[i]).Field(name: "relations").GetValue<List<FactionRelation>>();

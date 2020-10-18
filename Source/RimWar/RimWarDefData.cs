@@ -15,6 +15,9 @@ namespace RimWar
         public bool createsSettlements = true;
         public bool hatesPlayer = false;
         public bool movesAtNight = false;
+        public float movementBonus = 1f;
+        public float combatBonus = 1f;
+        public float growthBonus = 1f;
 
         //preferred biome
         //movement multiplier

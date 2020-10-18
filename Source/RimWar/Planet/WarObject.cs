@@ -53,7 +53,7 @@ namespace RimWar.Planet
             get
             {                
                 Options.SettingsRef settingsRef = new Options.SettingsRef();
-                this.nextMoveTickIncrement = (int)(Rand.Range(settingsRef.woEventFrequency * .9f, settingsRef.woEventFrequency * 1.1f) * MovementModifier);
+                this.nextMoveTickIncrement = (int)settingsRef.woEventFrequency;
                 return nextMoveTickIncrement;
             }
         }
@@ -595,7 +595,7 @@ namespace RimWar.Planet
 
             if (pather.Moving)
             {
-                float num6 = (float)Utility.ArrivalTimeEstimator.EstimatedTicksToArrive(base.Tile, pather.Destination, this) / 60000f;
+                float num6 = (float)Utility.ArrivalTimeEstimator.EstimatedTicksToArrive(base.Tile, pather.Destination, this.TicksPerMove) / 60000f;
                 if (stringBuilder.Length != 0)
                 {
                     stringBuilder.AppendLine();

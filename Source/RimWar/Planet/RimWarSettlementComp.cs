@@ -14,6 +14,7 @@ namespace RimWar.Planet
 {
     public class RimWarSettlementComp : WorldObjectComp
     {
+        public bool isCapitol = false;
         private int rimwarPointsInt = 0;
         public int nextEventTick = 0;
         public int nextSettlementScan = 0;
@@ -40,6 +41,7 @@ namespace RimWar.Planet
             Scribe_Values.Look<int>(ref this.nextSettlementScan, "nextSettlementScan", 0, false);
             Scribe_Collections.Look<RimWorld.Planet.Settlement>(ref this.settlementsInRange, "settlementsInRange", LookMode.Reference, new object[0]);
             Scribe_Collections.Look<ConsolidatePoints>(ref this.consolidatePoints, "consolidatePoints", LookMode.Deep, new object[0]);
+            Scribe_Values.Look<bool>(ref this.isCapitol, "isCapitol", false);
         }
 
         public List<ConsolidatePoints> SettlementPointGains
@@ -66,6 +68,19 @@ namespace RimWar.Planet
                 return WorldUtility.GetRimWarDataForFaction(this.parent.Faction);
             }
         }
+
+        //public override void PostDrawExtraSelectionOverlays()
+        //{
+        //    if(isCapitol)
+        //    {
+        //        Vector3 tileCenter = Find.WorldGrid.GetTileCenter(this.parent.Tile);
+        //        Vector3 s = new Vector3(3f, 1f, 3f);
+        //        Matrix4x4 matrix = default(Matrix4x4);
+        //        matrix.SetTRS(tileCenter, Quaternion.identity, s);
+        //        Graphics.DrawMesh(MeshPool.plane10, matrix, RimWarMatPool.Settlement_CapitolStar, WorldCameraManager.WorldLayer);
+        //    }
+        //    base.PostDrawExtraSelectionOverlays();
+        //}
 
         public int RimWarPoints
         {

@@ -26,6 +26,23 @@
   </WorldObjectDef>
   
   <WorldObjectDef>
+    <defName>RW_CapitolBuilding</defName>
+    <label>Capitol</label>
+    <description>Marks a faction capitol</description>
+    <worldObjectClass>RimWar.Planet.CapitolBuilding</worldObjectClass>
+    <texture>World/capitol_star_se</texture>
+    <useDynamicDrawer>true</useDynamicDrawer>
+    <expandingIcon>true</expandingIcon>
+    <expandingIconTexture>World/capitol_star_s</expandingIconTexture>
+    <expandingIconPriority>100</expandingIconPriority>
+    <expandMore>true</expandMore>
+	<selectable>false</selectable>
+	<neverMultiSelect>true</neverMultiSelect>
+    <inspectorTabs>
+    </inspectorTabs>
+  </WorldObjectDef>
+  
+  <WorldObjectDef>
     <defName>RW_WarObject</defName>
     <label>RimWar world object</label>
     <description>A world object for RimWar.</description>

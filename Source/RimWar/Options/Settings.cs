@@ -15,6 +15,7 @@ namespace RimWar.Options
         public bool createDiplomats = false;
         public bool useRimWarVictory = true;
         public bool restrictEvents = true;
+        public bool randomizeAttributes = true;
 
         //limit controls
         public int maxFactionSettlements = 20;
@@ -28,7 +29,7 @@ namespace RimWar.Options
         public int settlementScanDelay = 120000;               
         public int woEventFrequency = 200;
         public int rwdUpdateFrequency = 2500;
-        public bool forceRandomObject = false;
+        public bool forceRandomObject = false;        
 
         //alerts
         public int alertRange = 6;
@@ -65,6 +66,7 @@ namespace RimWar.Options
             Scribe_Values.Look<int>(ref this.rwdUpdateFrequency, "rwdUpdateFrequency", 2500, false);
             Scribe_Values.Look<int>(ref this.alertRange, "alertRange", 6, false);
             Scribe_Values.Look<int>(ref this.letterNotificationRange, "letterNotificationRange", 7, false);
+            Scribe_Values.Look<bool>(ref this.randomizeAttributes, "randomizeAttributes", true);
         }
 
         public static Settings Instance;

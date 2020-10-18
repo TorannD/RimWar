@@ -34,12 +34,6 @@ namespace RimWar.Harmony
         {
             HarmonyLib.Harmony harmonyInstance = new HarmonyLib.Harmony("rimworld.torann.rimwar");
             //Postfix
-            //harmonyInstance.Patch(AccessTools.Method(typeof(FactionUIUtility), "DrawFactionRow", new Type[]
-            //    {
-            //        typeof(Faction),
-            //        typeof(float),
-            //        typeof(Rect)
-            //    }, null), null, new HarmonyMethod(typeof(HarmonyPatches), "DrawFactionRow_WithFactionPoints_Postfix", null), null);
             harmonyInstance.Patch(AccessTools.Method(typeof(RimWorld.Planet.SettlementUtility), "AttackNow", new Type[]
                 {
                     typeof(Caravan),
@@ -63,14 +57,10 @@ namespace RimWar.Harmony
             //GET
 
             //Transpiler
-            //harmonyInstance.Patch(AccessTools.Method(typeof(Page_CreateWorldParams), "DoWindowContents"), null, null,
-            //    new HarmonyMethod(patchType, nameof(RimWar_WorldParams_CoverageTranspiler)));
+            //harmonyInstance.Patch(AccessTools.Method(typeof(FactionDialogMaker), "FactionDialogFor"), null, null,
+            //    new HarmonyMethod(patchType, nameof(RimWar_CommsConsoleOptions_Transpiler)));
 
             //Prefix
-            //harmonyInstance.Patch(AccessTools.Method(typeof(Page_CreateWorldParams), "DoWindowsContents", new Type[]
-            //    {
-            //        typeof(Rect)
-            //    }, null), new HarmonyMethod(typeof(RimWarMod), "Page_CreateRimWarWorldParams_CoveragePatch", null), null);
             harmonyInstance.Patch(AccessTools.Method(typeof(IncidentWorker), "TryExecute", new Type[]
                 {
                     typeof(IncidentParms)
@@ -108,66 +98,51 @@ namespace RimWar.Harmony
                 }, null), new HarmonyMethod(patchType, "CallForAid_Replacement_Patch", null), null, null);
         }
 
-        //[HarmonyPatch(typeof(RimWorld.Planet.Settlement), "GetGizmos")]
-        //public static class SettlementGizmoAdditions_Patch
-        //{
-        //    public static void Postfix(RimWorld.Planet.Settlement __instance, ref IEnumerable<Gizmo> __result)
-        //    {
-        //        //if (Prefs.DevMode)
-        //        //{
-        //        Options.SettingsRef settingsRef = new Options.SettingsRef();
-        //        if (__instance != null)
-        //        {
-        //            //List<Gizmo> gizmoList = __instance.GetGizmos().ToList();
-        //            RimWar.Planet.Settlement settlement = WorldUtility.GetRimWarSettlementAtTile(__instance.Tile);
-        //            if (settlement != null)
-        //            {
-        //                Command_Action command_Action_CreateTrader = new Command_Action();
-        //                //    command_Action_CreateTrader.defaultLabel = "Create Trader".Translate();
-        //                //    command_Action_CreateTrader.icon = RimWarMatPool.Icon_Trader;
-        //                //    command_Action_CreateTrader.action = delegate
-        //                //    {
-        //                //        Find.WorldSelector.ClearSelection();
-        //                //        int tile = settlement.Tile;
-        //                //        Find.WorldTargeter.BeginTargeting_NewTemp(new Func<GlobalTargetInfo, bool>(ChooseWorldTarget), true, RimWarMatPool.Icon_Trader, false, delegate
-        //                //        {
-        //                //            GenDraw.DrawWorldRadiusRing(tile, Mathf.RoundToInt(settlement.RimWarPoints / settingsRef.settlementScanRangeDivider));  //center, max launch distance
-        //                //    }, delegate (GlobalTargetInfo target)
-        //                //        {
-        //                //            return null;
-        //                //        });
-        //                //    };
-        //                //    gizmoList.Add(command_Action_CreateTrader);
-        //                yield return (Gizmo)command_Action_CreateTrader;
-        //            }
-        //            //__result = gizmoList;
-        //            //Log.Message("patching");
-        //        }
-        //        //}
-        //    }
 
-        //    private static bool ChooseWorldTarget(GlobalTargetInfo target)
-        //    {
-        //        if (!target.IsValid)
-        //        {
-        //            Messages.Message("Invalid Tile", MessageTypeDefOf.RejectInput);
-        //            return false;
-        //        }
-        //        RimWorld.Planet.Settlement s = target.WorldObject as RimWorld.Planet.Settlement;
-        //        if (s != null)
-        //        {
-        //            target = s;
-        //            return true;
-        //        }
-        //        if (Find.World.Impassable(target.Tile))
-        //        {
-        //            Messages.Message("Impassable Tile", MessageTypeDefOf.RejectInput);
-        //            return false;
-        //        }
-        //        return false;
-        //    }
-        //}
+        [HarmonyPatch(typeof(FactionDialogMaker), "FactionDialogFor")]
+        public static class CommsConsole_RimWarOptions_Patch
+        {
+            private static void Postfix(Pawn negotiator, Faction faction, ref DiaNode __result)
+            {
+                __result.options.Remove(__result.options[0]);
+                __result.options.Remove(__result.options[0]);
+                __result.options.Insert(0, FactionDialogReMaker.RequestTraderOption(negotiator.Map, faction, negotiator));
+                __result.options.Insert(1, FactionDialogReMaker.RequestMilitaryAid_Scouts_Option(negotiator.Map, faction, negotiator));
+                __result.options.Insert(2, FactionDialogReMaker.RequestMilitaryAid_Warband_Option(negotiator.Map, faction, negotiator));
+                __result.options.Insert(3, FactionDialogReMaker.RequestMilitaryAid_LaunchedWarband_Option(negotiator.Map, faction, negotiator));
+            }
+        }
 
+        public static IEnumerable<CodeInstruction> RimWar_CommsConsoleOptions_Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            List<CodeInstruction> list = instructions.ToList();
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (list[i].opcode == OpCodes.Call && list[i].operand.ToString().Contains("Military"))
+                {
+                    list.Remove(list[i]);
+                    list.InsertRange(i, new List<CodeInstruction>
+                    {
+                        new CodeInstruction(OpCodes.Call, (object)typeof(FactionDialogReMaker).GetMethod("RequestMilitaryAid_Scouts_Option"))
+                        //new CodeInstruction(OpCodes.Ldloc_1),
+                        //new CodeInstruction(OpCodes.Ldarg_1),
+                        //new CodeInstruction(OpCodes.Ldloc_0),
+                        //new CodeInstruction(OpCodes.Ldfld, (object)typeof(FactionDialogMaker).GetField("negotiator")),
+                        //new CodeInstruction(OpCodes.Ldc_I4_1),
+                        //new CodeInstruction(OpCodes.Ldloca_S),
+                        //new CodeInstruction(OpCodes.Call, (object)typeof(FactionDialogReMaker).GetMethod("RequestMilitaryAid_Warband_Option"))
+                    });
+
+                    //int num = 1;
+                    //list.InsertRange(i + num, new List<CodeInstruction>
+                    //{
+                    //    )
+                    //});
+                    //break;
+                }
+            }
+            return list.AsEnumerable();            
+        }
 
         [HarmonyPatch(typeof(Faction), "RelationWith")]
         public static class FactionRelationCheck_Patch
@@ -195,29 +170,28 @@ namespace RimWar.Harmony
             }
         }
 
-        //[HarmonyPatch(typeof(WorldObject), "Destroy")]
-        //public static class SettlementDestroyed_Patch
-        //{
-        //    private static void Postfix(WorldObject __instance)
-        //    {
-        //        if(__instance is RimWorld.Planet.Settlement)
-        //        {
-        //            RimWarData rwd = WorldUtility.GetRimWarDataForFaction(__instance.Faction);
-        //            for(int i = 0; i < rwd.WorldSettlements.Count; i++)
-        //            {
-        //                if(rwd.WorldSettlements[i].Tile == __instance.Tile)
-        //                {
-        //                    rwd.WorldSettlements.Remove(rwd.WorldSettlements[i]);
-        //                    break;
-        //                }
-        //            }
-        //            if(rwd.WorldSettlements.Count <= 0)
-        //            {
-        //                WorldUtility.RemoveRWDFaction(rwd);
-        //            }
-        //        }
-        //    }
-        //}
+        [HarmonyPatch(typeof(WorldObject), "Destroy")]
+        public static class SettlementDestroyed_Patch
+        {
+            private static void Postfix(WorldObject __instance)
+            {
+                if (__instance is RimWorld.Planet.Settlement)
+                {
+                    RimWarSettlementComp rwsc = __instance.GetComponent<RimWarSettlementComp>();
+                    if(rwsc != null && rwsc.isCapitol)
+                    {
+                        for(int i = 0; i < Find.WorldObjects.AllWorldObjects.Count; i++)
+                        {
+                            WorldObject wo = Find.WorldObjects.AllWorldObjects[i];
+                            if(wo is CapitolBuilding && wo.Tile == __instance.Tile)
+                            {
+                                wo.Destroy();
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         [HarmonyPatch(typeof(FactionManager), "Remove")]
         public static class RemoveFaction_Patch
@@ -480,7 +454,10 @@ namespace RimWar.Harmony
                     }
                     
                     text += "RW_SettlementPoints".Translate(rwsc.RimWarPoints + "\n" + "RW_FactionBehavior".Translate(rwd.behavior.ToString()));
-
+                    if(rwd.GetCapitol == __instance)
+                    {
+                        text += "\n" + "RW_Capitol".Translate();
+                    }
                     __result += text;
                 }               
             }

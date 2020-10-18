@@ -64,8 +64,8 @@ namespace RimWar.Planet
                 float combinedPoints = attacker.RimWarPoints + defender.RimWarPoints;
                 float attackerRoll = Rand.Value;
                 float defenderRoll = Rand.Value;
-                float attackerResult = attackerRoll * attacker.RimWarPoints;
-                float defenderResult = defenderRoll * defender.RimWarPoints;
+                float attackerResult = attackerRoll * attacker.RimWarPoints * attacker.rimwarData.combatAttribute;
+                float defenderResult = defenderRoll * defender.RimWarPoints * defender.rimwarData.combatAttribute;
                 float endPointsAttacker = 0f;
                 float endPointsDefender = 0f;
                 RW_Letter let = RW_LetterMaker.Make_RWLetter(RimWarDefOf.RimWar_NeutralEvent);
@@ -151,8 +151,12 @@ namespace RimWar.Planet
                 float combinedPoints = attacker.RimWarPoints + defender.RimWarPoints;
                 float attackerRoll = Rand.Value;
                 float defenderRoll = Rand.Value;
-                float attackerResult = attackerRoll * attacker.RimWarPoints;
-                float defenderResult = defenderRoll * defender.RimWarPoints;
+                float attackerResult = attackerRoll * attacker.RimWarPoints * attacker.rimwarData.combatAttribute;
+                float defenderResult = defenderRoll * defender.RimWarPoints * defender.RWD.combatAttribute;
+                if(defender.isCapitol)
+                {
+                    defenderResult *= 1.15f;
+                }
                 float endPointsAttacker = 0f;
                 float endPointsDefender = 0f;
 
@@ -410,8 +414,8 @@ namespace RimWar.Planet
                 float combinedPoints = attacker.RimWarPoints + defender.RimWarPoints;
                 float attackerRoll = Rand.Value;
                 float defenderRoll = Rand.Value;
-                float attackerResult = attackerRoll * attacker.RimWarPoints;
-                float defenderResult = defenderRoll * defender.RimWarPoints;
+                float attackerResult = attackerRoll * attacker.RimWarPoints * attacker.rimwarData.combatAttribute;
+                float defenderResult = defenderRoll * defender.RimWarPoints * defender.rimwarData.combatAttribute;
                 float endPointsAttacker = 0f;
                 float endPointsDefender = 0f;
 
@@ -456,8 +460,8 @@ namespace RimWar.Planet
                 float combinedPoints = attacker.RimWarPoints + defenderTown.RimWarPoints;
                 float attackerRoll = Rand.Value;
                 float defenderRoll = Rand.Value;
-                float attackerResult = attackerRoll * attacker.RimWarPoints;
-                float defenderResult = defenderRoll * defenderTown.RimWarPoints;
+                float attackerResult = attackerRoll * attacker.RimWarPoints * attacker.rimwarData.combatAttribute;
+                float defenderResult = defenderRoll * defenderTown.RimWarPoints * defenderTown.RWD.combatAttribute;
                 float endPointsAttacker = 0f;
                 float endPointsDefender = 0f;
 
@@ -525,7 +529,7 @@ namespace RimWar.Planet
                     parms.generateFightersOnly = true;
                     parms.raidArrivalMode = arrivalMode;
                     parms.target = playerSettlement.Map;
-                    parms.points = points;
+                    parms.points = points * rwd.combatAttribute;
                     parms = ResolveRaidStrategy(parms, combat);
                     //Log.Message("raid strategy is " + parms.raidStrategy + " worker is " + parms.raidStrategy.workerClass);
                     parms.points = AdjustedRaidPoints((float)points, parms.raidArrivalMode, parms.raidStrategy, rwd.RimWarFaction, combat);
@@ -604,7 +608,7 @@ namespace RimWar.Planet
                     parms.generateFightersOnly = true;
                     parms.raidArrivalMode = arrivalMode;
                     parms.target = playerSettlement.Map;
-                    parms.points = points;
+                    parms.points = points * rwd.combatAttribute;
                     parms.raidStrategy = RaidStrategyDefOf.ImmediateAttackFriendly;// RaidStrategyOrRandom(RaidStrategyDefOf.ImmediateAttackFriendly);
                     parms.points = AdjustedRaidPoints((float)points, parms.raidArrivalMode, parms.raidStrategy, rwd.RimWarFaction, combat);
                     if(!WorldUtility.FactionCanFight((int)parms.points, parms.faction))
@@ -669,7 +673,7 @@ namespace RimWar.Planet
                 PawnGroupKindDef kindDef = groupDef;
                 parms.faction = warObject.Faction;
                 parms.raidArrivalMode = arrivalMode;
-                parms.points = warObject.RimWarPoints;
+                parms.points = warObject.RimWarPoints * rwd.combatAttribute;
                 parms.target = playerCaravan;
                 parms.raidStrategy = RaidStrategyOrRandom(RaidStrategyDefOf.ImmediateAttack);
                 //Log.Message("params init");
@@ -790,7 +794,7 @@ namespace RimWar.Planet
             RW_LetterMaker.Archive_RWLetter(let);
         }
 
-        public static void DoSettlementTradeWithPoints(WarObject warObject, RimWorld.Planet.Settlement playerSettlement, RimWarData rwd, PawnsArrivalModeDef arrivalMode)
+        public static void DoSettlementTradeWithPoints(WarObject warObject, RimWorld.Planet.Settlement playerSettlement, RimWarData rwd, PawnsArrivalModeDef arrivalMode, TraderKindDef traderKind)
         {
             if (rwd != null && Find.FactionManager.AllFactions.Contains(rwd.RimWarFaction) && !rwd.RimWarFaction.defeated)
             {
@@ -798,9 +802,10 @@ namespace RimWar.Planet
                 PawnGroupKindDef kindDef = PawnGroupKindDefOf.Trader;
                 parms.faction = rwd.RimWarFaction;
                 parms.raidArrivalMode = arrivalMode;
-                parms.points = warObject.RimWarPoints;
+                parms.points = warObject.RimWarPoints; 
                 parms.target = playerSettlement.Map;
-                if (!WorldUtility.FactionCanTrade( parms.faction))
+                parms.traderKind = traderKind;
+                if (!WorldUtility.FactionCanTrade(parms.faction))
                 {
                     Log.Warning(parms.faction.Name + " attempted to trade with player setttlement but has no defined trader kinds.");
                     return;

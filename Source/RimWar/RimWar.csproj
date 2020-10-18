@@ -147,7 +147,7 @@
     <Compile Include="RimWarBehavior.cs" />
     <Compile Include="RimWarDefData.cs" />
     <Compile Include="RimWarDef.cs" />
-    <Compile Include="Planet\Settlement.cs" />
+    <Compile Include="Planet\CapitolBuilding.cs" />
     <Compile Include="RimWarData.cs" />
     <Compile Include="Planet\Warband.cs" />
     <Compile Include="Planet\WarObject_GotoMoteRenderer.cs" />
@@ -163,6 +163,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility\ArrivalTimeEstimator.cs" />
     <Compile Include="Utility\Alert_NearbyRimWarObject.cs" />
+    <Compile Include="Utility\FactionDialogReMaker.cs" />
     <Compile Include="Utility\IncidentWorker_WarObjectRaid.cs" />
     <Compile Include="Utility\IncidentWorker_WarObjectDemand.cs" />
     <Compile Include="Utility\IncidentWorker_WarObjectMeeting.cs" />

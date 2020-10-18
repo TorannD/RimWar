@@ -14,6 +14,7 @@ namespace RimWar.Options
         public bool createDiplomats = Settings.Instance.createDiplomats;
         public bool useRimWarVictory = Settings.Instance.useRimWarVictory;
         public bool restrictEvents = Settings.Instance.restrictEvents;
+        public bool randomizeAttributes = Settings.Instance.randomizeAttributes;
 
         public int maxFactionSettlements = Settings.Instance.maxFactionSettlements;
         public float settlementScanRangeDivider = Settings.Instance.settlementScanRangeDivider;
