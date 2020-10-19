@@ -143,35 +143,41 @@ namespace RimWar
             int bestPts = 0;
             Settlement bestSelection = null;
             int index = 0;
-            for(int i = 0; i < WarSettlementComps.Count; i++)
+            if (WarSettlementComps != null && WarSettlementComps.Count > 0)
             {
-                if (bestSelection != null)
+                for (int i = 0; i < WarSettlementComps.Count; i++)
                 {
-                    if (WarSettlementComps[i].RimWarPoints > bestPts)
+                    if (bestSelection != null)
                     {
+                        if (WarSettlementComps[i].RimWarPoints > bestPts)
+                        {
+                            bestSelection = WarSettlementComps[i].parent as Settlement;
+                            bestPts = WarSettlementComps[i].RimWarPoints;
+                            index = i;
+                        }
+                    }
+                    else
+                    {
+                        index = i;
                         bestSelection = WarSettlementComps[i].parent as Settlement;
                         bestPts = WarSettlementComps[i].RimWarPoints;
-                        index = i;
                     }
                 }
-                else
+                if (bestSelection != null)
                 {
-                    index = i;
-                    bestSelection = WarSettlementComps[i].parent as Settlement;
-                    bestPts = WarSettlementComps[i].RimWarPoints;
-                }
+                    CapitolBuilding cap = (CapitolBuilding)WorldObjectMaker.MakeWorldObject(RimWarDefOf.RW_CapitolBuilding);
+                    cap.Tile = bestSelection.Tile;
+                    Find.WorldObjects.Add(cap);
+                    if (cap != null)
+                    {
+                        cap.SetFaction(this.RimWarFaction);
+                        capBuilding = cap;
+                    }
+                    capitol = bestSelection;
+                    capitolTile = capitol.Tile;
+                    WarSettlementComps[index].isCapitol = true;
+                }                
             }
-            if(bestSelection != null)
-            {
-                CapitolBuilding cap = (CapitolBuilding)WorldObjectMaker.MakeWorldObject(RimWarDefOf.RW_CapitolBuilding);
-                cap.Tile = bestSelection.Tile;
-                Find.WorldObjects.Add(cap);                
-                cap.SetFaction(this.RimWarFaction);
-                capBuilding = cap;
-            }
-            capitol = bestSelection;
-            capitolTile = capitol.Tile;
-            WarSettlementComps[index].isCapitol = true;
         }
 
         private List<RimWorld.Planet.Settlement> worldSettlements;
@@ -249,23 +255,30 @@ namespace RimWar
         {
             float closestDistance = 0f;
             RimWarSettlementComp closest = null;
-            for (int i = 0; i < WarSettlementComps.Count; i++)
+            if (WarSettlementComps != null && WarSettlementComps.Count > 0)
             {
-                if (closest != null)
+                for (int i = 0; i < WarSettlementComps.Count; i++)
                 {
-                    if(WarSettlementComps[i].RimWarPoints >= minPoints && Find.WorldGrid.ApproxDistanceInTiles(tile, WarSettlementComps[i].parent.Tile) < closestDistance)
+                    if (closest != null)
+                    {
+                        if (WarSettlementComps[i].RimWarPoints >= minPoints && Find.WorldGrid.ApproxDistanceInTiles(tile, WarSettlementComps[i].parent.Tile) < closestDistance)
+                        {
+                            closestDistance = Find.WorldGrid.TraversalDistanceBetween(tile, WarSettlementComps[i].parent.Tile);
+                            closest = WarSettlementComps[i];
+                        }
+                    }
+                    else if (WarSettlementComps[i].RimWarPoints >= minPoints)
                     {
                         closestDistance = Find.WorldGrid.TraversalDistanceBetween(tile, WarSettlementComps[i].parent.Tile);
                         closest = WarSettlementComps[i];
                     }
                 }
-                else if(WarSettlementComps[i].RimWarPoints >= minPoints)
+                if (closest != null)
                 {
-                    closestDistance = Find.WorldGrid.TraversalDistanceBetween(tile, WarSettlementComps[i].parent.Tile);
-                    closest = WarSettlementComps[i];
+                    return closest.parent as Settlement;
                 }
             }
-            return closest.parent as Settlement;
+            return null;
         }
 
 

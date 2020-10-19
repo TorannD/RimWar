@@ -141,7 +141,10 @@ namespace RimWar.Utility
             {
                 minPoints = (int)(Find.WorldObjects.SettlementAt(map.Tile).GetComponent<RimWarSettlementComp>().RimWarPoints * .75f);
                 wos = rwd.ClosestSettlementTo(map.Tile, minPoints);
-                daysToArrive = (float)Utility.ArrivalTimeEstimator.EstimatedTicksToArrive(wos.Tile, map.Tile, (int)(2000f/rwd.movementAttribute)) / 60000f;
+                if (wos != null)
+                {
+                    daysToArrive = (float)Utility.ArrivalTimeEstimator.EstimatedTicksToArrive(wos.Tile, map.Tile, (int)(2000f / rwd.movementAttribute)) / 60000f;
+                }
             }
             string text = "RequestMilitaryAid".Translate(requestCost);
             if (wos != null)
@@ -229,7 +232,10 @@ namespace RimWar.Utility
             {
                 minPoints = (int)(Find.WorldObjects.SettlementAt(map.Tile).GetComponent<RimWarSettlementComp>().RimWarPoints * 1.15f);
                 wos = rwd.ClosestSettlementTo(map.Tile, minPoints);
-                daysToArrive = (float)Utility.ArrivalTimeEstimator.EstimatedTicksToArrive(wos.Tile, map.Tile, (int)(2800f * (1f/rwd.movementAttribute))) / 60000f;
+                if (wos != null)
+                {
+                    daysToArrive = (float)Utility.ArrivalTimeEstimator.EstimatedTicksToArrive(wos.Tile, map.Tile, (int)(2800f * (1f / rwd.movementAttribute))) / 60000f;
+                }
             }
             string text = "RequestMilitaryAid".Translate(requestCost);
             if (wos != null)
@@ -317,7 +323,10 @@ namespace RimWar.Utility
             {
                 minPoints = (int)(Find.WorldObjects.SettlementAt(map.Tile).GetComponent<RimWarSettlementComp>().RimWarPoints *.9f);
                 wos = rwd.ClosestSettlementTo(map.Tile, minPoints);
-                daysToArrive = (float)Utility.ArrivalTimeEstimator.EstimatedTicksToArrive(wos.Tile, map.Tile, 100) / 60000f;
+                if (wos != null)
+                {
+                    daysToArrive = (float)Utility.ArrivalTimeEstimator.EstimatedTicksToArrive(wos.Tile, map.Tile, 100) / 60000f;
+                }
             }
             string text = "RequestMilitaryAid".Translate(requestCost);
             if (wos != null)
@@ -413,7 +422,10 @@ namespace RimWar.Utility
             if (rwd != null)
             {
                 wos = rwd.ClosestSettlementTo(map.Tile, 200);
-                daysToArrive = (float)Utility.ArrivalTimeEstimator.EstimatedTicksToArrive(wos.Tile, map.Tile, (int)(2500f/rwd.movementAttribute)) / 60000f;
+                if (wos != null)
+                {
+                    daysToArrive = (float)Utility.ArrivalTimeEstimator.EstimatedTicksToArrive(wos.Tile, map.Tile, (int)(2500f / rwd.movementAttribute)) / 60000f;
+                }
             }
             TaggedString taggedString = "RequestTrader".Translate(requestCost);
             if (wos != null)

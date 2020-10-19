@@ -441,7 +441,7 @@ namespace RimWar.Harmony
 
         private static void Settlement_InspectString_WithPoints_Postfix(RimWorld.Planet.Settlement __instance, ref string __result)
         {
-            if (!__instance.Faction.def.hidden)
+            if (__instance != null && !__instance.Faction.def.hidden)
             {
                 RimWarSettlementComp rwsc = __instance.GetComponent<RimWarSettlementComp>();
                 RimWarData rwd = WorldUtility.GetRimWarDataForFaction(__instance.Faction);
@@ -454,7 +454,7 @@ namespace RimWar.Harmony
                     }
                     
                     text += "RW_SettlementPoints".Translate(rwsc.RimWarPoints + "\n" + "RW_FactionBehavior".Translate(rwd.behavior.ToString()));
-                    if(rwd.GetCapitol == __instance)
+                    if(rwd.GetCapitol != null && rwd.GetCapitol == __instance)
                     {
                         text += "\n" + "RW_Capitol".Translate();
                     }
